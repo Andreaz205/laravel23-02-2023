@@ -1,0 +1,81 @@
+<?php
+namespace Database\Seeders;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
+class BasicAdminPermissionSeeder extends Seeder
+{
+    /**
+     * Create the initial roles and permissions.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        // create permissions
+        $permissions = [
+            'permission list',
+            'permission create',
+            'permission edit',
+            'permission delete',
+            'role list',
+            'role create',
+            'role edit',
+            'role delete',
+            'user list',
+            'user create',
+            'user edit',
+            'user delete',
+            'contact list',
+            'contact create',
+            'contact edit',
+            'contact delete',
+            'admin list',
+            'admin create',
+            'admin edit',
+            'admin delete',
+        ];
+        foreach ($permissions as $permission) {
+            Permission::create(['name' => $permission]);
+        }
+        // create roles and assign existing permissions
+//        $role1 = Role::create(['name' => 'writer']);
+//        $role1->givePermissionTo('permission list');
+//        $role1->givePermissionTo('role list');
+//        $role1->givePermissionTo('user list');
+//        $role1->givePermissionTo('post list');
+//        $role1->givePermissionTo('post create');
+//        $role1->givePermissionTo('post edit');
+//        $role1->givePermissionTo('post delete');
+//        $role2 = Role::create(['name' => 'admin']);
+//        foreach ($permissions as $permission) {
+//            $role2->givePermissionTo($permission);
+//        }
+        $role3 = Role::create(['name' => 'super-admin']);
+        // gets all permissions via Gate::before rule; see AuthServiceProvider
+        // create demo users
+        $user = \App\Models\Admin::factory()->create([
+            'name' => 'Super Admin',
+            'email' => 'admin@mail.ru',
+        ]);
+//        foreach ($permissions as $permission) {
+//            $user->givePermissionTo($permission);
+//        }
+        $user->assignRole($role3);
+//        $user->givePermissionTo('');
+//        $user = \App\Models\User::factory()->create([
+//            'name' => 'Admin User',
+//            'email' => 'admin@laraveltuts.com',
+//        ]);
+//        $user->givePermissionTo('post list');
+//        $user->assignRole($role2);
+        $user = \App\Models\Admin::factory()->create([
+            'name' => 'Example User',
+            'email' => 'user@mail.ru',
+        ]);
+//        $user->assignRole($role1);
+    }
+}
