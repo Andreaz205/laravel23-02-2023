@@ -69,29 +69,45 @@
                                         <th>Остаток</th>
                                         <th>Артикул</th>
                                         <th>Цена</th>
-                                        <th>Старая цена</th>
-                                        <th>Цена закупки</th>
                                     </tr>
                                     </thead>
                                     <tbody v-if="products && products.length">
-                                    <tr v-for="product in products">
-                                        <td>{{ product.id }}</td>
-                                        <td>
-                                            <img v-if="product?.images" :src="product?.images[0]?.image_url || '/storage/images/no-image.jpg'" alt="" width="100" height="100">
-                                        </td>
-                                        <td>
-                                            <Link :href="'/admin/products/' + product.id">
-                                                {{ product.title }}
-                                            </Link>
-                                        </td>
-                                        <td>{{ product?.quantity }}</td>
-                                        <td>{{ product?.variants?.length || 0}} вариантов</td>
-                                        <td>{{ product?.price }}</td>
-                                        <td>{{ product?.old_price }}</td>
-                                        <td>{{ product?.purchase_price }}</td>
-                                    </tr>
+<!--                                        <Link :href="'/admin/products/' + product.id" v-for="product in products">-->
+                                            <tr v-for="product in products" @click="visitProduct(product)" class="cursor-pointer h-[100px]" :title="product.title">
+                                                <td>{{ product.id }}</td>
+                                                <td>
+                                                    <img v-if="product?.images" :src="product?.images[0]?.image_url || '/storage/images/no-image.jpg'" alt="" width="100" height="100">
+                                                </td>
+                                                <td>
+                                                    {{ product.title }}
+                                                </td>
+                                                <td>{{ product?.quantity }}</td>
+                                                <td>{{ product?.variants_count}} вариантов</td>
+                                                <td>{{ product?.min_max_price['min_price']}} P  -
+                                                    {{ product?.min_max_price['max_price'] }} P</td>
+                                            </tr>
+<!--                                        </Link>-->
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="card-footer clearfix" v-if="pagination">
+                                <ul class="flex justify-start items-center">
+                                    <li  v-if="productsData.current_page !== 1" class="h-[32px] cursor-pointer border-[1px] p-1 rounded-sm border-blue-500 bg-white mx-[2px]">
+                                        <Link :href="productsData.prev_page_url" >«</Link>
+                                    </li>
+
+                                    <li v-for="link in calcPagination">
+<!--                                        <span :class="{active : link.active}" class="page-link" @click="fetchOrdersPage(link.url)">{{link.label}}</span>-->
+                                        <span
+                                            :class="['cursor-pointer border-[1px] rounded-sm border-blue-500 bg-white p-1 mx-[2px]', {'bg-gray': link.active}]"
+                                            @click="fetchProductsPage(link.url)"
+                                        >{{link.label}}</span>
+                                    </li>
+
+                                    <li v-if="productsData.current_page !== productsData.last_page" class="h-[32px] cursor-pointer border-[1px] p-1 rounded-sm border-blue-500 bg-white mx-[2px]">
+                                        <Link :href="productsData.next_page_url">»</Link>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -106,8 +122,7 @@
 
 <script>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import {router} from '@inertiajs/vue3';
-import {Link} from '@inertiajs/vue3';
+import {router, Link} from '@inertiajs/vue3';
 export default {
     name: "Products",
     components: {AuthenticatedLayout, Link},
@@ -118,10 +133,14 @@ export default {
     data () {
         return {
             productName: null,
-            products: this.$props.productsData
+            products: this.$props.productsData?.data,
+            pagination: this.productsData?.links
         }
     },
     methods: {
+        fetchProductsPage(url) {
+            router.visit(url)
+        },
         async storeProduct() {
             let {data: newProduct} = await axios.post('/admin/products', {title: this.productName})
             this.products.push(newProduct)
@@ -129,8 +148,16 @@ export default {
                 //     '/admin/product', {
                 //     method: 'GET'
                 // })
+        },
+        visitProduct(product) {
+            router.visit(`/admin/products/${product.id}`)
+        },
+    },
+    computed: {
+        calcPagination () {
+            return this.pagination?.slice(1, -1)
         }
-    }
+    },
 }
 </script>
 

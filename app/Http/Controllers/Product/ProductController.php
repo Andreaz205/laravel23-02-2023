@@ -4,16 +4,15 @@ namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreRequest;
-use App\Http\Resources\Category\CategoryResource;
 use App\Http\Services\Product\ProductService;
-use App\Models\Category;
+use App\Models\Group;
 use App\Models\Product;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
 class ProductController extends Controller
 {
     protected ProductService $service;
+
     public function __construct(ProductService $service)
     {
         $this->service = $service;
@@ -25,8 +24,12 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Product::with('images')->get();
-        $products = $this->service->aggregateOptionsForCollection($products);
+        $products = Product::with('images')->withCount('variants')->paginate(20);
+        foreach ($products as $product) {
+            $product->min_max_price = $product->getMinMaxPriceAttribute();
+            $product->quantity = $product->getQuantityAttribute();
+        }
+
         return inertia('Product/Index', [
             'productsData' => $products,
             'can-products' => [
@@ -43,6 +46,9 @@ class ProductController extends Controller
     {
         $data = $request->validated();
         $product = Product::create($data);
+        $product->min_max_price = $product->getMinMaxPriceAttribute();
+        $product->quantity = 0;
+        $product->variants_count = 0;
         return Response::json($product);
 
     }
@@ -53,10 +59,12 @@ class ProductController extends Controller
         $product->images = $product->images()->orderBy('position', 'ASC')->get();
         $product->variants = $product->variants()->with(['option_values', 'images'])->get();
         $categories = $this->service->categoriesWithCheckedProp($product);
+        $groups = Group::where('is_visible_in_products', true)->get();
 
         return inertia('Product/Show', [
             'productData' => $product,
             'categoriesData' => $categories,
+            'groupsData' => $groups,
             'can-products' => [
                 'list' => Auth('admin')->user()->can('product list'),
                 'create' => Auth('admin')->user()->can('product create'),

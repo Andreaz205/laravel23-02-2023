@@ -32,7 +32,7 @@ class CreatePermissionTables extends Migration
             $table->timestamps();
 
             $table->unique(['name', 'guard_name']);
-            $table->softDeletes();
+
         });
 
         Schema::create($tableNames['roles'], function (Blueprint $table) use ($teams, $columnNames) {
@@ -49,7 +49,7 @@ class CreatePermissionTables extends Migration
             } else {
                 $table->unique(['name', 'guard_name']);
             }
-            $table->softDeletes();
+
         });
 
         Schema::create($tableNames['model_has_permissions'], function (Blueprint $table) use ($tableNames, $columnNames, $teams) {
@@ -73,7 +73,6 @@ class CreatePermissionTables extends Migration
                 $table->primary([PermissionRegistrar::$pivotPermission, $columnNames['model_morph_key'], 'model_type'],
                     'model_has_permissions_permission_model_type_primary');
             }
-            $table->softDeletes();
         });
 
         Schema::create($tableNames['model_has_roles'], function (Blueprint $table) use ($tableNames, $columnNames, $teams) {
@@ -97,7 +96,7 @@ class CreatePermissionTables extends Migration
                 $table->primary([PermissionRegistrar::$pivotRole, $columnNames['model_morph_key'], 'model_type'],
                     'model_has_roles_role_model_type_primary');
             }
-            $table->softDeletes();
+
         });
 
         Schema::create($tableNames['role_has_permissions'], function (Blueprint $table) use ($tableNames) {
@@ -115,7 +114,7 @@ class CreatePermissionTables extends Migration
                 ->onDelete('cascade');
 
             $table->primary([PermissionRegistrar::$pivotPermission, PermissionRegistrar::$pivotRole], 'role_has_permissions_permission_id_role_id_primary');
-            $table->softDeletes();
+
         });
 
         app('cache')

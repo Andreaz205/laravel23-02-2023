@@ -7,6 +7,7 @@ use App\Http\Requests\Variant\DeleteVariantsRequest;
 use App\Http\Requests\Variant\UpdateVariantFieldRequest;
 use App\Http\Resources\Variant\CreatedVariantResource;
 use App\Http\Services\Variant\VariantService;
+use App\Models\OptionName;
 use App\Models\OptionValue;
 use App\Models\OptionValueVariants;
 use App\Models\Product;
@@ -32,6 +33,9 @@ class VariantController extends Controller
     public function store(Product $product, Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'newOptions' => 'array',
+            'newOptions.*.name' => 'required|string',
+            'newOptions.*.value' => 'required|string',
             'newValues' => 'array',
             'newValues.*.value' => 'required|string',
             'newValues.*.name_id' => 'required|integer|exists:option_names,id',
@@ -44,22 +48,45 @@ class VariantController extends Controller
         }
         // 'newValues' => ['value' => 'someValue', 'name_id' => id ]
         $data = $validator->validated();
-        $newValues = $data['newValues'];
-        $values = $data['values'];
-
+        $newValues = $data['newValues'] ?? null;
+        $values = $data['values'] ?? null;
+        $newOptions = $data['newOptions'] ?? null;
         try {
-            $error = $this->variantService->validateVariantWhenCreate($values, $newValues, $product);
+            $error = $this->variantService->validateVariantWhenCreate($values, $newValues, $newOptions, $product);
             if (isset ($error)) {
                 if ($error === 'empty_options') return Response::json(['error' => 'Невозможно создать вариант без свойств!'], 400);
                 if ($error === 'new_value_already_exists') return Response::json(['error' => 'Невозможно добавить значение для свойства, т.к. оно уже существет!'], 400);
                 if ($error === 'variant_with_options_already_exists') return Response::json(['error' => 'Вариант с указанными свойствами уже существет!'], 400);
             }
-
             DB::beginTransaction();
             $variant = Variant::create([
                 'product_id' => $product->id
             ]);
-            if (isset($newValues) and isset($values)) {
+
+            $productOptionNames = $product->option_names;
+            if (isset($newOptions) && (count($newOptions) > 0) && count($productOptionNames) < 1) {
+                foreach ($newOptions as $newOption) {
+
+                    $newOptionValue = OptionValue::create([
+                        'title' => $newOption['value'],
+                        'product_id' => $product->id,
+                    ]);
+                    $newOptionName = OptionName::create([
+                        'title' => $newOption['name'],
+                        'product_id' => $product->id,
+                        'default_option_value_id' => $newOptionValue->id
+                    ]);
+                    $newOptionValue->update([
+                        'option_name_id' =>  $newOptionName->id,
+                    ]);
+                    OptionValueVariants::create([
+                        'variant_id' => $variant->id,
+                        'option_value_id' => $newOptionValue->id,
+                    ]);
+                }
+            }
+
+            else if (isset($newValues) and isset($values)) {
                 foreach($newValues as $newValue) {
                     $createdValue = OptionValue::firstOrCreate([
                         'title' => $newValue['value'],
@@ -108,6 +135,7 @@ class VariantController extends Controller
             return Response::json(['error' => 'No values exists in request!'], 400);
         }
         Variant::whereIn('id', $result)->delete();
+        OptionValueVariants::whereIn('variant_id', $result)->delete();
         return Response::json(['status' => 'Deleted successfully!']);
     }
 }

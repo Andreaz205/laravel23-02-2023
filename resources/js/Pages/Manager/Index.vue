@@ -32,7 +32,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header flex justify-between items-center">
                                 <a
                                     v-if="canManagers.create"
                                     @click="toggleManagerPopup(true)"
@@ -40,6 +40,8 @@
                                 >
                                     Добавить
                                 </a>
+                                <Link class="underline font-bold text-blue-400" href="/admin/roles">Роли</Link>
+                                <Link class="underline font-bold text-blue-400" href="/admin/permissions">Доступы</Link>
                             </div>
 
                             <div class="card-body table-responsive p-0">

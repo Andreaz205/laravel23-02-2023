@@ -200,6 +200,14 @@ export default {
                                 <!--                            </a>-->
                             </li>
 
+                            <li class="nav-item">
+                                <Link href="/admin/abilities" class="nav-link">
+                                    <!--                            <a href="/admin/rooms" class="nav-link">-->
+                                    <i class="nav-icon fas fa-key"></i>
+                                    <p>Роли и доступы</p>
+                                </Link>
+                                <!--                            </a>-->
+                            </li>
                         </ul>
                     </nav>
                     <!-- /.sidebar-menu -->

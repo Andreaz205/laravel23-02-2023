@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('old_price')->nullable();
             $table->integer('purchase_price')->nullable();
             $table->integer('quantity')->nullable();
+            $table->integer('views')->default(0);
             $table->foreignId('product_id')->index()->constrained('products')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();

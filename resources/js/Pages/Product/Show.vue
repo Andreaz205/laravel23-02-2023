@@ -59,6 +59,33 @@
             </div>
         </div>
 
+        <!--    TODO: Модальное окно для редактирования свойства в целом-->
+        <div class="modal fade" id="editOptionModal" tabindex="-1" role="dialog" aria-labelledby="optionNameColorModal"
+             aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Редактировать свойство</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Отображать свойтсво как цвет товара</label>
+                            <CustomSwitch :is-checked="selectedOptionName?.is_color" :switch-id="'option-name-' + selectedOptionName?.id" @changeSwitch="onChangeOptionColor"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
+                        </button>
+<!--                        <button type="button" class="btn btn-primary bg-blue-500" @click="saveOption">Сохранить-->
+<!--                        </button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!--    TODO: Модальное окно для создания варианта-->
         <div class="modal fade" id="createVariantModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
              aria-hidden="true">
@@ -110,14 +137,21 @@
                                     </div>
                                 </div>
                                 <div class="row" v-for="option in variantCreatingOptions">
-                                    <div class="col-xl-10">
+                                    <div class="col-5">
                                         <div class="form-group">
                                             <label>Название свойства</label>
-                                            <input type="text" class="form-control" v-model="option.value"
-                                                   placeholder="Введите название свойства по умолчанию">
+                                            <input type="text" class="form-control" v-model="option.name"
+                                                   placeholder="Введите название свойства">
                                         </div>
                                     </div>
-                                    <div class="col-xl-2 flex justify-center items-center">
+                                    <div class="col-5">
+                                        <div class="form-group">
+                                            <label>Значение по умолчанию</label>
+                                            <input type="text" class="form-control" v-model="option.value"
+                                                   placeholder="Введите значение по умолчанию">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-2 flex justify-center items-center" v-if="option.id !== 1">
                                         <button class="btn btn-danger" @click="deleteVariantCreatingOption(option.id)">
                                             Удалить
                                         </button>
@@ -138,13 +172,64 @@
             </div>
         </div>
 
+        <!--    TODO: Модальное окно для редактирования свойств варианта-->
+        <div class="modal fade" id="changeVariantOptionsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Редактировать свойства</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <template v-if="selectedVariant">
+                            <div class="container-fluid" v-for="option_name in product.option_names">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>{{ option_name.title }}</label>
+                                            <select class="custom-select"
+                                                    @change="handleClickChangeVariantOptionValue($event, option_name)"
+                                                    :value="selectedVariant.option_values.find(value => value.option_name_id === option_name.id)?.id">
+                                                <option value="new">Добавить новое значение</option>
+                                                <option v-for="(value) in option_name.option_values" :value="value.id">
+                                                    {{ value.title }}
+                                                </option>
+                                            </select>
+                                            <form v-if="option_name.edit_form_data_is_new" @submit="onSubmitEditOptionsFormNewValue($event, option_name)">
+                                                <div class="form-group" >
+                                                    <label>Введите значение</label>
+                                                    <input class="form-control" type="text" placeholder="Введите значение">
+                                                </div>
+                                                <div class="form-group">
+                                                    <button class="btn btn-primary bg-blue" type="submit">Сохранить</button>
+                                                </div>
+                                            </form>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!--    TODO: Модальное окно для удаления существующих свойств-->
         <div class="modal fade" id="deleteOptionsModal" tabindex="-1" role="dialog"
              aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                        <h5 class="modal-title" id="exampleModalLongTitle">Удалить свойства</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -152,7 +237,7 @@
                     <div class="modal-body">
 
                         <div class="container-fluid" v-if="product.option_names">
-                            <div class="row" v-for="name in product.option_names">
+                            <div class="row my-2" v-for="name in product.option_names">
                                 <div class="col-sm-6">
                                     <span>{{ name.title }}</span>
                                 </div>
@@ -183,7 +268,7 @@
                     </div>
                     <div class="modal-body">
 
-                        <ModalImages :product="product" :selected-variant-images="selectedVariantImages"/>
+                        <ModalImages :product="product" :selected-variant-images="selectedVariant"/>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
@@ -245,6 +330,15 @@
                                                     {{ parameter.value }}
                                                 </span>
                                                 </div>
+                                            </div>
+                                            <div>
+                                                <div>Размеры</div>
+                                                <div>Длина - {{product.length}}</div>
+                                                <div>Ширина - {{product.width}}</div>
+                                                <div>Высота - {{product.height}}</div>
+                                            </div>
+                                            <div>
+                                                Параметры
                                             </div>
                                         </div>
                                     </div>
@@ -361,12 +455,27 @@
                                 <th style="width: 50px"></th>
                                 <th>Фото</th>
                                 <template v-if="product.option_names && product.option_names.length">
-                                    <th v-for="optionName in product.option_names">{{ optionName.title }}</th>
+                                    <th v-for="optionName in product.option_names">
+                                        <button
+                                            @click="setSelectedOptionName(optionName)"
+                                            type="button"
+                                            data-toggle="modal" data-target="#editOptionModal"
+                                        >
+                                            <span class="mr-1">{{ optionName.title }}</span>
+                                            <i class="fas fa-palette" v-if="optionName.is_color"></i>
+
+                                        </button>
+                                    </th>
                                 </template>
                                 <th>Артикул</th>
                                 <th>Цена продажи</th>
                                 <th>Старая цена</th>
                                 <th>Цена закупки</th>
+
+                                <th v-for="group in groups">
+                                    {{group.title}}
+                                </th>
+
                                 <th>Остаток</th>
                                 <th style="width: 100px;">
                                 </th>
@@ -384,7 +493,7 @@
                                     <div class="flex justify-center">
                                         <div class="image-button">
                                             <button
-                                                @click="setSelectedVariantImages(variant)"
+                                                @click="setSelectedVariant(variant)"
                                                 v-if="variant.images && variant.images.length"
                                                 data-toggle="modal" data-target="#bindImagesToVariant"
                                                 type="button"
@@ -392,7 +501,7 @@
                                                 <img :src="variant.images[0].image_url" alt="" width="100" height="100">
                                             </button>
                                             <button v-else
-                                                    @click="setSelectedVariantImages(variant)"
+                                                    @click="setSelectedVariant(variant)"
                                                     data-toggle="modal" data-target="#bindImagesToVariant"
                                                     type="button"
                                             >
@@ -407,7 +516,11 @@
 
                                         <td v-if="name.id === value.option_name_id">
                                             <div class="flex justify-center previous-column">
-                                                <span>{{ value.title }}</span>
+                                                <button
+                                                    data-toggle="modal" data-target="#changeVariantOptionsModal"
+                                                    type="button"
+                                                    @click="setSelectedVariant(variant)"
+                                                >{{ value.title }}</button>
                                             </div>
                                         </td>
 
@@ -456,6 +569,27 @@
                                         </div>
                                     </div>
                                 </td>
+
+                                <template v-if="groups && groups.length">
+                                    <td v-for="group in groups">
+<!--                                    <div class="flex justify-center previous-column">-->
+<!--                                        <div data-field="quantity" @focusout="updateField($event, variant)"-->
+<!--                                             v-if="variant.quantity" contenteditable="true">{{ variant.quantity }}-->
+<!--                                        </div>-->
+<!--                                        <div data-field="quantity" @focusout="updateField($event, variant)" v-else-->
+<!--                                             contenteditable="true">—-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+
+                                            <div class="flex justify-center previous-column">
+                                                <div v-if="variant.price">{{ variant.price + (variant.price * (group.percents) / 100)}}
+                                                </div>
+                                                <div data-field="quantity" @click="addFocus" @focusout="updateField($event, variant)" v-else
+                                                     contenteditable="true">—
+                                                </div>
+                                            </div>
+                                    </td>
+                                </template>
                                 <td>
                                     <div class="flex justify-center previous-column">
                                         <div data-field="quantity" @focusout="updateField($event, variant)"
@@ -466,6 +600,8 @@
                                         </div>
                                     </div>
                                 </td>
+
+
 
                                 <td style="width: 50px;">
                                     <!--                                    <form :action="'/admin/variants/' + variant.id +  '/edit'" method="GET">-->
@@ -491,10 +627,12 @@ import {Link, router} from "@inertiajs/vue3";
 import ProductCategories from '@/Pages/Product/ProductCategories.vue'
 import DraggableProductImages from '@/Pages/Product/DraggableProductImages.vue'
 import ModalImages from '@/Pages/Product/ModalImages.vue'
+import CustomSwitch from "@/Components/CustomSwitch.vue";
 
 export default {
     name: "Product",
     components: {
+        CustomSwitch,
         AuthenticatedLayout,
         Link,
         ProductCategories,
@@ -505,12 +643,15 @@ export default {
     props: [
         'productData',
         'categoriesData',
-        'canProducts'
+        'canProducts',
+        'groupsData'
     ],
     data() {
         return {
-            variantImagesWithoutBound: null,
-            selectedVariantImages: null,
+            selectedOptionName: null,
+            groups: this.groupsData,
+            changeVariantFormData: [],
+            selectedVariant: null,
             creatingVariantFormData: this.$props.productData?.option_names,
             optionNames: null,
             isDeleteOptionOpen: null,
@@ -524,13 +665,18 @@ export default {
                     defaultValue: null
                 }
             ],
-            variantCreatingOptions: {
+            variantCreatingOptions: [{
                 id: 1,
-            },
+                name: null,
+                value: null
+            }],
             optionsForDeleteForm: null
         }
     },
     methods: {
+        addFocus(e) {
+          e.target.focus()
+        },
         async updateField(event, variant) {
             try {
                 let fieldName = event.target.dataset.field
@@ -558,20 +704,27 @@ export default {
                 let data = {
                     images_ids: imagesIds
                 }
-                let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariantImages.id}/photos/bind`, data)
+                let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant.id}/photos/bind`, data)
                 console.log(response)
                 this.product = response.data.data
             } catch (e) {
                 alert(e)
             }
         },
-        setSelectedVariantImages(variant) {
-            this.selectedVariantImages = variant
+        setSelectedVariant(variant) {
+            this.selectedVariant = variant
+            this.product.option_names.map(name => name.edit_form_data_is_new = false)
         },
         async deleteOption(optionNameId) {
             try {
                 await axios.delete(`/admin/products/${this.product.id}/options/${optionNameId}`)
                 this.product.option_names = this.product.option_names.filter(name => name.id !== optionNameId)
+                if (!this.product.option_names || (this.product.option_names && !this.product.option_names.length)) {
+                    this.creatingVariantFormData = null
+                    this.variantCreatingOptions = [{id: 1, name: null, value: null}]
+                }
+
+
             } catch (e) {
                 alert(e)
             }
@@ -590,28 +743,37 @@ export default {
         },
         async createVariant() {
             try {
+                let newOptionValues = []
                 let optionsForBind = []
+                let data
+                if (this.product.option_names && this.product.option_names.length) {
+                    this.creatingVariantFormData.map(item => {
+                        if (item.creating_variant_selected_id !== 'new') {
+                            optionsForBind.push(item.creating_variant_selected_id)
+                        }
+                    })
 
-                this.creatingVariantFormData.map(item => {
-                    if (item.creating_variant_selected_id !== 'new') {
-                        optionsForBind.push(item.creating_variant_selected_id)
+                    this.creatingVariantFormData.map(item => {
+                        if (item.is_new) {
+                            newOptionValues.push({
+                                'value': item.new_value,
+                                'name_id': item.id,
+                            })
+                        }
+                    })
+                    data = {
+                        newValues: newOptionValues,
+                        values: optionsForBind
                     }
-                })
-                let newOptions = []
-                this.creatingVariantFormData.map(item => {
-                    if (item.is_new) {
-                        newOptions.push({
-                            'value': item.new_value,
-                            'name_id': item.id,
-                        })
+                    let response = await axios.post(`/admin/products/${this.product.id}/variants`, data)
+                    this.product.variants.push(response.data.data)
+                } else {
+                    data = {
+                        newOptions: this.variantCreatingOptions,
                     }
-                })
-                let data = {
-                    newValues: newOptions,
-                    values: optionsForBind
+                    await axios.post(`/admin/products/${this.product.id}/variants`, data)
+                    location.reload()
                 }
-                let response = await axios.post(`/admin/products/${this.product.id}/variants`, data)
-                this.product.variants.push(response.data.data)
             } catch (e) {
                 alert(e)
             }
@@ -622,9 +784,32 @@ export default {
             }
             this.variantCreatingOptions = this.variantCreatingOptions.filter(option => option.id !== id)
         },
+        async handleClickChangeVariantOptionValue(event, optionName) {
+            try {
+                let optionValueId = event.target.options[event.target.options.selectedIndex].value
+                if (optionValueId === 'new') {
+                    optionName.edit_form_data_is_new = true
+                } else {
+                    let data = {
+                        option_name_id: optionName.id,
+                        option_value_id: Number(optionValueId),
+                    }
+                    let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant?.id}/options/bind`, data)
+                    let updatedOptionValue = response.data.data
+                    console.log(this.selectedVariant.option_values)
+                    this.selectedVariant.option_values = this.selectedVariant.option_values.filter(value => value.option_name_id !== optionName.id)
+                    console.log(this.selectedVariant.option_values)
+                    this.selectedVariant.option_values.push(updatedOptionValue)
+                }
+
+            } catch (e) {
+                alert(e)
+            }
+
+        },
         addVariantCreatingOption() {
             let lastId = this.variantCreatingOptions[this.variantCreatingOptions.length - 1].id + 1
-            this.variantCreatingOptions.push({id: lastId, value: null})
+            this.variantCreatingOptions.push({id: lastId, name: null, value: null})
         },
         handleClickCreateVariantOptionValue(event, dataItem) {
             let selectedIndex = event.target.options.selectedIndex
@@ -693,9 +878,6 @@ export default {
                     if (!variantsIdsToDelete || !variantsIdsToDelete.length) {
                         return alert('Вы не выбрали варианты!')
                     }
-                    // let data = {
-                    //     'variants_ids': variantsIdsToDelete
-                    // }
 
                     await axios.delete(`/admin/products/${this.product.id}/variants?images_ids=${variantsIdsToDelete}`)
                     variantsIdsToDelete.map(variantToDelete => {
@@ -705,6 +887,40 @@ export default {
             } catch (e) {
 
             }
+        },
+        async onSubmitEditOptionsFormNewValue(event, optionName) {
+            try {
+                event.preventDefault()
+                let formElements = [...event.target.elements]
+                let newValueInputElement = formElements.find(formElement => formElement.classList.contains('form-control'))
+                let newValue = newValueInputElement.value
+                let data = {
+                    'option_name_id': optionName.id,
+                    'value':newValue,
+                }
+                let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant.id}/options/bind-with-new-value`, data)
+                let newOptionValue = response.data.data
+
+                this.selectedVariant.option_values = this.selectedVariant.option_values.filter(value => value.option_name_id !== optionName.id)
+                this.selectedVariant.option_values.push(newOptionValue)
+
+            } catch (e) {
+                alert(e)
+            }
+
+        },
+        async onChangeOptionColor() {
+            try {
+
+                let response = await axios.get(`/admin/products/${this.product.id}/options/${this.selectedOptionName?.id}/toggle-is-color`)
+                this.product.option_names.map(name => name.is_color = false)
+                this.selectedOptionName.is_color = response.data
+            } catch (e) {
+                alert(e)
+            }
+        },
+        setSelectedOptionName(optionName) {
+            this.selectedOptionName = optionName
         }
     },
     mounted() {

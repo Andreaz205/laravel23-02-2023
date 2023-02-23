@@ -19,7 +19,7 @@ class OptionNamesResource extends JsonResource
             'default_option_value_id' => $this->default_option_value_id,
             'product_id' => $this->product_id,
             'title' => $this->title,
-            'option_values' => $this->option_values,
+            'option_values' => OptionValuesResource::collection($this->option_values),
         ];
     }
 }

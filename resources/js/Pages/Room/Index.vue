@@ -94,7 +94,7 @@
                                 @click="updateImage('delete', room)">
                             Удалить фото
                         </button>
-                        <button class="btn btn-default absolute top-0 right-0"
+                        <button class="btn btn-default absolute top-0 left-0"
                                 @click="updateImage('change', room)">
                             Заменить фото
                         </button>

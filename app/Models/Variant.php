@@ -13,7 +13,7 @@ class Variant extends Model
 
     public function option_values()
     {
-        return $this->belongsToMany(OptionValue::class, OptionValueVariants::class, 'variant_id', 'option_value_id');
+        return $this->belongsToMany(OptionValue::class, OptionValueVariants::class, 'variant_id', 'option_value_id')->where('option_value_variants.deleted_at', null);
     }
 
     public function images()
@@ -35,7 +35,7 @@ class Variant extends Model
 
     public function variantCategories()
     {
-        return $this->belongsToMany(Category::class, 'category_variants');
+        return $this->belongsToMany(Category::class, 'category_variants')->where('category_variants.deleted_at', null);
     }
 
     public function getRelatedVariantsAttribute()

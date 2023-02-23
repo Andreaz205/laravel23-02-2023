@@ -13,6 +13,12 @@ class OptionValue extends Model
 
     protected $table = 'option_values';
     protected $guarded = false;
+
+    public function getColorLinkAttribute()
+    {
+        $variantsIds = OptionValueVariants::where('option_value_id', $this->id)->pluck('id')->toArray();
+        return Variant::whereIn('id', $variantsIds)->get();
+    }
 //    protected $with = ['option_name'];
 
 //    public function option_name()

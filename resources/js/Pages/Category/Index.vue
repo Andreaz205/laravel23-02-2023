@@ -96,9 +96,6 @@
                                     >
                                         <i class="fas fa-plus" ></i>
                                     </button>
-                                    <button id="close" class="mr-2">
-                                        <i class="fas fa-times" ></i>
-                                    </button>
                                     <form id="edit">
                                         <button type="button"
                                                 data-toggle="modal" data-target="#editCategoryButton">
@@ -120,8 +117,15 @@
                                         <table class="table table-hover">
                                             <tbody>
                                                 <template v-if="categories && categories.length">
-                                                    <template v-for="category in categories">
-                                                        <CategoryRow v-if="!category.parent_category_id" :selected-category="selectedCategory" :category="category" :key="category.id" @changeSelectedCategory="changeSelectedCategory"/>
+                                                    <template v-for="category in categories" :key="category.id">
+                                                        <CategoryRow
+                                                            v-if="!category.parent_category_id"
+                                                            :change-selected-category="changeSelectedCategory"
+                                                            :selected-category="selectedCategory"
+                                                            :category="category"
+                                                            @deleteCategory="deleteMainCategory"
+                                                            @changeSelectedCategory="changeSelectedCategory"
+                                                        />
                                                     </template>
                                                 </template>
                                             </tbody>
@@ -163,15 +167,24 @@ export default {
                     category_id: this.selectedCategory?.id || null
                 }
                 let response = await axios.post('/admin/categories', data)
-                this.categories.push(response.data.data)
+                this.selectedCategory ? this.selectedCategory.child_categories.push(response.data.data) : this.categories.push(response.data.data)
             } catch (e) {
                 alert(e)
             }
         },
         changeSelectedCategory(category) {
-            if (this.selectedCategory?.id === category.id) return this.selectedCategory = null
+            if (this.selectedCategory?.id === category?.id) return this.selectedCategory = null
             this.selectedCategory = category
-        }
+        },
+        async deleteMainCategory(category) {
+            try {
+                await axios.delete(`/admin/categories/${category.id}`)
+                this.categories = this.categories.filter(cat => cat.id !== category.id)
+                this.$emit('changeSelectedCategory', null)
+            } catch (e) {
+                alert(e)
+            }
+        },
     }
 }
 </script>

@@ -16,6 +16,11 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
     use SoftDeletes;
 
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id', 'id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -25,6 +30,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'group_id',
+        'kind'
     ];
 
     /**
@@ -50,5 +57,10 @@ class User extends Authenticatable
     {
         $url = url('password-reset?token=' . $token);
         $this->notify(new ResetPasswordNotification($url));
+    }
+
+    public function providers()
+    {
+        return $this->hasMany(Provider::class,'user_id','id');
     }
 }

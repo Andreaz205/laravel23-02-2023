@@ -17,7 +17,16 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/login/{provider}', [\App\Http\Controllers\Api\Auth\SocialiteController::class,'redirectToProvider']);
+Route::get('/login/{provider}/callback', [\App\Http\Controllers\Api\Auth\SocialiteController::class,'handleProviderCallback']);
 
-Route::group(['prefix' => 'orders'], function() {
-    Route::post('/', [\App\Http\Controllers\Api\Order\OrderController::class, 'store']);
-});
+Route::post('/orders', [\App\Http\Controllers\Api\Order\OrderController::class, 'store']);
+
+Route::post('/variants/{variant}/reviews', [\App\Http\Controllers\Api\Review\ReviewController::class, 'storeReview']);
+Route::post('/variants/{variant}/reviews/images', [\App\Http\Controllers\Api\Review\ReviewController::class, 'storeReviewImages']);
+
+Route::get('/banner/data', [\App\Http\Controllers\Api\Banner\BannerController::class, 'data']);
+
+Route::get('/hits', [\App\Http\Controllers\Api\Hit\HitsController::class, 'data']);
+
+Route::get('/vk/posts', [App\Http\Controllers\Vk\PostsController::class, 'posts']);
