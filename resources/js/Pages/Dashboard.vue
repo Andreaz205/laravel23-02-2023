@@ -18,5 +18,7 @@ import { Head } from '@inertiajs/vue3';
 <!--                </div>-->
 <!--            </div>-->
 <!--        </div>-->
+
+<div>типа чото сделал</div>
     </AuthenticatedLayout>
 </template>
