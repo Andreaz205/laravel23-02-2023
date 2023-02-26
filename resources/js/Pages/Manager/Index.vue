@@ -40,8 +40,8 @@
                                 >
                                     Добавить
                                 </a>
-                                <Link class="underline font-bold text-blue-400" href="/admin/roles">Роли</Link>
-                                <Link class="underline font-bold text-blue-400" href="/admin/permissions">Доступы</Link>
+<!--                                <Link class="underline font-bold text-blue-400" href="/admin/roles">Роли</Link>-->
+<!--                                <Link class="underline font-bold text-blue-400" href="/admin/permissions">Доступы</Link>-->
                             </div>
 
                             <div class="card-body table-responsive p-0">
@@ -60,12 +60,15 @@
                                             {{ manager.name }}
                                         </td>
                                         <td class="d-flex justify-start">
-                                            <Link :href="'/admin/managers/' + manager.id + '/edit'" class="mr-2" v-if="canManagers.edit">
+                                            <Link :href="'/admin/managers/' + manager.id + '/edit'" class="mr-2" v-if="canManagers.edit && user.id !== manager.id">
                                                 <i class="fas fa-edit "></i>
                                             </Link>
-                                            <a @click="deleteManager(manager)" v-if="canManagers.delete">
+                                            <a @click="deleteManager(manager)" v-if="canManagers.delete && user.id !== manager.id">
                                                 <i class="fas fa-times"></i>
                                             </a>
+                                            <div v-if="user.id === manager.id">
+                                                Вы
+                                            </div>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -100,7 +103,7 @@ export default {
         }
     },
     components: {Popup, AuthenticatedLayout, Link},
-    props: ['managers', 'canManagers'],
+    props: ['managers', 'canManagers', 'user'],
     methods: {
         async deleteManager(managerForDelete) {
             try {

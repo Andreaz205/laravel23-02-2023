@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Review extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     protected $guarded = false;
 
     public function images()
@@ -20,5 +19,10 @@ class Review extends Model
     public function variant()
     {
         return $this->belongsTo(Variant::class, 'variant_id', 'id');
+    }
+
+    public function answer()
+    {
+        return $this->hasOne(ReviewAnswer::class, 'review_id', 'id');
     }
 }

@@ -3,12 +3,19 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Клиенты</h3>
+                    <div class="flex justify-between my-3">
+                        <div class="flex justify-between items-center gap-x-2">
+                            <h3 class="text-lg">Клиенты</h3>
 
-                        <Link href="/admin/users/create" class="btn btn-primary">
-                            Добавить
-                        </Link>
+                            <Link href="/admin/groups">
+                                <button class="btn btn-default">Группы</button>
+                            </Link>
+
+                            <Link href="/admin/users/create" class="btn btn-primary ml-3">
+                                Добавить
+                            </Link>
+                        </div>
+
 
                         <div class="card-tools">
                             <div class="input-group input-group-sm" style="width: 150px;">
@@ -43,7 +50,7 @@
                                 <td>{{calculateDate(user.created_at)}}</td>
                                 <td><span class="tag tag-success">{{user.phone}}</span></td>
                                 <td>{{user.email}}</td>
-                                <td>{{user?.group}}</td>
+                                <td>{{user?.group ? user.group.title : 'Вне группы'}}</td>
                                 <td>{{user?.sale}}</td>
                                 <td>{{user.ordersQuantity}}</td>
                             </tr>

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RichContent extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     protected $guarded = false;
 
 }

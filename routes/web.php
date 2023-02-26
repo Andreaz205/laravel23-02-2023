@@ -40,12 +40,15 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/managers', [\App\Http\Controllers\Manager\ManagerController::class, 'index']);
     Route::post('/managers/', [\App\Http\Controllers\Manager\ManagerController::class, 'store']);
     Route::get('/managers/{admin}/edit', [\App\Http\Controllers\Manager\ManagerController::class, 'edit']);
+    Route::patch('/managers/{admin}/update', [\App\Http\Controllers\Manager\ManagerController::class, 'update']);
     Route::delete('/managers/{admin}', [\App\Http\Controllers\Manager\ManagerController::class, 'destroy']);
 
 
-    Route::get('/products', [\App\Http\Controllers\Product\ProductController::class, 'index']);
+    Route::get('/products', [\App\Http\Controllers\Product\ProductController::class, 'index'])->name('product.index');
     Route::post('/products', [\App\Http\Controllers\Product\ProductController::class, 'store']);
-    Route::get('/products/{product}', [\App\Http\Controllers\Product\ProductController::class, 'show']);
+    Route::get('/products/{product}', [\App\Http\Controllers\Product\ProductController::class, 'show'])->name('product.show');
+    Route::get('/products/{product}/edit', [\App\Http\Controllers\Product\ProductController::class, 'edit']);
+    Route::patch('/products/{product}/update', [\App\Http\Controllers\Product\ProductController::class, 'update']);
     Route::delete('/products/{product}', [\App\Http\Controllers\Product\ProductController::class, 'destroy']);
 
     Route::post('/products/{product}/images', [\App\Http\Controllers\Image\ProductImageController::class, 'store']);
@@ -103,12 +106,18 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/rooms', [\App\Http\Controllers\Room\RoomController::class, 'store']);
 
     Route::get('/reviews', [\App\Http\Controllers\Review\ReviewController::class, 'index']);
-    Route::post('/reviews/{review}/save-public', [\App\Http\Controllers\Review\ReviewController::class, 'saveAndPublic']);
+    Route::get('/reviews/{review}', [\App\Http\Controllers\Review\ReviewController::class, 'review']);
+    Route::post('/reviews/{review}/publish', [\App\Http\Controllers\Review\ReviewController::class, 'publish']);
     Route::post('/reviews/{review}/save', [\App\Http\Controllers\Review\ReviewController::class, 'save']);
+    Route::patch('/reviews/{review}/unpublic', [\App\Http\Controllers\Review\ReviewController::class, 'unpublic']);
     Route::delete('/reviews/{review}/delete', [\App\Http\Controllers\Review\ReviewController::class, 'delete']);
+    Route::delete('/reviews/{review}/answer', [\App\Http\Controllers\Review\ReviewController::class, 'deleteReviewAnswer']);
 
     Route::get('/users', [\App\Http\Controllers\User\UserController::class, 'index']);
     Route::get('/users/create', [\App\Http\Controllers\User\UserController::class, 'create']);
+    Route::patch('/users/{user}/update', [\App\Http\Controllers\User\UserController::class, 'update']);
+    Route::post('/users/organizations', [\App\Http\Controllers\User\UserController::class, 'storeOrganisation']);
+    Route::post('/users/single', [\App\Http\Controllers\User\UserController::class, 'storeSingleUser']);
     Route::get('/users/by-term', [\App\Http\Controllers\User\UserController::class, 'byTerm']);
     Route::get('/users/{user}', [\App\Http\Controllers\User\UserController::class, 'show']);
     Route::patch('/users/{user}/kind', [\App\Http\Controllers\User\UserController::class, 'changeKind']);
@@ -122,6 +131,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::delete('/sales/{sale}/image', [\App\Http\Controllers\Sale\SaleController::class, 'deleteImage']);
     Route::get('/sales/{sale}/toggle-exists-product/{product}', [\App\Http\Controllers\Sale\SaleController::class, 'toggleProductExists']);
 
+    Route::get('/groups', [\App\Http\Controllers\Group\GroupController::class, 'index']);
     Route::get('/groups/{group}', [\App\Http\Controllers\Group\GroupController::class, 'show']);
     Route::post('/groups', [\App\Http\Controllers\Group\GroupController::class, 'create']);
     Route::patch('/groups/{group}', [\App\Http\Controllers\Group\GroupController::class, 'update']);
@@ -137,7 +147,14 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/abilities', [\App\Http\Controllers\Ability\AbilityController::class, 'index']);
     Route::patch('/abilities/roles/{role}/permissions/{permission}', [\App\Http\Controllers\Ability\AbilityController::class, 'toggle']);
 
+    Route::get('/kits', [\App\Http\Controllers\Kit\KitsController::class, 'index']);
+    Route::post('/kits', [\App\Http\Controllers\Kit\KitsController::class, 'store']);
+    Route::get('/kits/{kit}/products', [\App\Http\Controllers\Kit\KitsController::class, 'products']);
+    Route::get('/kits/{kit}/products/{product}/toggle', [\App\Http\Controllers\Kit\KitsController::class, 'toggle']);
 
+    Route::get('/statistics', [\App\Http\Controllers\Statistic\StatisticController::class, 'index']);
+
+    Route::get('/discounts', [\App\Http\Controllers\Discount\DiscountController::class, 'index']);
 });
 
 require __DIR__.'/auth.php';

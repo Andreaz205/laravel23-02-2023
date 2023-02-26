@@ -9,6 +9,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class OrderHistory extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     protected $guarded = false;
 }

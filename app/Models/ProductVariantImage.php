@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductVariantImage extends Model
 {
-    use SoftDeletes;
     protected $guarded = false;
 
     public function getUrlAttribute()

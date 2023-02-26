@@ -14,7 +14,6 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-    use SoftDeletes;
 
     public function group()
     {
@@ -31,7 +30,18 @@ class User extends Authenticatable
         'email',
         'password',
         'group_id',
-        'kind'
+        'kind',
+        'jural_address',
+        'inn',
+        'phone',
+        'additional_phone',
+        'ogrn',
+        'bic',
+        'bank_name',
+        'correspondent_account',
+        'calculated_account',
+        'unloading_address',
+        'is_subscribed_to_news'
     ];
 
     /**

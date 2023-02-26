@@ -9,5 +9,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Parameter extends Model
 {
     use HasFactory;
-    use SoftDeletes;
+    protected $guarded = false;
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'id', 'product_id');
+    }
 }

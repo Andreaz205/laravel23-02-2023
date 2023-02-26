@@ -1,12 +1,5 @@
 <script>
-import {ref} from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import {Link} from '@inertiajs/vue3';
-import {router} from '@inertiajs/vue3';
+import {Link, router} from '@inertiajs/vue3';
 
 export default {
     name: 'AuthenticatedLayout',
@@ -25,8 +18,25 @@ export default {
             } catch (e) {
                 alert(e)
             }
-
         }
+    },
+    mounted() {
+        // let collapsedNavItems = [...document.getElementsByClassName('clps')]
+        // collapsedNavItems.map(el => {
+        //     el.addEventListener('click', function () {
+        //         let childUl = el.querySelector('ul')
+        //         if (el.classList.contains('menu-open')) {
+        //             el.classList.remove('menu-is-opening', 'menu-open')
+        //             childUl.style.display = 'none'
+        //             console.log(1111)
+        //         }
+        //         else {
+        //             console.log(2222)
+        //             el.classList.add('menu-is-opening', 'menu-open')
+        //             childUl.style.display = 'block'
+        //         }
+        //     })
+        // })
     }
 }
 // const showingNavigationDropdown = ref(false);
@@ -110,8 +120,8 @@ export default {
 
                     <!-- Sidebar Menu -->
                     <nav class="mt-2">
-                        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                            data-accordion="false">
+
+                        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
                             <li class="nav-item">
                                 <!--                            <a href="/admin/home" class="nav-link">-->
@@ -133,10 +143,49 @@ export default {
                                 <!--                            </a>-->
                             </li>
 
+<!--                            <li :class="['nav-item clps', {'menu-open': route().current()?.includes('product')}]">-->
+<!--&lt;!&ndash;                                ['nav-item clps', {'none': document.location !== 'admin/products'}]&ndash;&gt;-->
+<!--&lt;!&ndash;                                {{window?.location}}&ndash;&gt;-->
+<!--                                <a href="#" class="nav-link">-->
+<!--                                    <i class="nav-icon fas fa-couch"></i>-->
+<!--                                    <p>-->
+<!--                                        Товары-->
+<!--                                        <i class="fas fa-angle-left right"></i>-->
+<!--                                    </p>-->
+<!--                                </a>-->
+<!--&lt;!&ndash;                                [{'none': document.location !== 'admin/products'}, {'block': document.location === 'admin/products'}]&ndash;&gt;-->
+<!--                                <ul :class="['nav nav-treeview', {'block': route()?.current()?.includes('product')}]">-->
+<!--                                    <li class="nav-item">-->
+<!--                                        <Link href="/admin/products" class="nav-link">-->
+<!--                                            <p>Каталог товаров</p>-->
+<!--                                        </Link>-->
+<!--                                    </li>-->
+
+<!--&lt;!&ndash;                                    <li class="nav-item">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <Link href="/admin/orders" class="nav-link">&ndash;&gt;-->
+<!--&lt;!&ndash;                                            &lt;!&ndash;                            <a href="/admin/users/page" class="nav-link">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <i class="nav-icon fas fa-users"></i>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <p>Клиенты</p>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        </Link>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </li>&ndash;&gt;-->
+
+<!--                                </ul>-->
+<!--                            </li>-->
+
                             <li class="nav-item">
                                 <Link href="/admin/products" class="nav-link">
                                     <i class="nav-icon fas fa-couch"></i>
                                     <p>Товары</p>
+                                </Link>
+                                <!--                            <a href="{{ route('product.index') }}" class="nav-link">-->
+
+                                <!--                            </a>-->
+                            </li>
+
+                            <li class="nav-item">
+                                <Link href="/admin/discounts" class="nav-link">
+                                    <i class="nav-icon fas fa-percent"></i>
+                                    <p>Скидки</p>
                                 </Link>
                                 <!--                            <a href="{{ route('product.index') }}" class="nav-link">-->
 
@@ -208,6 +257,16 @@ export default {
                                 </Link>
                                 <!--                            </a>-->
                             </li>
+
+                            <li class="nav-item">
+                                <Link href="/admin/statistics" class="nav-link">
+                                    <!--                            <a href="/admin/rooms" class="nav-link">-->
+                                    <i class="nav-icon fas fa-chart-line"></i>
+                                    <p>Аналитика</p>
+                                </Link>
+                                <!--                            </a>-->
+                            </li>
+
                         </ul>
                     </nav>
                     <!-- /.sidebar-menu -->
@@ -370,6 +429,7 @@ export default {
         <!--        </div>-->
         <!--    </div>-->
 </template>
+
 
 
 <style scoped lang="scss">

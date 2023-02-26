@@ -1,5 +1,5 @@
 <template>
-    <AuthenticatedLayout>
+
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Заказы</h3>
@@ -49,7 +49,7 @@
                 </ul>
             </div>
         </div>
-    </AuthenticatedLayout>
+
 
 </template>
 
@@ -61,6 +61,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 export default {
     name: "Orders",
     components: {AuthenticatedLayout, OrderRow},
+    layout: AuthenticatedLayout,
     data () {
         return {
             orders: null,

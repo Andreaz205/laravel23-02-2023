@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ReviewImage extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $guarded = false;
     protected $table = 'review_images';

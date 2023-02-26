@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Sale extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     protected $guarded = false;
 
     public function getProductsAttribute($sale)

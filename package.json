@@ -21,8 +21,11 @@
         "vue": "^3.2.41"
     },
     "dependencies": {
+        "chart.js": "^4.2.1",
         "dropzone": "^6.0.0-beta.2",
+        "vue-chartjs": "^5.2.0",
         "vue-draggable-next": "^2.1.1",
+        "vue-multiselect": "^2.1.7",
         "vue3-draggable": "^2.0.9",
         "vuedraggable": "^2.24.3"
     }

@@ -20,6 +20,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/login/{provider}', [\App\Http\Controllers\Api\Auth\SocialiteController::class,'redirectToProvider']);
 Route::get('/login/{provider}/callback', [\App\Http\Controllers\Api\Auth\SocialiteController::class,'handleProviderCallback']);
 
+Route::get('/variants/{variant}', [\App\Http\Controllers\Api\Variant\VariantController::class, 'variant']);
+Route::get('/variants', [\App\Http\Controllers\Api\Variant\VariantController::class, 'variants']);
+
+
+
 Route::post('/orders', [\App\Http\Controllers\Api\Order\OrderController::class, 'store']);
 
 Route::post('/variants/{variant}/reviews', [\App\Http\Controllers\Api\Review\ReviewController::class, 'storeReview']);

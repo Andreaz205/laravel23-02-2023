@@ -7,7 +7,6 @@
                     <tbody>
                     <tr aria-expanded="true" id="catalog">
                         <td style="border: none">
-                            <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
                             Каталог
                         </td>
                     </tr>

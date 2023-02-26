@@ -4,10 +4,14 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ChangeUserKindRequest;
+use App\Http\Requests\User\StoreOrganizationRequest;
+use App\Http\Requests\User\StoreSingleUserRequest;
+use App\Http\Requests\User\UpdateRequest;
 use App\Http\Resources\User\UserResource;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
@@ -39,7 +43,9 @@ class UserController extends Controller
 
     public function create()
     {
+        $groups = Group::all();
         return inertia('User/Create', [
+            'groups' => $groups,
             'can-users' => [
                 'list' => Auth('admin')->user()?->can('user list'),
                 'create' => Auth('admin')->user()?->can('user create'),
@@ -47,6 +53,28 @@ class UserController extends Controller
                 'delete' => Auth('admin')->user()?->can('user delete'),
             ]
         ]);
+    }
+
+    public function storeOrganisation(StoreOrganizationRequest $request)
+    {
+        $data = $request->validated();
+        $password = $data['password'];
+        $hashedPassword = Hash::make($password);
+        $data['password'] = $hashedPassword;
+        $data['kind'] = 'organization';
+        $user = User::create($data);
+        return $user;
+    }
+
+    public function storeSingleUser(StoreSingleUserRequest $request)
+    {
+        $data = $request->validated();
+        $password = $data['password'];
+        $hashedPassword = Hash::make($password);
+        $data['password'] = $hashedPassword;
+        $data['kind'] = 'single';
+        $user = User::create($data);
+        return $user;
     }
 
     public function byTerm(Request $request)
@@ -77,6 +105,13 @@ class UserController extends Controller
                 'delete' => Auth('admin')->user()?->can('user delete'),
             ]
         ]);
+    }
+
+    public function update(User $user, UpdateRequest $request)
+    {
+        $data = $request->validated();
+        $user->update($data);
+        return new UserResource($user);
     }
 
     public function changeKind(User $user, ChangeUserKindRequest $request)

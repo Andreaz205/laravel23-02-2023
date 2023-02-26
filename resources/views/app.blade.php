@@ -45,6 +45,7 @@
         <!-- AdminLTE App -->
         <script src="{{asset('adminLte/dist/js/adminlte.js')}}"></script>
 
+
         @yield('bodybottom')
     </body>
 </html>

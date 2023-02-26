@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CategoryVariants extends Model
 {
-
-    use SoftDeletes;
     protected $table = 'category_variants';
     protected $guarded = false;
 }

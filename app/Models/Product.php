@@ -8,14 +8,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
     protected $guarded = false;
 
 //    public function variants_count()
 //    {
 //        return $this->hasMany(Variant::class, 'product_id', 'id');
 //    }
+    public function kits()
+    {
+        return $this->belongsToMany(Kit::class, KitProducts::class, 'product_id', 'kit_id');
+    }
 
+    public function parameters()
+    {
+        return $this->hasMany(Parameter::class, 'product_id', 'id');
+    }
 
     public function options()
     {

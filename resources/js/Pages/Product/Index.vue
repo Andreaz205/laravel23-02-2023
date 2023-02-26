@@ -25,7 +25,7 @@
             </div>
         </div>
     </div>
-    <AuthenticatedLayout>
+<!--    <AuthenticatedLayout>-->
         <!-- Content Header (Page header) -->
         <div class="content-header">
             <div class="container-fluid">
@@ -56,6 +56,11 @@
                                     type="button" class="btn btn-primary bg-blue-500" data-toggle="modal" data-target="#exampleModal"
                                 >
                                     Добавить
+                                </button>
+                                <button class="btn btn-default ml-4">
+                                    <Link href="/admin/kits">
+                                        Комплекты
+                                    </Link>
                                 </button>
                             </div>
 
@@ -116,7 +121,7 @@
             </div><!-- /.container-fluid -->
         </section>
         <!-- /.content -->
-    </AuthenticatedLayout>
+<!--    </AuthenticatedLayout>-->
 
 </template>
 
@@ -126,6 +131,7 @@ import {router, Link} from '@inertiajs/vue3';
 export default {
     name: "Products",
     components: {AuthenticatedLayout, Link},
+    layout: AuthenticatedLayout,
     props: [
         'productsData',
         'canProducts'
@@ -158,6 +164,9 @@ export default {
             return this.pagination?.slice(1, -1)
         }
     },
+    mounted() {
+        console.log()
+    }
 }
 </script>
 

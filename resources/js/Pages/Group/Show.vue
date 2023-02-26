@@ -1,8 +1,17 @@
 <template>
-    <AuthenticatedLayout>
-        <div class="card card-info">
+<!--    <AuthenticatedLayout>-->
+        <div class="card card-white">
             <div class="card-header">
-                <h3 class="card-title">Группа {{group.title}}</h3>
+                <div class="flex ">
+                    <Link href="/admin/groups">
+                        <button class="btn btn-default mr-3">
+                            Назад
+                        </button>
+                    </Link>
+                    <span class="bg-gray-300 p-1.5 rounded text-black">Группа {{group.title}}</span>
+                </div>
+
+
             </div>
             <form class="card-body" @submit="onSubmit">
                 <!-- Color Picker -->
@@ -22,15 +31,17 @@
                 </button>
             </form>
         </div>
-    </AuthenticatedLayout>
+<!--    </AuthenticatedLayout>-->
 </template>
 
 <script>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import {Link} from "@inertiajs/vue3";
 export default {
     name: "Show",
-    components: {AuthenticatedLayout},
+    components: {AuthenticatedLayout, Link},
     props: ['groupData'],
+    layout: AuthenticatedLayout,
     data () {
         return {
             group: this.groupData,
@@ -51,9 +62,7 @@ export default {
             } catch (e) {
                 alert(e)
             }
-
-
-        }
+        },
     }
 }
 </script>

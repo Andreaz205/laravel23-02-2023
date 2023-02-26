@@ -19,6 +19,20 @@ class GroupController extends Controller
         $this->middleware('can:group delete', ['only' => ['destroy']]);
     }
 
+    public function index()
+    {
+        $groups = Group::all();
+        return inertia('Group/Index', [
+            'groupsData' => $groups,
+            'can-groups' => [
+                'list' => Auth('admin')->user()?->can('group list'),
+                'create' => Auth('admin')->user()?->can('group create'),
+                'edit' => Auth('admin')->user()?->can('group edit'),
+                'delete' => Auth('admin')->user()?->can('group delete'),
+            ]
+        ]);
+    }
+
     public function create(StoreRequest $request)
     {
         $data = $request->validated();

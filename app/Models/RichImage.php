@@ -9,6 +9,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RichImage extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     protected $guarded = false;
 }

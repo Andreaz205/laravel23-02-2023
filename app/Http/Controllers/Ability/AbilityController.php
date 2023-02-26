@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Ability;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ability\ToggleRolePermissionsRequest;
+use App\Http\Services\Permission\PermissionService;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -20,14 +21,14 @@ class AbilityController extends Controller
 
     }
 
-    public function index()
+    public function index(PermissionService $PermissionService)
     {
         $roles = Role::with('permissions')->get();
-        $listPermissions = Permission::where('name', 'like', '%list%')->get();
-        foreach ($listPermissions as $permission) {
-            $permission->name = trim(explode('list', $permission->name)[0]);
-        }
-        $sections = $listPermissions;
+//        $listPermissions = Permission::where('name', 'like', '%list%')->get();
+//        foreach ($listPermissions as $permission) {
+//            $permission->name = trim(explode('list', $permission->name)[0]);
+//        }
+        $sections = $PermissionService->sections();
         return inertia('Ability/Index', [
             'rolesData' => $roles,
             'sectionsData' => $sections,

@@ -107,7 +107,6 @@
                             </tr>
                             <tr aria-expanded="true" id="catalog">
                                 <td>
-                                    <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
                                     Каталог
                                 </td>
                             </tr>
@@ -168,6 +167,7 @@ export default {
                 }
                 let response = await axios.post('/admin/categories', data)
                 this.selectedCategory ? this.selectedCategory.child_categories.push(response.data.data) : this.categories.push(response.data.data)
+                this.newCategory = null
             } catch (e) {
                 alert(e)
             }
@@ -180,6 +180,7 @@ export default {
             try {
                 await axios.delete(`/admin/categories/${category.id}`)
                 this.categories = this.categories.filter(cat => cat.id !== category.id)
+
                 this.$emit('changeSelectedCategory', null)
             } catch (e) {
                 alert(e)

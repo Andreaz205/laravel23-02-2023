@@ -316,37 +316,49 @@
                                             <!--                                                </a></div>-->
                                             <!--                                            </div>-->
 
-                                            <div>Параметры SEO</div>
+                                            <div class="flex justify-between items-center">
+                                                <Link :href="`/admin/products/${this.product.id}/edit`">
+                                                    <button class="btn btn-warning">
+                                                        Редактировать <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </Link>
+                                                <!--                                            <div>Параметры SEO</div>-->
+
+                                                <button
+                                                    v-if="canProducts.delete"
+                                                    class="btn btn-danger"
+                                                    value="Удалить"
+                                                    @click="deleteProduct"
+                                                >
+                                                    Удалить товар
+                                                </button>
+                                            </div>
+
 
                                             <div>Применять скидки: {{ product.allow_sales ? 'Да' : ' Нет' }}</div>
 
                                             <div>Параметры:</div>
-                                            <div v-if="product.parameters">
+                                            <div v-if="product.parameters" class="ml-4">
                                                 <div v-for="parameter in product.parameters">
-                                                <span>
-                                                    {{ parameter.title }}:
-                                                </span>
                                                     <span>
-                                                    {{ parameter.value }}
-                                                </span>
+                                                        {{ parameter.title }}:
+                                                    </span>
+                                                        <span>
+                                                        {{ parameter.value }}
+                                                    </span>
                                                 </div>
                                             </div>
                                             <div>
                                                 <div>Размеры</div>
-                                                <div>Длина - {{product.length}}</div>
-                                                <div>Ширина - {{product.width}}</div>
-                                                <div>Высота - {{product.height}}</div>
-                                            </div>
-                                            <div>
-                                                Параметры
+                                                <div class="ml-4">
+                                                    <div>Длина - {{product.length}}</div>
+                                                    <div>Ширина - {{product.width}}</div>
+                                                    <div>Высота - {{product.height}}</div>
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
-
-                                    <input v-if="canProducts.delete" type="submit" class="btn btn-danger bg-red-500"
-                                           value="Удалить"
-                                           @click="deleteProduct">
-
                                 </div>
                             </div>
                         </div>

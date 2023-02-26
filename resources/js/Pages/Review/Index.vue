@@ -1,98 +1,107 @@
 <template>
     <AuthenticatedLayout>
-        <div class="d-flex justify-center items-center text-lg mb-5">
-            Панель редактирования отзывов
-        </div>
 
-        <div class="card card-primary card-tabs">
-            <div class="card-header p-0 pt-1">
-                <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-one-home-tab" data-toggle="pill"
-                           href="#custom-tabs-one-home" role="tab" aria-controls="custom-tabs-one-home"
-                           aria-selected="false">Не опубликованные</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" id="custom-tabs-one-profile-tab" data-toggle="pill"
-                           href="#custom-tabs-one-profile" role="tab" aria-controls="custom-tabs-one-profile"
-                           aria-selected="true">Опубликованные</a>
-                    </li>
-                </ul>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Отзывы</h3>
+
+                <!--                <div class="card-tools">-->
+                <!--                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">-->
+                <!--                        <i class="fas fa-minus"></i>-->
+                <!--                    </button>-->
+                <!--                    <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">-->
+                <!--                        <i class="fas fa-times"></i>-->
+                <!--                    </button>-->
+                <!--                </div>-->
             </div>
-            <div class="card-body">
-                <div class="tab-content" id="custom-tabs-one-tabContent">
-                    <div class="tab-pane fade" id="custom-tabs-one-home" role="tabpanel"
-                         aria-labelledby="custom-tabs-one-home-tab">
-                        <div v-for="review in reviews" class="row">
-
-                            <div v-if="!review.published" class="border-t border-t-black my-3 p-2 col-12">
-                                <div>{{ review.id }}</div>
-                                <div contenteditable="true" @input="setReviewName($event, review)" class="outline-none">
-                                    {{ review.name }}
-                                </div>
-                                <div contenteditable="true" @input="setReviewContent($event, review)" class="outline-none">
-                                    {{ review.content }}
-                                </div>
-                                <div>Оценка: {{ review.mark }}</div>
-                                <div>{{ review.variant_id }}</div>
-                                <div v-if="review.images && review.images.length" class="d-flex justify-start items-center m-3">
-
-                                    <div v-for="image in review.images" class="mx-5 relative">
-                                        <div class="absolute right-0 top-0 bg-white cursor-pointer">
-                                            <i class="fas fa-times"></i>
-                                        </div>
-                                        <img :src="image.image_url" alt="" width="100" height="100">
-                                    </div>
-                                </div>
-
-                                <button class="btn btn-primary" @click="saveChangesAndPublic(review)">
-                                    Сохранить и опубликовать
-                                </button>
-
-                                <button class="btn btn-danger" @click="deleteReview(review)">
-                                    Удалить
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade active show" id="custom-tabs-one-profile" role="tabpanel"
-                         aria-labelledby="custom-tabs-one-profile-tab">
-                        <div v-if="reviews" class="row">
-                            <div v-for="review in reviews" class="col-12">
-                                <div v-if="review.published" class="border-t border-t-black my-3">
-                                    <div>{{ review.variant.product.title }} {{ review.variant.title }}</div>
-                                    <div contenteditable="true" @input="setReviewName($event, review)" class="outline-none">
-                                        {{ review.name }}
-                                    </div>
-                                    <div contenteditable="true" @input="setReviewContent($event, review)" class="outline-none">
-                                        {{ review.content }}
-                                    </div>
-                                    <div>Оценка: {{ review.mark }}</div>
-
-                                    <div v-if="review.images && review.images.length" class="d-flex justify-start items-center m-3">
-                                        <div v-for="image in review.images" class="mx-5 relative">
-                                            <div class="absolute right-0 top-0 bg-white cursor-pointer"
-                                                 @click="deleteImage(review, image)">
-                                                <i class="fas fa-times"></i>
-                                            </div>
-                                            <img :src="image.image_url" alt="" width="100" height="100">
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-primary" @click="saveChanges(review)">
-                                        Сохранить
-                                    </button>
-                                    <button class="btn btn-danger" @click="deleteReview(review)">
-                                        Удалить
-                                    </button>
-                                </div>
+            <div class="card-body p-0">
+                <table class="table projects">
+                    <thead>
+                    <tr>
+                        <th style="width: 1%">#</th>
+                        <th style="width: 10%">Название</th>
+                        <th>Клиент</th>
+                        <th>Оценка</th>
+                        <th>Содержимое</th>
+                        <th style="width: 8%" class="text-center">Статус</th>
+                        <th>Фото</th>
+                        <th style="width: 20%"></th>
+                    </tr>
+                    </thead>
+                    <tbody v-if="reviews.data && reviews.data.length">
+                    <tr v-for="review in reviews.data" :class="{'bg-gray-200': !review.is_viewed}">
+                        <td>
+                            {{review.id}}
+                        </td>
+                        <td>
+                            <a>
+                                {{ review.variant.title }}
+                            </a>
+                            <br>
+                            <small>
+                                {{ formatDate(review.created_at) }}
+                            </small>
+                        </td>
+                        <td>
+                            <div>
+                                {{ review.name }}
                             </div>
 
-                        </div>
-                    </div>
-                </div>
+                            <!--                                    <img alt="Avatar" class="table-avatar" src="dist/img/avatar.png">-->
+                        </td>
+                        <td>
+                            <!--                            <div class="progress progress-sm">-->
+                            <!--                                <div class="progress-bar bg-green" role="progressbar" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100" style="width: 57%">-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
+                            <small>
+                                {{ review.mark }}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="max-w-[200px] max-h-[50px] overflow-hidden"
+                                 style="text-overflow: ellipsis; white-space: nowrap;">{{ review.content }}
+                            </div>
+
+                        </td>
+                        <td>
+                            {{ review.published ? 'Опубликован' : 'Не опубликован' }}
+                        </td>
+                        <td>
+                            {{ review.images.length }}
+                        </td>
+                        <td>
+                            <a class="btn btn-info btn-sm mr-2" @click="visitReview(review)">
+                                <i class="fas fa-pencil-alt">
+                                </i>
+                                Редактировать
+                            </a>
+                            <a class="btn btn-danger btn-sm" @click="deleteReview(review)">
+                                <i class="fas fa-trash"></i>
+                                Удалить
+                            </a>
+                            <a class="btn btn-warning btn-sm ml-2" @click="publish(review)"
+                               v-if="!review.published">
+                                Опубликовать
+                            </a>
+                            <a v-else class="btn btn-warning btn-sm ml-2" @click="unpublicReview(review)">
+                                Снять с публикации
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <!-- /.card -->
+            <!-- /.card-body -->
+
+            <div class="card-footer">
+                <Pagination :items="reviews" :fetch-page="fetchPage"/>
+            </div>
         </div>
+
+
+
     </AuthenticatedLayout>
 
 </template>
@@ -100,10 +109,13 @@
 <script>
 import axios from 'axios'
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import {formatDate} from "@/utils/formatDate";
+import {router} from "@inertiajs/vue3";
+import Pagination from "@/Components/Pagination.vue";
 
 export default {
     name: "Index",
-    components: {AuthenticatedLayout},
+    components: {Pagination, AuthenticatedLayout},
     props: ['reviewsData', 'productsData'],
     data() {
         return {
@@ -112,6 +124,10 @@ export default {
         }
     },
     methods: {
+        async visitReview(review) {
+            review.is_viewed = true
+            router.visit(`/admin/reviews/${review.id}`)
+        },
         deleteImage(review, image) {
             if (review.images_for_delete && review.images_for_delete.length) {
                 review.images_for_delete.push(image.id)
@@ -125,16 +141,25 @@ export default {
             try {
                 let response = await axios.delete(`/admin/reviews/${review.id}/delete`)
                 let deletedReview = response?.data
-                this.reviews = this.reviews.filter(rev => rev.id !== deletedReview.id)
+                this.reviews.data = this.reviews.data.filter(rev => rev.id !== deletedReview.id)
             } catch (e) {
                 alert(e)
             }
         },
-        async saveChangesAndPublic(review) {
+        async unpublicReview(review) {
             try {
-                let response = await axios.post(`/admin/reviews/${review.id}/save-public`, review)
+                let response = await axios.patch(`/admin/reviews/${review.id}/unpublic`)
+                let existsReview = this.reviews.data.find(rev => rev.id === review.id)
+                existsReview.published = 0
+            } catch (e) {
+                alert(e.message ?? e)
+            }
+        },
+        async publish(review) {
+            try {
+                let response = await axios.post(`/admin/reviews/${review.id}/publish`, review)
                 let newReview = response?.data
-                let searchedReview = this.reviews.find(rev => rev.id === newReview.id)
+                let searchedReview = this.reviews.data.find(rev => rev.id === newReview.id)
                 searchedReview.published = 1
             } catch (e) {
                 alert(e)
@@ -144,7 +169,7 @@ export default {
             try {
                 let response = await axios.post(`/admin/reviews/${review.id}/save`, review)
                 let newReview = response?.data
-                let searchedReview = this.reviews.find(rev => rev.id === newReview.id)
+                let searchedReview = this.reviews.data.find(rev => rev.id === newReview.id)
                 searchedReview = newReview
             } catch (e) {
                 alert(e)
@@ -160,9 +185,15 @@ export default {
             review.content = value
             review.edited = true
         },
+        formatDate(date) {
+            return formatDate(date)
+        },
+        fetchPage(url) {
+            router.visit(url)
+        }
     },
     mounted() {
-        console.log(this.productsData)
+        // console.log(this.productsData)
     }
 
 }

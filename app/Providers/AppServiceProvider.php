@@ -10,7 +10,10 @@ use App\Http\Services\Option\OptionService;
 use App\Http\Services\Order\OrderService;
 use App\Http\Services\Product\ProductService;
 use App\Http\Services\Variant\VariantService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +37,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+//        Inertia::share('user', Auth('admin')->user());
     }
 }

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class OptionValue extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $table = 'option_values';
     protected $guarded = false;

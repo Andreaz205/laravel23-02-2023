@@ -28,6 +28,9 @@ class UpdateReviewRequest extends FormRequest
             'content' => 'string|max:255',
             'images_for_delete' => 'array',
             'images_for_delete.*' => 'integer',
+            'answer' => 'nullable|array',
+            'answer.content' => 'required|string',
+            'answer.admin_id' => 'required|integer|exists:admins,id',
         ];
     }
 }

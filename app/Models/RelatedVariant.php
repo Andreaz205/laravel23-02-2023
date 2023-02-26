@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RelatedVariant extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     protected $table = 'related_variants';
     protected $guarded = false;
 }
