@@ -1,11 +1,63 @@
 <template>
-    <Popup
-        :is-open-prop="isCreateManagerPopupOpened"
-        @close="toggleManagerPopup(false)"
-        :create-manager="createManager"
-    />
-    <AuthenticatedLayout>
+    <!--    TODO: Модальное окно для редактирования свойства в целом-->
+    <div class="modal fade" id="createManagerModal" tabindex="-1" role="dialog" aria-labelledby="optionNameColorModal"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Редактировать свойство</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
 
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Придумайте почту</label>
+                        <input type="email" class="form-control" v-model="managerEmailForCreate" placeholder="Введите Email">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Придумайте имя</label>
+                        <input type="text" v-model="managerNameForCreate" class="form-control" placeholder="Введите имя">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Придумайте пароль</label>
+                        <input type="password" class="form-control" v-model="managerPasswordForCreate" placeholder="Введите пароль">
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Подтвердите пароль</label>
+                        <input type="password" class="form-control" v-model="managerPasswordConfirmationForCreate" placeholder="Подтвердите пароль">
+                    </div>
+
+                    <div class="form-group" v-if="roles && roles.length">
+                        <label>Добавить роль</label>
+                        <select v-model="role" class="form-control">
+                            <option value="destroy">Без роли</option>
+                            <option v-for="role in roles" :value="role.id">{{role.name}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть</button>
+                    <button
+                        class="btn btn-primary"
+                        @click="createManager"
+                    >
+                        Добавить
+                    </button>
+                    <!--                        <button type="button" class="btn btn-primary bg-blue-500" @click="saveOption">Сохранить-->
+                    <!--                        </button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <AuthenticatedLayout>
 
         <!-- Content Header (Page header) -->
         <div class="content-header">
@@ -33,13 +85,14 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header flex justify-between items-center">
-                                <a
+                                <button
                                     v-if="canManagers.create"
-                                    @click="toggleManagerPopup(true)"
-                                    class="btn btn-primary"
+                                    type="button" class="btn btn-primary bg-blue"
+                                    data-toggle="modal" data-target="#createManagerModal"
                                 >
+
                                     Добавить
-                                </a>
+                                </button>
 <!--                                <Link class="underline font-bold text-blue-400" href="/admin/roles">Роли</Link>-->
 <!--                                <Link class="underline font-bold text-blue-400" href="/admin/permissions">Доступы</Link>-->
                             </div>
@@ -95,15 +148,15 @@ export default {
     data() {
         return {
             managersData: this.$props.managers,
-            isCreateManagerPopupOpened: false,
             managerNameForCreate: null,
             managerEmailForCreate: null,
             managerPasswordForCreate: null,
             managerPasswordConfirmationForCreate: null,
+            role: "destroy",
         }
     },
     components: {Popup, AuthenticatedLayout, Link},
-    props: ['managers', 'canManagers', 'user'],
+    props: ['managers', 'canManagers', 'user', 'roles'],
     methods: {
         async deleteManager(managerForDelete) {
             try {
@@ -115,17 +168,15 @@ export default {
                 alert(e)
             }
         },
-        toggleManagerPopup(flag) {
-            this.isCreateManagerPopupOpened = flag
-        },
-        async createManager(name, email, password, confirmedPassword) {
+        async createManager() {
             try {
 
                 let data = {
-                    name: name,
-                    email: email,
-                    password: password,
-                    password_confirmation: confirmedPassword,
+                    name: this.managerNameForCreate,
+                    email: this.managerEmailForCreate,
+                    password: this.managerPasswordForCreate,
+                    password_confirmation: this.managerPasswordConfirmationForCreate,
+                    role_id: this.role === 'destroy' ? null : this.role,
                 }
                 let response = await axios.post('/admin/managers', data)
                 let newManager = response.data.data

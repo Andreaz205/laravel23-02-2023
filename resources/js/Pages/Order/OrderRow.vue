@@ -1,9 +1,9 @@
 <template>
     <tr>
         <td class=" text-lg h-full">
-            <a :href="'/admin/orders/' + order.id" class="block text-center">
+            <Link :href="'/admin/orders/' + order.id" class="block text-center">
                 {{ order.id }}
-            </a>
+            </Link>
         </td>
         <td>{{ order.delivery_date }}</td>
         <td>{{ order.sum }}</td>
@@ -27,9 +27,11 @@
 </template>
 
 <script>
+import {Link} from '@inertiajs/vue3'
 export default {
     name: "OrderRow",
     props: ['order', 'formatDate'],
+    components: {Link},
     data () {
         return {
             status: '',

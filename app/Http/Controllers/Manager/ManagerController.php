@@ -8,6 +8,7 @@ use App\Http\Requests\Manager\UpdateRequest;
 use App\Http\Resources\Admin\AdminResource;
 use App\Http\Services\Permission\PermissionService;
 use App\Models\Admin;
+use App\Models\Group;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -24,9 +25,11 @@ class ManagerController extends Controller
 
     public function index()
     {
+        $roles = Role::all();
         $managers = Admin::all();
         return inertia('Manager/Index', [
             'managers' => $managers,
+            'roles' => $roles,
             'user' =>  Auth('admin')->user(),
             'can-managers' => [
                 'list' => Auth('admin')->user()->can('admin list'),
@@ -53,12 +56,19 @@ class ManagerController extends Controller
     {
         $data = $request->validated();
 
+        if (isset($data['role_id'])) {
+            $roleId = $data['role_id'];
+            $role = Role::find($roleId);
+            unset($data['role_id']);
+        }
+
         $newAdmin = Admin::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 
+        if (isset($role)) $newAdmin->assignRole($role);
         return new AdminResource($newAdmin);
     }
 
@@ -67,11 +77,13 @@ class ManagerController extends Controller
         $data = $request->validated();
 
         $sections = $data['sections'];
+
         if (isset($data['role_id'])) {
             $role = Role::find($data['role_id']);
             $admin->roles()->detach();
             $admin->assignRole($role);
         }
+
         if (isset($data['name'])) $admin->update(['name' => $data['name']]);
         $admin->permissions()->detach();
         $permissions = [];

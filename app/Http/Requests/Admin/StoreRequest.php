@@ -28,14 +28,15 @@ class StoreRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:admins,email',
             'password' => 'min:6|required_with:password_confirmation|same:password_confirmation',
-            'password_confirmation' => 'min:6'
+            'password_confirmation' => 'min:6',
+            'role_id' => 'nullable|integer|exists:roles,id'
         ];
     }
 
-    public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
-    {
-        throw new HttpResponseException(response()->json([
-            'message' => 'validation error'
-        ], 422));
-    }
+//    public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+//    {
+//        throw new HttpResponseException(response()->json([
+//            'message' => 'validation error'
+//        ], 422));
+//    }
 }

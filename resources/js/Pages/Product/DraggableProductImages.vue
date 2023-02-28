@@ -1,17 +1,8 @@
 <template>
-    <div class="text-center">
-        Фотографии товара
-    </div>
-<!--    <div>-->
-<!--        {{images}}-->
-<!--    </div>-->
-    <div class="my-2">
-       <button class="btn btn-primary" @click="saveOrderedImages">
-           Сохранить порядок
-       </button>
-    </div>
-    <div id="images-area" class="flex flex-wrap w-full"
-         v-if="imgs && imgs.length">
+    <div
+        class="flex flex-wrap w-full"
+         v-if="imgs && imgs.length"
+    >
         <draggable :list="imgs" class="draggable-list">
 
             <div class="p-2" v-for="image in imgs" :key="image.id">
@@ -28,6 +19,9 @@
 
         </draggable>
     </div>
+    <div v-else class="w-full h-full flex justify-center items-center text-lg">
+        Здесь пока нет фотографий!
+    </div>
 </template>
 
 <script>
@@ -36,7 +30,7 @@ import { VueDraggableNext } from "vue-draggable-next"
 export default {
     name: "DraggableProductImages",
     props: ['product', 'images'],
-    emits: ['deleteImage'],
+    emits: ['deleteImage', 'saveOrder'],
     components: {draggable: VueDraggableNext},
     data () {
         return {
@@ -45,14 +39,16 @@ export default {
     },
     methods: {
         async saveOrderedImages() {
-            try {
-                if (this.imgs && this.imgs.length) {
-                    let data = this.imgs.map(img => img.id)
-                    await axios.post(`/admin/products/${this.product.id}/images/order`, {order: data})
-                }
-            } catch (e) {
-                alert(e)
-            }
+            let data = this.imgs.map(img => img.id)
+            this.$emit('saveOrder', data)
+            // try {
+            //     if (this.imgs && this.imgs.length) {
+            //         let data = this.imgs.map(img => img.id)
+            //         await axios.post(`/admin/products/${this.product.id}/images/order`, {order: data})
+            //     }
+            // } catch (e) {
+            //     alert(e)
+            // }
         }
     },
     watch: {
@@ -70,7 +66,6 @@ export default {
 
 <style scoped lang="scss">
     .draggable-list{
-        width: 600px;
         flex-wrap: wrap;
         display: flex;
         justify-content: flex-start;

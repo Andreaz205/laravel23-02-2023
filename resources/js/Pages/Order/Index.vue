@@ -28,7 +28,7 @@
                     </tr>
                     </thead>
                     <tbody v-if='orders?.data'>
-                    <OrderRow v-for="order in orders.data" :order="order" :format-date="this.formatDate" />
+                        <OrderRow v-for="order in orders.data" :order="order" :format-date="this.formatDate" />
                     </tbody>
                 </table>
             </div>

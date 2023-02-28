@@ -40,14 +40,18 @@
                 <div class="modal-body">
 
                     <template v-if="products && products.length">
-                        <div v-for="product in products" :key="product.id + '-' + selectedKit?.id">
-                            <div class="flex">
-                                <span class="mr-4">{{product.title}}</span>
-                                <CustomSwitch
-                                    :is-checked="product.is_exists"
-                                    :switch-id="`bind-kit-${product.id}`"
-                                    @changeSwitch="toggle(product)"
-                                />
+                        <div v-for="product in products" :key="product.id + '-' + selectedKit?.id" class="container-fluid">
+                            <div class="row">
+                                <div class="col-8">
+                                    <span>{{product.title}}</span>
+                                </div>
+                                <div class="col-4">
+                                    <CustomSwitch
+                                        :is-checked="product.is_exists"
+                                        :switch-id="`bind-kit-${product.id}`"
+                                        @changeSwitch="toggle(product)"
+                                    />
+                                </div>
                             </div>
 
                         </div>
@@ -57,7 +61,6 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть</button>
-                    <button type="button" class="btn btn-primary bg-blue-500" @click="storeKit">Добавить</button>
                 </div>
             </div>
         </div>

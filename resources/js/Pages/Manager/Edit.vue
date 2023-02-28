@@ -107,7 +107,6 @@ export default {
         },
         async save() {
             try {
-                let arr = []
                 this.sections.map(section => {
                     if (
                         this.manager.permissions &&
@@ -160,7 +159,7 @@ export default {
                     sections: this.sections,
                 }
                 await axios.patch(`/admin/managers/${this.manager.id}/update`, data)
-                // router.visit('/admin/managers')
+                router.visit('/admin/managers')
             } catch (e) {
                 alert(e.message ?? e)
             }
