@@ -4,6 +4,7 @@ namespace App\Http\Services\Discount;
 
 use App\Models\Discount;
 use App\Models\DiscountsAvailability;
+use App\Models\Group;
 
 class DiscountService
 {
@@ -13,8 +14,14 @@ class DiscountService
 
         $accumulativeDiscounts = [];
         $orderDiscounts = [];
-        $groupDiscounts = [];
+        $groupDiscounts = Group::all();
         $couponDiscounts = [];
+
+        foreach ($discounts as $discount) {
+            if ($discount->type === 'accumulative') $accumulativeDiscounts[] = $discount;
+            if ($discount->type === 'order') $orderDiscounts[] = $discount;
+            if ($discount->type === 'coupon') $couponDiscounts[] = $discount;
+        }
 
         $accumulativeDiscountsResult = [];
         $accumulativeDiscountsResult['discounts'] = $accumulativeDiscounts;
@@ -28,35 +35,31 @@ class DiscountService
         $couponDiscountsResult = [];
         $couponDiscountsResult['discounts'] = $couponDiscounts;
 
-        foreach ($discounts as $discount) {
-            if ($discount->type === 'accumulative') $accumulativeDiscounts[] = $discount;
-            if ($discount->type === 'order') $orderDiscounts[] = $discount;
-            if ($discount->type === 'group') $groupDiscounts[] = $discount;
-            if ($discount->type === 'coupon') $couponDiscounts[] = $discount;
-        }
 
         $discountsAvailability = DiscountsAvailability::limit(4)->get();
         foreach ($discountsAvailability as $accessItem) {
-            if ($accessItem->type === 'accumulative') {
+
+            if ($accessItem->type == 'accumulative') {
                 $accumulativeDiscountsResult['is_available'] = $accessItem->is_available;
             }
-            if ($accessItem->type === 'accumulative') {
+            if ($accessItem->type == 'order') {
                 $orderDiscountsResult['is_available'] = $accessItem->is_available;
             }
-            if ($accessItem->type === 'accumulative') {
-                $orderDiscountsResult['is_available'] = $accessItem->is_available;
+            if ($accessItem->type == 'group') {
+                $groupDiscountsResult['is_available'] = $accessItem->is_available;
             }
-            if ($accessItem->type === 'accumulative') {
-                $orderDiscountsResult['is_available'] = $accessItem->is_available;
+            if ($accessItem->type == 'coupon') {
+                $couponDiscountsResult['is_available'] = $accessItem->is_available;
             }
         }
 
         $result = [
             'accumulative_discounts' => $accumulativeDiscountsResult,
             'order_discounts' => $orderDiscountsResult,
-            'group_discounts' => $couponDiscountsResult,
-            'coupon_discounts' => $groupDiscountsResult,
+            'group_discounts' => $groupDiscountsResult,
+            'coupon_discounts' => $couponDiscountsResult,
         ];
         return $result;
     }
+
 }

@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\DiscountsAvailability;
+use Illuminate\Database\Seeder;
 
-class DiscountsAvailabilitySeeder
+class DiscountsAvailabilitySeeder extends Seeder
 {
     /**
      * Create the initial roles and permissions.

@@ -16,7 +16,7 @@
                         <template v-if="createOptionFormData && createOptionFormData.length">
                             <div class="row" v-for="option in createOptionFormData">
                                 <div
-                                    :class="[{'col-sm-6': option.id == createOptionFormData[0].id}, {'col-sm-5': option.id !== createOptionFormData[0].id}]">
+                                    :class="[{'col-sm-6': option.id == createOptionFormData[0].id}, {'col-sm-5': option.id != createOptionFormData[0].id}]">
                                     <!-- text input -->
                                     <div class="form-group">
                                         <label>Название свойства</label>
@@ -25,7 +25,7 @@
                                     </div>
                                 </div>
                                 <div
-                                    :class="[{'col-sm-6': option.id == createOptionFormData[0].id}, {'col-sm-5': option.id !== createOptionFormData[0].id}]">
+                                    :class="[{'col-sm-6': option.id == createOptionFormData[0].id}, {'col-sm-5': option.id != createOptionFormData[0].id}]">
                                     <div class="form-group">
                                         <label>Значение по умолчанию</label>
                                         <input type="text" class="form-control" v-model="option.defaultValue"
@@ -33,7 +33,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-2 d-flex justify-center items-end"
-                                     v-if="option.id !== createOptionFormData[0].id">
+                                     v-if="option.id != createOptionFormData[0].id">
                                     <div class="form-group">
                                         <button class="btn btn-danger"
                                                 @click="deleteOptionInCreateForm($event, option.id)">
@@ -151,7 +151,7 @@
                                                    placeholder="Введите значение по умолчанию">
                                         </div>
                                     </div>
-                                    <div class="col-xl-2 flex justify-center items-center" v-if="option.id !== 1">
+                                    <div class="col-xl-2 flex justify-center items-center" v-if="option.id != 1">
                                         <button class="btn btn-danger" @click="deleteVariantCreatingOption(option.id)">
                                             Удалить
                                         </button>
@@ -193,7 +193,7 @@
                                             <label>{{ option_name.title }}</label>
                                             <select class="custom-select"
                                                     @change="handleClickChangeVariantOptionValue($event, option_name)"
-                                                    :value="selectedVariant.option_values.find(value => value.option_name_id === option_name.id)?.id">
+                                                    :value="selectedVariant.option_values.find(value => value.option_name_id == option_name.id)?.id">
                                                 <option value="new">Добавить новое значение</option>
                                                 <option v-for="(value) in option_name.option_values" :value="value.id">
                                                     {{ value.title }}
@@ -582,7 +582,7 @@
                                                <template v-for="name in product.option_names">
                                                    <template v-for="value in variant.option_values">
 
-                                                       <td v-if="name.id === value.option_name_id">
+                                                       <td v-if="name.id == value.option_name_id">
                                                            <div class="flex justify-center previous-column">
                                                                <button
                                                                    data-toggle="modal" data-target="#changeVariantOptionsModal"
@@ -792,7 +792,7 @@ export default {
         async deleteOption(optionNameId) {
             try {
                 await axios.delete(`/admin/products/${this.product.id}/options/${optionNameId}`)
-                this.product.option_names = this.product.option_names.filter(name => name.id !== optionNameId)
+                this.product.option_names = this.product.option_names.filter(name => name.id != optionNameId)
                 if (!this.product.option_names || (this.product.option_names && !this.product.option_names.length)) {
                     this.creatingVariantFormData = null
                     this.variantCreatingOptions = [{id: 1, name: null, value: null}]
@@ -822,7 +822,7 @@ export default {
                 let data
                 if (this.product.option_names && this.product.option_names.length) {
                     this.creatingVariantFormData.map(item => {
-                        if (item.creating_variant_selected_id !== 'new') {
+                        if (item.creating_variant_selected_id != 'new') {
                             optionsForBind.push(item.creating_variant_selected_id)
                         }
                     })
@@ -848,9 +848,9 @@ export default {
 
                         newOptionValues.map(newValue => {
 
-                            let val = newVariant.option_values.find(val => val.option_name_id === newValue.name_id)
+                            let val = newVariant.option_values.find(val => val.option_name_id == newValue.name_id)
 
-                            let nameToUpdate = this.creatingVariantFormData.find(name => name.id === newValue.name_id)
+                            let nameToUpdate = this.creatingVariantFormData.find(name => name.id == newValue.name_id)
                             nameToUpdate?.option_values.push({
                                 id: val.id,
                                 option_name_id: newValue.name_id,
@@ -878,12 +878,12 @@ export default {
             if (this.variantCreatingOptions.length <= 1) {
                 return;
             }
-            this.variantCreatingOptions = this.variantCreatingOptions.filter(option => option.id !== id)
+            this.variantCreatingOptions = this.variantCreatingOptions.filter(option => option.id != id)
         },
         async handleClickChangeVariantOptionValue(event, optionName) {
             try {
                 let optionValueId = event.target.options[event.target.options.selectedIndex].value
-                if (optionValueId === 'new') {
+                if (optionValueId == 'new') {
                     optionName.edit_form_data_is_new = true
                 } else {
                     let data = {
@@ -892,9 +892,7 @@ export default {
                     }
                     let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant?.id}/options/bind`, data)
                     let updatedOptionValue = response.data.data
-                    console.log(this.selectedVariant.option_values)
-                    this.selectedVariant.option_values = this.selectedVariant.option_values.filter(value => value.option_name_id !== optionName.id)
-                    console.log(this.selectedVariant.option_values)
+                    this.selectedVariant.option_values = this.selectedVariant.option_values.filter(value => value.option_name_id != optionName.id)
                     this.selectedVariant.option_values.push(updatedOptionValue)
                 }
 
@@ -910,12 +908,12 @@ export default {
         handleClickCreateVariantOptionValue(event, dataItem) {
             let selectedIndex = event.target.options.selectedIndex
             dataItem.creating_variant_selected_id = event.target.options[event.target.options.selectedIndex].value
-            if (selectedIndex === 0) dataItem.is_new = !dataItem.is_new
-            if (dataItem.is_new === true && selectedIndex !== 0) dataItem.is_new = false
+            if (selectedIndex == 0) dataItem.is_new = !dataItem.is_new
+            if (dataItem.is_new == true && selectedIndex != 0) dataItem.is_new = false
         },
         deleteOptionInCreateForm(event, optionId) {
             event.stopPropagation()
-            this.createOptionFormData = this.createOptionFormData.filter(option => option.id !== optionId)
+            this.createOptionFormData = this.createOptionFormData.filter(option => option.id != optionId)
         },
         addOptionNameInForm() {
             let lastId = this.createOptionFormData[this.createOptionFormData.length - 1].id
@@ -936,12 +934,12 @@ export default {
             try {
                 await axios.delete(`/admin/products/${this.product.id}/images/${imageId}`)
 
-                let itemToDelete = this.product.images.find(image => image.id === imageId)
+                let itemToDelete = this.product.images.find(image => image.id == imageId)
                 let idx = this.product.images.indexOf(itemToDelete)
                 this.product.images.splice(idx, 1)
                 if (itemToDelete.variant_id) {
-                    let variant = this.product.variants?.find(variant => variant.id === itemToDelete.variant_id)
-                    variant.images = variant.images.filter(img => img.id !== itemToDelete.id)
+                    let variant = this.product.variants?.find(variant => variant.id == itemToDelete.variant_id)
+                    variant.images = variant.images.filter(img => img.id != itemToDelete.id)
                 }
             } catch (e) {
                 alert(e)
@@ -965,7 +963,7 @@ export default {
             try {
                 event.preventDefault()
                 //Проверка что форму засабмитила именно кнопка удлить выбранное
-                if (event.submitter.dataset.deleteVariantsButton === '' && this.product.variants && this.product.variants.length) {
+                if (event.submitter.dataset.deleteVariantsButton == '' && this.product.variants && this.product.variants.length) {
                     let variantsIdsToDelete = []
                     let formElements = [...event.target.elements]
                     formElements.map(el => {
@@ -977,7 +975,7 @@ export default {
 
                     await axios.delete(`/admin/products/${this.product.id}/variants?images_ids=${variantsIdsToDelete}`)
                     variantsIdsToDelete.map(variantToDelete => {
-                        this.product.variants = this.product.variants.filter(variant => variant.id !== variantToDelete)
+                        this.product.variants = this.product.variants.filter(variant => variant.id != variantToDelete)
                     })
                 }
             } catch (e) {
@@ -997,7 +995,7 @@ export default {
                 let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant.id}/options/bind-with-new-value`, data)
                 let newOptionValue = response.data.data
 
-                this.selectedVariant.option_values = this.selectedVariant.option_values.filter(value => value.option_name_id !== optionName.id)
+                this.selectedVariant.option_values = this.selectedVariant.option_values.filter(value => value.option_name_id != optionName.id)
                 this.selectedVariant.option_values.push(newOptionValue)
 
             } catch (e) {

@@ -48,13 +48,13 @@ class ProductService implements ProductServiceInterface
 
     public function categoriesWithCheckedProp($product)
     {
-        $allCategories = Category::all();
+        $allCategories = Category::with('child_categories')->get();
         if (count($allCategories) > 0) {
             $productCategories = $product->categories()->whereNull('category_products.deleted_at')->get();
             if (count($productCategories) > 0) {
                 foreach ($allCategories as $category) {
                     foreach ($productCategories as $productCategory) {
-                        if ($productCategory->id === $category->id) {
+                        if ($productCategory->id == $category->id) {
                             $category->is_checked = true;
                             continue 2;
                         }
@@ -72,12 +72,12 @@ class ProductService implements ProductServiceInterface
         $mainCategories = [];
         if (isset($categories) && count($categories) > 0) {
             foreach ($categories as $category) {
-                if ($category->parent_category_id === null) {
+                if ($category->parent_category_id == null) {
                     $mainCategories[] = $category;
                 }
             }
         }
-        if (count($mainCategories) === 0) return null;
+        if (count($mainCategories) == 0) return null;
         foreach ($mainCategories as $mainCategory) {
             $this->mainCategoryChildren($mainCategory, $categories);
 
@@ -89,11 +89,11 @@ class ProductService implements ProductServiceInterface
     {
         $nextMainCategories = [];
         foreach ($categories as $category) {
-            if ($category->parent_category_id === $mainCategory->id) {
+            if ($category->parent_category_id == $mainCategory->id) {
                 $nextMainCategories[] = $category;
             }
         }
-        if (count($nextMainCategories) === 0) return $mainCategory->child_categories = null;
+        if (count($nextMainCategories) == 0) return $mainCategory->child_categories = null;
         foreach ($nextMainCategories as $nextMainCategory) {
             $this->mainCategoryChildren($nextMainCategory, $categories);
         }

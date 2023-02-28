@@ -82,6 +82,7 @@
                                                 <td>{{ product.id }}</td>
                                                 <td>
                                                     <img v-if="product?.images" :src="product?.images[0]?.image_url || '/storage/images/no-image.jpg'" alt="" width="100" height="100">
+                                                    <img v-else src="/storage/images/no-image.jpg" alt="" width="100" height="100">
                                                 </td>
                                                 <td>
                                                     {{ product.title }}
@@ -171,5 +172,7 @@ export default {
 </script>
 
 <style scoped>
-
+    td{
+        vertical-align: middle
+    }
 </style>

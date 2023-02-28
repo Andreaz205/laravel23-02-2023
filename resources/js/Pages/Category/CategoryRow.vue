@@ -2,24 +2,25 @@
     <tr
         data-widget="expandable-table"
         aria-expanded="false"
-        :class="['clickable', {'bg-gray': selectedCategory?.id === category.id}]"
+        :class="['clickable', {'bg-gray': selectedCategory?.id == category.id}]"
         @click="$emit('changeSelectedCategory', category)"
     >
         <td>
-            <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
+            <i class="expandable-table-caret fas fa-caret-right fa-fw" v-if="category.child_categories && category.child_categories.length"></i>
             {{ category.name }}
-            <button id="close" class="mr-2" @click="category.parent_category_id ? emitDeleteCategoryWithoutCategory :  emitDeleteCategoryWithCategory($event, category)">
+            <button v-if="deleteButton" class="mr-2" @click="category.parent_category_id ? emitDeleteCategoryWithoutCategory :  emitDeleteCategoryWithCategory($event, category)">
                 <i class="fas fa-times" ></i>
             </button>
         </td>
     </tr>
 
-    <tr class="expandable-body d-none" v-if="category.child_categories && category.child_categories">
+    <tr class="expandable-body d-none" v-if="category.child_categories && category.child_categories.length">
         <td>
             <div class="p-0" style="display: none;">
                 <table class="table table-hover">
                     <tbody>
                         <CategoryRow
+
                             v-for="cat in category.child_categories"
                             :key="cat.id"
                             :category="cat"
@@ -59,13 +60,13 @@ export default {
     },
     components: {
     },
-    props: ['category', 'selectedCategory', 'changeSelectedCategory'],
+    props: ['category', 'selectedCategory', 'changeSelectedCategory', 'deleteButton'],
     methods: {
         async deleteCategory(event, parentCategory, category) {
             try {
                 event.stopPropagation()
                 await axios.delete(`/admin/categories/${category.id}`)
-                parentCategory.child_categories = parentCategory.child_categories.filter(cat => cat.id !== category.id)
+                parentCategory.child_categories = parentCategory.child_categories.filter(cat => cat.id != category.id)
                 this.$emit('changeSelectedCategory', null)
             } catch (e) {
                 alert(e)

@@ -7,7 +7,7 @@
                     <table class="table table-hover" style="border: none">
                         <tbody v-if="categories && categories.length">
                             <template v-for="category in categories">
-                                <ProductCategoryRow v-if="category.parent_category_id === null" :category-data="category" :product-data="this.$props.productData"/>
+                                <ProductCategoryRow v-if="category.parent_category_id == null" :category-data="category" :product-data="this.$props.productData"/>
                             </template>
                         </tbody>
                     </table>

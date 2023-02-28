@@ -124,6 +124,7 @@
                                                             :category="category"
                                                             @deleteCategory="deleteMainCategory"
                                                             @changeSelectedCategory="changeSelectedCategory"
+                                                            :delete-button="true"
                                                         />
                                                     </template>
                                                 </template>

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->boolean('allow_kits')->default(true);
             $table->integer('threshold')->nullable();
             $table->boolean('is_all_groups')->default(true);
-            $table->boolean('is_all_discounts')->default(true);
+            $table->boolean('is_all_categories')->default(true);
             $table->text('description')->nullable();
             $table->enum('coupon-type', ['disposable', 'reusable'])->nullable();
             $table->date('deadline')->nullable();

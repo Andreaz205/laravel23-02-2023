@@ -155,6 +155,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/statistics', [\App\Http\Controllers\Statistic\StatisticController::class, 'index']);
 
     Route::get('/discounts', [\App\Http\Controllers\Discount\DiscountController::class, 'index']);
+    Route::patch('/discounts/toggle-availability', [\App\Http\Controllers\Discount\DiscountController::class, 'toggle']);
+    Route::post('/discounts/accumulative', [\App\Http\Controllers\Discount\DiscountController::class, 'storeAccumulative']);
 });
 
 require __DIR__.'/auth.php';
