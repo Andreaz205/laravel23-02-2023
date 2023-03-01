@@ -539,11 +539,6 @@
                                                <th>Цена продажи</th>
                                                <th>Старая цена</th>
                                                <th>Цена закупки</th>
-
-                                               <th v-for="group in groups">
-                                                   {{group.title}}
-                                               </th>
-
                                                <th>Остаток</th>
                                                <th style="width: 100px;">
                                                </th>
@@ -638,26 +633,27 @@
                                                    </div>
                                                </td>
 
-                                               <template v-if="groups && groups.length">
-                                                   <td v-for="group in groups">
-                                                       <!--                                    <div class="flex justify-center previous-column">-->
-                                                       <!--                                        <div data-field="quantity" @focusout="updateField($event, variant)"-->
-                                                       <!--                                             v-if="variant.quantity" contenteditable="true">{{ variant.quantity }}-->
-                                                       <!--                                        </div>-->
-                                                       <!--                                        <div data-field="quantity" @focusout="updateField($event, variant)" v-else-->
-                                                       <!--                                             contenteditable="true">—-->
-                                                       <!--                                        </div>-->
-                                                       <!--                                    </div>-->
+<!--                                               <template v-if="groups && groups.length">-->
+<!--                                                   <td v-for="group in groups">-->
+<!--                                                       &lt;!&ndash;                                    <div class="flex justify-center previous-column">&ndash;&gt;-->
+<!--                                                       &lt;!&ndash;                                        <div data-field="quantity" @focusout="updateField($event, variant)"&ndash;&gt;-->
+<!--                                                       &lt;!&ndash;                                             v-if="variant.quantity" contenteditable="true">{{ variant.quantity }}&ndash;&gt;-->
+<!--                                                       &lt;!&ndash;                                        </div>&ndash;&gt;-->
+<!--                                                       &lt;!&ndash;                                        <div data-field="quantity" @focusout="updateField($event, variant)" v-else&ndash;&gt;-->
+<!--                                                       &lt;!&ndash;                                             contenteditable="true">—&ndash;&gt;-->
+<!--                                                       &lt;!&ndash;                                        </div>&ndash;&gt;-->
+<!--                                                       &lt;!&ndash;                                    </div>&ndash;&gt;-->
 
-                                                       <div class="flex justify-center previous-column">
-                                                           <div v-if="variant.price">{{ variant.price + (variant.price * (group.percents) / 100)}}
-                                                           </div>
-                                                           <div data-field="quantity" @click="addFocus" @focusout="updateField($event, variant)" v-else
-                                                                contenteditable="true">—
-                                                           </div>
-                                                       </div>
-                                                   </td>
-                                               </template>
+<!--                                                       <div class="flex justify-center previous-column">-->
+<!--                                                           <div v-if="variant.price">{{ variant.price + (variant.price * (group.percents) / 100)}}-->
+<!--                                                           </div>-->
+<!--                                                           <div data-field="quantity" @click="addFocus" @focusout="updateField($event, variant)" v-else-->
+<!--                                                                contenteditable="true">—-->
+<!--                                                           </div>-->
+<!--                                                       </div>-->
+<!--                                                   </td>-->
+<!--                                               </template>-->
+
                                                <td>
                                                    <div class="flex justify-center previous-column">
                                                        <div data-field="quantity" @focusout="updateField($event, variant)"
@@ -718,7 +714,6 @@ export default {
         'productData',
         'categoriesData',
         'canProducts',
-        'groupsData'
     ],
     data() {
         return {

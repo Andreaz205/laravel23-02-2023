@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Product;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreRequest;
 use App\Http\Requests\Product\UpdateRequest;
+use App\Http\Services\Category\CategoryService;
 use App\Http\Services\Product\ProductService;
 use App\Models\Group;
 use App\Models\Parameter;
@@ -14,11 +15,13 @@ use Illuminate\Support\Facades\Response;
 
 class ProductController extends Controller
 {
-    protected ProductService $service;
+    protected ProductService $productService;
+    protected CategoryService $categoryService;
 
-    public function __construct(ProductService $service)
+    public function __construct(ProductService $productService, CategoryService $categoryService)
     {
-        $this->service = $service;
+        $this->productService = $productService;
+        $this->categoryService = $categoryService;
         $this->middleware('can:product list', ['only' => ['index', 'show']]);
         $this->middleware('can:product create', ['only' => ['create', 'store']]);
         $this->middleware('can:product edit', ['only' => ['edit', 'update']]);
@@ -58,17 +61,15 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product = $this->service->aggregateOptionsForSingleProduct($product);
+        $product = $this->productService->aggregateOptionsForSingleProduct($product);
         $product->load('parameters');
         $product->images = $product->images()->orderBy('position', 'ASC')->get();
         $product->variants = $product->variants()->with(['option_values', 'images'])->get();
-        $categories = $this->service->categoriesWithCheckedProp($product);
-        $groups = Group::where('is_visible_in_products', true)->get();
-
+        $categories = $this->productService->categoriesWithCheckedProp($product);
+        $categories = $this->categoryService->nestedCategories($categories);
         return inertia('Product/Show', [
             'productData' => $product,
             'categoriesData' => $categories,
-            'groupsData' => $groups,
             'can-products' => [
                 'list' => Auth('admin')->user()->can('product list'),
                 'create' => Auth('admin')->user()->can('product create'),
@@ -121,6 +122,6 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
-        Response::json(['status' =>  'success']);
+        Response::json(['status' => 'success']);
     }
 }

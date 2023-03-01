@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('groups', function (Blueprint $table) {
-            $table->boolean('is_visible_in_products')->default(false);
-            $table->integer('percents')->default(0);
+        Schema::create('category_groups', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('category_id')->index()->constrained('categories')->onDelete('cascade');
+            $table->foreignId('group_id')->index()->constrained('groups')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -26,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('groups', function (Blueprint $table) {
-            $table->dropColumn('is_visible_in_products', 'percents');
-        });
+        Schema::dropIfExists('category_groups');
     }
 };

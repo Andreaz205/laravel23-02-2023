@@ -20,4 +20,5 @@ class Discount extends Model
     {
         return $this->belongsToMany(Group::class, 'discount_groups');
     }
+
 }

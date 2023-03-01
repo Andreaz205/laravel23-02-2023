@@ -1,37 +1,13 @@
 <template>
 
     <!--    TODO: Модальное окно для накопительной скидки-->
-    <AccumulativeDiscountForm :categories-data="categoriesData?.data" :groups-data="groupsData"/>
+    <AccumulativeDiscountForm :categories-data="categoriesData?.data" :groups-data="groupsData" @discountCreated="handleDiscountCreated"/>
 
     <!--    TODO: Модальное окно для скидки по сумме заказа-->
-    <div class="modal fade" id="createOrderDiscountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Добавить свойства</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-
-                    Hello world!!!
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
-                    </button>
-                    <button type="button" class="btn btn-primary bg-blue-500" @click="createDiscount">
-                        Создать скидку
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <OrderDiscountForm :categories-data="categoriesData?.data" :groups-data="groupsData" @discountCreated="handleDiscountCreated"/>
 
     <AuthenticatedLayout>
-        <div class="card card-primary card-outline">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">Скидки и бонусы</h3>
             </div>
@@ -74,6 +50,8 @@
 
                     <div class="col-lg-10 col-md-8">
                         <div class="tab-content" id="accumulative-discounts">
+
+
                             <div class="tab-pane fade active show" id="vert-tabs-home" role="tabpanel"
                                  aria-labelledby="vert-tabs-home-tab">
                                 <div class="container-fluid">
@@ -113,17 +91,45 @@
                                                         <th>Категории</th>
                                                         <th>Группы клиентов</th>
                                                         <th>Величина скидки</th>
+                                                        <th></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody v-if="discounts?.accumulative_discounts?.discounts && discounts.accumulative_discounts.discounts.length">
                                                     <tr v-for="discount in discounts.accumulative_discounts.discounts">
-                                                        <td>{{discount.threshold}}</td>
-                                                        <td>John Doe</td>
-                                                        <td>11-7-2014</td>
-                                                        <td>11-7-2014</td>
-                                                        <td><span class="tag tag-success">Approved</span></td>
-                                                        <td>Bacon ipsum dolor sit amet salami venison chicken flank fatback
-                                                            doner.
+                                                        <td>{{discount.threshold}} p</td>
+                                                        <td>{{discount.allow_discounted ? 'Да' : 'Нет'}}</td>
+                                                        <td>{{ discount.allow_kits ? 'Да' : 'Нет'}}</td>
+                                                        <td>
+                                                            <template v-if="discount.categories && discount.categories.length">
+                                                                <span v-for="category in discount.categories">{{category.name}},</span>
+                                                            </template>
+
+                                                            <template v-else>
+                                                                Все
+                                                            </template>
+                                                        </td>
+                                                        <td>
+                                                            <template v-if="discount.available_groups === 'all'">
+                                                                Все
+                                                            </template>
+                                                            <template v-if="discount.available_groups === 'without_groups'">
+                                                                Вне группы
+                                                            </template>
+                                                            <template v-if="
+                                                                discount.available_groups === 'selected' &&
+                                                                discount.groups &&
+                                                                discount.groups.length"
+                                                            >
+                                                                <span v-for="group in discount.groups">{{group.title}}</span><span> </span>
+                                                            </template>
+                                                        </td>
+                                                        <td>
+                                                            {{discount.value}} %
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-danger" @click="deleteDiscount(discount)">
+                                                                Удалить
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                     </tbody>
@@ -133,6 +139,9 @@
                                     </div>
                                 </div>
                             </div>
+
+
+
                             <div class="tab-pane fade" id="order-sum-discounts" role="tabpanel"
                                  aria-labelledby="order-sum-discounts-tab">
                                 <div class="row">
@@ -166,23 +175,53 @@
                                             <table class="table table-hover text-nowrap border-x-2 border-b-2">
                                                 <thead>
                                                 <tr>
-                                                    <th>Стоимость заказов</th>
+                                                    <th>Описание скидки</th>
+                                                    <th>Минимальная сумма заказа</th>
                                                     <th>Уцененённые товары</th>
                                                     <th>Комплекты товаров</th>
                                                     <th>Категории</th>
                                                     <th>Группы клиентов</th>
                                                     <th>Величина скидки</th>
+                                                    <th></th>
                                                 </tr>
                                                 </thead>
                                                 <tbody v-if="discounts?.order_discounts?.discounts && discounts.order_discounts.discounts.length">
                                                 <tr v-for="discount in discounts.order_discounts.discounts">
-                                                    <td>{{discount.threshold}}</td>
-                                                    <td>John Doe</td>
-                                                    <td>11-7-2014</td>
-                                                    <td>11-7-2014</td>
-                                                    <td><span class="tag tag-success">Approved</span></td>
-                                                    <td>Bacon ipsum dolor sit amet salami venison chicken flank fatback
-                                                        doner.
+                                                    <td>{{discount.description}}</td>
+                                                    <td>{{discount.threshold}} p</td>
+                                                    <td>{{discount.allow_discounted ? 'Да' : 'Нет'}}</td>
+                                                    <td>{{ discount.allow_kits ? 'Да' : 'Нет'}}</td>
+                                                    <td>
+                                                        <template v-if="discount.categories && discount.categories.length">
+                                                            <span v-for="category in discount.categories">{{category.name}},</span>
+                                                        </template>
+
+                                                        <template v-else>
+                                                            Все
+                                                        </template>
+                                                    </td>
+                                                    <td>
+                                                        <template v-if="discount.available_groups === 'all'">
+                                                            Все
+                                                        </template>
+                                                        <template v-else-if="discount.available_groups === 'without_groups'">
+                                                            Вне группы
+                                                        </template>
+                                                        <template v-else-if="
+                                                                discount.available_groups === 'selected' &&
+                                                                discount.groups &&
+                                                                discount.groups.length"
+                                                        >
+                                                            <span v-for="group in discount.groups">{{group.title}},</span>
+                                                        </template>
+                                                    </td>
+                                                    <td>
+                                                        {{discount.value}} %
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-danger" @click="deleteDiscount(discount)">
+                                                            Удалить
+                                                        </button>
                                                     </td>
                                                 </tr>
                                                 </tbody>
@@ -191,6 +230,9 @@
                                     </div>
                                 </div>
                             </div>
+
+
+
                             <div class="tab-pane fade" id="user-group-discounts" role="tabpanel"
                                  aria-labelledby="user-group-discounts-tab">
                                 <div class="row">
@@ -201,11 +243,6 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="my-2">
-                                            <button class="btn btn-primary mr-2"
-
-                                            >
-                                                Добавить
-                                            </button>
                                             <button class="btn btn-secondary mr-2"
                                                     v-if="discounts?.group_discounts?.is_available"
                                                     @click="toggleAvailabilityDiscount('group')"
@@ -225,23 +262,28 @@
                                     <table class="table table-hover text-nowrap border-x-2 border-b-2">
                                         <thead>
                                         <tr>
-                                            <th>Стоимость заказов</th>
-                                            <th>Уцененённые товары</th>
+                                            <th>Название группы</th>
+                                            <th>Величина скидки</th>
+                                            <th>Описание скидки</th>
+                                            <th>Уценённые товары</th>
                                             <th>Комплекты товаров</th>
                                             <th>Категории</th>
-                                            <th>Группы клиентов</th>
-                                            <th>Величина скидки</th>
                                         </tr>
                                         </thead>
                                         <tbody v-if="discounts?.group_discounts?.discounts && discounts.group_discounts.discounts.length">
                                         <tr v-for="discount in discounts.group_discounts.discounts">
-                                            <td>{{discount.threshold}}</td>
-                                            <td>John Doe</td>
-                                            <td>11-7-2014</td>
-                                            <td>11-7-2014</td>
-                                            <td><span class="tag tag-success">Approved</span></td>
-                                            <td>Bacon ipsum dolor sit amet salami venison chicken flank fatback
-                                                doner.
+                                            <td>{{discount.title}}</td>
+                                            <td>{{discount.discount}} %</td>
+                                            <td>{{discount.discount_description}}</td>
+                                            <td>{{discount.allow_discounted ? "Да" : "Нет"}}</td>
+                                            <td>{{discount.allow_kits ? "Да" : "Нет"}}</td>
+                                            <td>
+                                                <template v-if="discount.discounted_categories && discount.discounted_categories.length">
+                                                    <span v-for="category in discount.discounted_categories">{{category.name}},</span>
+                                                </template>
+                                                <template v-else>
+                                                    Все
+                                                </template>
                                             </td>
                                         </tr>
                                         </tbody>
@@ -359,9 +401,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import {Link} from '@inertiajs/vue3'
 import AccumulativeDiscountForm from "@/Pages/Discount/AccumulativeDiscountForm.vue";
+import OrderDiscountForm from "@/Pages/Discount/OrderDiscountForm.vue";
 export default {
     name: "Index",
-    components: {AccumulativeDiscountForm, AuthenticatedLayout, Link},
+    components: {OrderDiscountForm, AccumulativeDiscountForm, AuthenticatedLayout, Link},
     props: ['discountsData', 'categoriesData', 'groupsData'],
     data () {
         return {
@@ -369,6 +412,9 @@ export default {
         }
     },
     methods: {
+        handleDiscountCreated(discount) {
+            this.discounts[discount.type + '_discounts'].discounts.push(discount)
+        },
         async toggleAvailabilityDiscount(discountType) {
             try {
                 let data = {type: discountType}
@@ -377,6 +423,14 @@ export default {
                 this.discounts[discountType + '_discounts'].is_available = isAvailable
             } catch (e) {
                 alert(e?.response?.data?.errors ?? e?.message ?? e)
+            }
+        },
+        async deleteDiscount(discount) {
+            try {
+                await axios.delete(`/admin/discounts/${discount.id}`)
+                this.discounts[discount.type + '_discounts'].discounts = this.discounts[discount.type + '_discounts'].discounts.filter(d => d.id !== discount.id)
+            } catch (e) {
+                alert(e?.response?.data?.message ?? e?.message ?? e)
             }
         }
     }

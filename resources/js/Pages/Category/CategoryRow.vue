@@ -6,11 +6,18 @@
         @click="$emit('changeSelectedCategory', category)"
     >
         <td>
-            <i class="expandable-table-caret fas fa-caret-right fa-fw" v-if="category.child_categories && category.child_categories.length"></i>
-            {{ category.name }}
-            <button v-if="deleteButton" class="mr-2" @click="category.parent_category_id ? emitDeleteCategoryWithoutCategory :  emitDeleteCategoryWithCategory($event, category)">
-                <i class="fas fa-times" ></i>
-            </button>
+            <div class="flex justify-between items-center">
+                <div>
+                    <i class="expandable-table-caret fas fa-caret-right fa-fw" v-if="category.child_categories && category.child_categories.length"></i>
+                    {{ category.name }}
+                </div>
+                <div>
+                    <input v-if="hasCheckbox" type="checkbox" class="form-control" @change="onChangeCheckbox($event, category)" @click="handleCheckboxClick" :checked="category.is_checked">
+                    <button v-if="deleteButton" class="mr-2" @click="category.parent_category_id ? emitDeleteCategoryWithoutCategory :  emitDeleteCategoryWithCategory($event, category)">
+                        <i class="fas fa-times" ></i>
+                    </button>
+                </div>
+            </div>
         </td>
     </tr>
 
@@ -26,7 +33,10 @@
                             :category="cat"
                             :selected-category="selectedCategory"
                             @changeSelectedCategory="emitChangeSelectedCategory"
+                            @changeCheckboxValue="emitChangeCheckboxValue"
                             @deleteCategory="deleteCategory($event, category, cat)"
+                            :delete-button="deleteButton"
+                            :has-checkbox="hasCheckbox"
                         />
                     </tbody>
                 </table>
@@ -52,7 +62,7 @@
 
 export default {
     name: "CategoryRow",
-    emits: ['changeSelectedCategory', 'deleteCategory'],
+    emits: ['changeSelectedCategory', 'deleteCategory', 'changeCheckboxValue'],
     data () {
         return {
 
@@ -60,7 +70,7 @@ export default {
     },
     components: {
     },
-    props: ['category', 'selectedCategory', 'changeSelectedCategory', 'deleteButton'],
+    props: ['category', 'selectedCategory', 'changeSelectedCategory', 'deleteButton', 'hasCheckbox'],
     methods: {
         async deleteCategory(event, parentCategory, category) {
             try {
@@ -84,6 +94,17 @@ export default {
             this.emitChangeSelectedCategory(null)
             event.stopPropagation()
             this.$emit('deleteCategory', category)
+        },
+        emitChangeCheckboxValue(category, isChecked) {
+            this.$emit('changeCheckboxValue', category, isChecked)
+        },
+        onChangeCheckbox(event, category) {
+            event.stopPropagation()
+            let isChecked = event.target.checked
+            this.$emit('changeCheckboxValue', category, isChecked)
+        },
+        handleCheckboxClick(event) {
+            event.stopPropagation()
         }
         // findCategoryById(id) {
         //

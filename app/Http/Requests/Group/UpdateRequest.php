@@ -24,8 +24,15 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'is_visible_in_products' => 'required|boolean',
-            'percents' => 'required|integer',
+            'discount' => 'nullable|integer|min:0',
+            'title' => 'nullable|string',
+            'allow_discounted' => 'nullable|boolean',
+            'allow_kits' => 'nullable|boolean',
+            'discount_description' => 'nullable|string',
+            'is_default' => 'nullable|boolean',
+            'categories' => 'array',
+            'categories.*' => 'required|integer|exists:categories,id',
+
         ];
     }
 }

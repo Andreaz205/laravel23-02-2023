@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\Group;
+namespace App\Http\Resources\Discount;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GroupResource extends JsonResource
+class AccumulativeDiscountResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,13 +16,15 @@ class GroupResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'discount' => $this->discount,
-            'is_default' => $this->is_default,
+            'type' => $this->type,
+            'value' => $this->value,
             'allow_discounted' => $this->allow_discounted,
             'allow_kits' => $this->allow_kits,
-            'discount_description' => $this->discount_description,
-            'categories' => $this->discounted_categories,
+            'threshold' => $this->threshold,
+            'available_groups' => $this->available_groups,
+            'categories' => $this->categories,
+            'groups' => $this->groups,
+            'description' => $this->description,
         ];
     }
 }

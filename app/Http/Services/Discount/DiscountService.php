@@ -10,11 +10,11 @@ class DiscountService
 {
     public function getDiscountsWithAvailability()
     {
-        $discounts = Discount::all();
+        $discounts = Discount::with('groups', 'categories')->get();
 
         $accumulativeDiscounts = [];
         $orderDiscounts = [];
-        $groupDiscounts = Group::all();
+        $groupDiscounts = Group::with('discounted_categories')->get();
         $couponDiscounts = [];
 
         foreach ($discounts as $discount) {

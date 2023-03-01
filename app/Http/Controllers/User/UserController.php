@@ -62,6 +62,10 @@ class UserController extends Controller
         $hashedPassword = Hash::make($password);
         $data['password'] = $hashedPassword;
         $data['kind'] = 'organization';
+//        if (!isset($data['group_id'])) {
+//            $defaultGroup = Group::query()->where('is_default', true)->first();
+//            if (isset($defaultGroup)) $data['group_id'] = $defaultGroup->id;
+//        }
         $user = User::create($data);
         return $user;
     }
@@ -73,6 +77,10 @@ class UserController extends Controller
         $hashedPassword = Hash::make($password);
         $data['password'] = $hashedPassword;
         $data['kind'] = 'single';
+//        if (!isset($data['group_id'])) {
+//            $defaultGroup = Group::query()->where('is_default', true)->first();
+//            if (isset($defaultGroup)) $data['group_id'] = $defaultGroup->id;
+//        }
         $user = User::create($data);
         return $user;
     }

@@ -1,10 +1,10 @@
 <template>
-    <div class="modal fade" id="createAccumulativeDiscountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="createOrderDiscountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Добавить накопительную скидку</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Добавить свойства</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -57,6 +57,15 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-3">
+                                <label>Описание скидки</label>
+                            </div>
+                            <div class="col-9">
+                                <textarea class="form-control" v-model="description"></textarea>
+                            </div>
+                        </div>
+
                         <div class="row mt-2">
                             <div class="col-3">
                                 <div>
@@ -76,16 +85,16 @@
                                 <div class="col-12">
                                     <table class="table table-hover border-x-2 border-b-2">
                                         <tbody>
-                                            <template v-for="category in categoriesData" :key="category.id">
-                                                <CategoryRow
-                                                    v-if="!category.parent_category_id"
-                                                    @changeCheckboxValue="handleChangeCategoryCheckboxValue"
-                                                    :category="category"
-                                                    :key="category.id"
-                                                    :delete-button="false"
-                                                    :has-checkbox="true"
-                                                />
-                                            </template>
+                                        <template v-for="category in categoriesData" :key="category.id">
+                                            <CategoryRow
+                                                v-if="!category.parent_category_id"
+                                                @changeCheckboxValue="handleChangeCheckboxValue"
+                                                :category="category"
+                                                :key="category.id"
+                                                :delete-button="false"
+                                                :has-checkbox="true"
+                                            />
+                                        </template>
                                         </tbody>
                                     </table>
                                 </div>
@@ -136,13 +145,13 @@
             </div>
         </div>
     </div>
-
 </template>
 
 <script>
-import CategoryRow from '@/Pages/Category/CategoryRow.vue'
+import CategoryRow from "@/Pages/Category/CategoryRow.vue";
+
 export default {
-    name: "AccumulativeDiscountForm",
+    name: "OrderDiscountForm",
     components: {CategoryRow},
     emits: ['discountCreated'],
     props: ['categoriesData', 'groupsData'],
@@ -150,6 +159,7 @@ export default {
         return {
             // formCategories: this.categoriesData,
             // formGroups: this.groupsData,
+            description: null,
             isSelectGroupOpen: false,
             isSelectCategoryOpen: false,
             threshold: null,
@@ -186,21 +196,13 @@ export default {
         toggleOpenGroups() {
             this.isSelectGroupOpen = !this.isSelectGroupOpen
         },
-        handleChangeGroupCheckboxValue(group, isChecked) {
+        handleChangeCheckboxValue(category, isChecked) {
             if (isChecked) {
-                if (this.groups === 'all') return this.groups = [group.id]
-                return this.groups.push(group.id)
+                if (this.categories === 'all') return this.categories = [category.id]
+                return this.categories.push(category.id)
             } else {
-                if (this.groups !== 'all') return this.groups = this.groups.filter(groupId => groupId !== group.id)
+                if (this.categories !== 'all') return this.categories = this.categories.filter(categoryId => categoryId !== category.id)
             }
-        },
-        handleChangeCategoryCheckboxValue(category, isChecked) {
-          if (isChecked) {
-              if (this.categories === 'all') return this.categories = [category.id]
-              return this.categories.push(category.id)
-          } else {
-              if (this.categories !== 'all') return this.categories = this.categories.filter(categoryId => categoryId !== category.id)
-          }
         },
         async submit() {
             try {
@@ -213,6 +215,7 @@ export default {
                     })
                 }
                 let data = {
+                    description: this.description,
                     threshold: this.threshold,
                     value: this.value,
                     allow_discounted: this.allow_discounted,
@@ -220,7 +223,7 @@ export default {
                     categories: this.categories === 'all' ? [] : this.categories,
                     groups: this.groups === 'all' ? [] : this.groups === 'without_groups' ? 'without_groups' : groupsData,
                 }
-                let response = await axios.post('/admin/discounts/accumulative', data)
+                let response = await axios.post('/admin/discounts/order', data)
                 let discount = response.data.data
                 this.$emit('discountCreated', discount)
             } catch (e) {
