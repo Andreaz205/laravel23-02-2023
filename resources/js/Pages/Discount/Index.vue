@@ -6,6 +6,9 @@
     <!--    TODO: Модальное окно для скидки по сумме заказа-->
     <OrderDiscountForm :categories-data="categoriesData?.data" :groups-data="groupsData" @discountCreated="handleDiscountCreated"/>
 
+    <!--    TODO: Модальное окно для скидки по купону-->
+    <CouponDiscountForm :categories-data="categoriesData?.data" :groups-data="groupsData" @discountCreated="handleDiscountCreated"/>
+
     <AuthenticatedLayout>
         <div class="card card-primary">
             <div class="card-header">
@@ -285,6 +288,7 @@
                                                     Все
                                                 </template>
                                             </td>
+
                                         </tr>
                                         </tbody>
                                     </table>
@@ -337,7 +341,12 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="my-2">
-                                            <button class="btn btn-primary mr-2">
+                                            <button
+                                                class="btn btn-primary bg-blue-500 mr-2"
+                                                type="button"
+                                                data-toggle="modal"
+                                                data-target="#createCouponDiscountModal"
+                                            >
                                                 Добавить
                                             </button>
                                             <button class="btn btn-secondary mr-2"
@@ -358,24 +367,58 @@
                                 <table class="table table-hover text-nowrap border-x-2 border-b-2">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>User</th>
-                                            <th>Date</th>
-                                            <th>Status</th>
-                                            <th>Reason</th>
+                                            <th>Купон</th>
+                                            <th>Тип</th>
+                                            <th>Минимальная стоимость заказа</th>
+                                            <th>Действителен до:</th>
+                                            <th>Использован</th>
+                                            <th>Описание</th>
+                                            <th>Уценённые товары</th>
+                                            <th>Комплекты</th>
+                                            <th>Категории</th>
+                                            <th>Группы</th>
+                                            <th>Величина скидки</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="discount in discounts.coupon_discounts.discounts">
-                                            <td>segh</td>
-                                            <td>John Doe</td>
-                                            <td>11-7-2014</td>
-                                            <td>11-7-2014</td>
+                                            <td>{{ discount.coupon_code }}</td>
+                                            <td>{{ discount.coupon_type === 'disposable' ? 'Одноразовый' : 'Многоразовый' }}</td>
+                                            <td>{{discount.threshold ? discount.threshold + ' р' : ''}}</td>
+                                            <td>{{ discount.deadline }}</td>
+                                            <td>{{ !discount.used_count ? "Не использовался": `Использован ${discount.used_count} раз(а)` }}</td>
+                                            <td>{{discount.description}}</td>
+                                            <td>{{discount.allow_discounted ? 'Да' : 'Нет'}}</td>
+                                            <td>{{ discount.allow_kits ? 'Да' : 'Нет'}}</td>
                                             <td>
-                                                <span class="tag tag-success">Approved</span>
+                                                <template v-if="discount.discounted_categories && discount.discounted_categories.length">
+                                                    <span v-for="category in discount.discounted_categories">{{category.name}},</span>
+                                                </template>
+                                                <template v-else>
+                                                    Все
+                                                </template>
                                             </td>
-                                            <td>Bacon ipsum dolor sit amet salami venison chicken flank fatback
-                                                doner.
+                                            <td>
+                                                <template v-if="discount.available_groups === 'all'">
+                                                    Все
+                                                </template>
+                                                <template v-if="discount.available_groups === 'without_groups'">
+                                                    Вне группы
+                                                </template>
+                                                <template v-if="
+                                                                discount.available_groups === 'selected' &&
+                                                                discount.groups &&
+                                                                discount.groups.length"
+                                                >
+                                                    <span v-for="group in discount.groups">{{group.title}},</span>
+                                                </template>
+                                            </td>
+                                            <td>{{discount.value}} %</td>
+                                            <td>
+                                                <button class="btn btn-danger" @click="deleteDiscount(discount)" >
+                                                    Удалить
+                                                </button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -384,15 +427,11 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="row">
-                    <div class="col-12 text-center mt-2 mb-5">
-                        <span class="text-xl">Бонусы</span>
-                    </div>
-                </div>
             </div>
             <!-- /.card -->
         </div>
+
+        <BonusesForm :bonus="bonus" :categories="categoriesData.data" :groups="groupsData"/>
     </AuthenticatedLayout>
 
 </template>
@@ -402,10 +441,12 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import {Link} from '@inertiajs/vue3'
 import AccumulativeDiscountForm from "@/Pages/Discount/AccumulativeDiscountForm.vue";
 import OrderDiscountForm from "@/Pages/Discount/OrderDiscountForm.vue";
+import CouponDiscountForm from "@/Pages/Discount/CouponDiscountForm.vue";
+import BonusesForm from "@/Pages/Discount/Bonuses/BonusesForm.vue";
 export default {
     name: "Index",
-    components: {OrderDiscountForm, AccumulativeDiscountForm, AuthenticatedLayout, Link},
-    props: ['discountsData', 'categoriesData', 'groupsData'],
+    components: {BonusesForm, OrderDiscountForm,CouponDiscountForm, AccumulativeDiscountForm, AuthenticatedLayout, Link},
+    props: ['discountsData', 'categoriesData', 'groupsData', 'bonus'],
     data () {
         return {
             discounts: this.discountsData

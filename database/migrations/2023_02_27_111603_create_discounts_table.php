@@ -23,10 +23,10 @@ return new class extends Migration
             $table->enum('available_groups', ['all', 'without_groups', 'selected'])->default('all');
             $table->boolean('is_all_categories')->default(true);
             $table->text('description')->nullable();
-            $table->enum('coupon-type', ['disposable', 'reusable'])->nullable();
+            $table->enum('coupon_type', ['disposable', 'reusable'])->nullable();
             $table->date('deadline')->nullable();
             $table->integer('used_count')->nullable();
-            $table->string('coupon-code')->nullable();
+            $table->string('coupon_code')->nullable();
             $table->timestamps();
         });
     }

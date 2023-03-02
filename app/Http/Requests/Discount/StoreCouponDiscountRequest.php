@@ -5,8 +5,10 @@ namespace App\Http\Requests\Discount;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreAccumulativeDiscountRequest extends FormRequest
+class StoreCouponDiscountRequest extends FormRequest
 {
+    protected array $couponTypes = ['disposable', 'reusable'];
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -29,7 +31,11 @@ class StoreAccumulativeDiscountRequest extends FormRequest
             'value' => 'required|integer|min:0',
             'allow_discounted' => 'required|boolean',
             'allow_kits' => 'required|boolean',
-            'threshold' => 'required|integer|min:0',
+            'threshold' => 'nullable|integer|min:0',
+
+            'coupon_code' => 'required|string|max:255',
+            'coupon_type' => ['required', Rule::in($this->couponTypes)],
+            'deadline' => 'nullable|date',
             'groups' => [
                 Rule::when(fn($input) =>  $input['groups'] === 'without_groups', ['string']),
                 Rule::when(fn($input) =>  is_array($input['groups']), [ 'array'])

@@ -41,7 +41,8 @@ class User extends Authenticatable
         'correspondent_account',
         'calculated_account',
         'unloading_address',
-        'is_subscribed_to_news'
+        'is_subscribed_to_news',
+        'bonuses'
     ];
 
     /**

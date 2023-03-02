@@ -158,7 +158,11 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::patch('/discounts/toggle-availability', [\App\Http\Controllers\Discount\DiscountController::class, 'toggle']);
     Route::post('/discounts/accumulative', [\App\Http\Controllers\Discount\DiscountController::class, 'storeAccumulativeDiscount']);
     Route::post('/discounts/order', [\App\Http\Controllers\Discount\DiscountController::class, 'storeOrderDiscount']);
+    Route::post('/discounts/coupon', [\App\Http\Controllers\Discount\DiscountController::class, 'storeCouponDiscount']);
     Route::delete('/discounts/{discount}', [\App\Http\Controllers\Discount\DiscountController::class, 'destroy']);
+
+    Route::patch('/bonuses', [\App\Http\Controllers\Bonus\BonusController::class, 'update']);
+
 });
 
 require __DIR__.'/auth.php';

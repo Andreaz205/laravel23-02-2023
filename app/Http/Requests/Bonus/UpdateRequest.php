@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Discount;
+namespace App\Http\Requests\Bonus;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreAccumulativeDiscountRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,13 +25,16 @@ class StoreAccumulativeDiscountRequest extends FormRequest
     public function rules()
     {
         return [
-            'description' => 'nullable|string:max:255',
-            'value' => 'required|integer|min:0',
-            'allow_discounted' => 'required|boolean',
-            'allow_kits' => 'required|boolean',
-            'threshold' => 'required|integer|min:0',
+            'is_active' => 'nullable|boolean',
+            'coefficient_conversion' => 'nullable|integer|min:0',
+            'register_bonuses' => 'nullable|integer|min:0',
+            'allow_discounted' => 'nullable|boolean',
+            'allow_kits' => 'nullable|boolean',
+            'max_discount_percents' => 'nullable|integer|min:0',
+            'description' => 'nullable|string',
+            'bonus_percent' => 'nullable|integer|min:0',
             'groups' => [
-                Rule::when(fn($input) =>  $input['groups'] === 'without_groups', ['string']),
+                Rule::when(fn($input) =>  $input['groups'] === 'without_groups' || $input['groups'] === 'all', ['string']),
                 Rule::when(fn($input) =>  is_array($input['groups']), [ 'array'])
             ],
             'groups.*' => 'required|integer|exists:groups,id',
