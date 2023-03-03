@@ -26,8 +26,10 @@ class BonusController extends Controller
             } else if (count($data['groups']) > 0) {
                 $requestedGroups = $data['groups'];
                 $availableGroups = 'selected';
+                unset($data['groups']);
             }
         }
+
 
         if (isset($data['categories'])) {
             $requestedCategories = $data['categories'];
@@ -39,16 +41,16 @@ class BonusController extends Controller
             DB::beginTransaction();
             $bonus->update([...$data, 'available_groups' => $availableGroups]);
             if (isset($requestedCategories)) {
-                $bonus->categories()->attach($requestedCategories);
+                $bonus->categories()->sync($requestedCategories);
             }
             if (isset($requestedGroups)) {
-                $bonus->groups()->attach($requestedGroups);
+                $bonus->groups()->sync($requestedGroups);
             }
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
             return Response::json(['error' => $error->getMessage()]);
         }
-        return $bonus;
+        return $bonus->load('categories', 'groups');
     }
 }

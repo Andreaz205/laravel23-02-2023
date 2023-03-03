@@ -12,7 +12,7 @@
                     {{ category.name }}
                 </div>
                 <div>
-                    <input v-if="hasCheckbox" type="checkbox" class="form-control" @change="onChangeCheckbox($event, category)" @click="handleCheckboxClick" :checked="category.is_checked">
+                    <input v-if="hasCheckbox"  type="checkbox" class="form-control" @change="onChangeCheckbox($event, category)" @click="handleCheckboxClick" :checked="category.is_checked || checkedIds?.includes(category.id)">
                     <button v-if="deleteButton" class="mr-2" @click="category.parent_category_id ? emitDeleteCategoryWithoutCategory :  emitDeleteCategoryWithCategory($event, category)">
                         <i class="fas fa-times" ></i>
                     </button>
@@ -37,6 +37,7 @@
                             @deleteCategory="deleteCategory($event, category, cat)"
                             :delete-button="deleteButton"
                             :has-checkbox="hasCheckbox"
+                            :checked-ids="checkedIds"
                         />
                     </tbody>
                 </table>
@@ -70,7 +71,13 @@ export default {
     },
     components: {
     },
-    props: ['category', 'selectedCategory', 'changeSelectedCategory', 'deleteButton', 'hasCheckbox'],
+    props: ['category',
+        'selectedCategory',
+        'changeSelectedCategory',
+        'deleteButton',
+        'hasCheckbox',
+        'checkedIds'
+    ],
     methods: {
         async deleteCategory(event, parentCategory, category) {
             try {

@@ -11,6 +11,11 @@ class Variant extends Model
     use HasFactory;
     protected $guarded = false;
 
+    public function prices()
+    {
+        return $this->hasMany(PriceVariants::class);
+    }
+
     public function option_values()
     {
         return $this->belongsToMany(OptionValue::class, OptionValueVariants::class, 'variant_id', 'option_value_id')->where('option_value_variants.deleted_at', null);

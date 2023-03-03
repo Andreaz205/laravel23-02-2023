@@ -20,6 +20,16 @@ class User extends Authenticatable
         return $this->belongsTo(Group::class, 'group_id', 'id');
     }
 
+    public function cart()
+    {
+        return $this->belongsToMany(Variant::class, 'users_cart_variants');
+    }
+
+    public function favorites()
+    {
+        return $this->belongsToMany(Variant::class, 'users_favorite_variants');
+    }
+
     /**
      * The attributes that are mass assignable.
      *

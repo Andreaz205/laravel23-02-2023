@@ -21,7 +21,8 @@ class CreatedVariantResource extends JsonResource
             'old_price' => $this->old_price,
             'purchase_price' => $this->purchase_price,
             'quantity' => $this->quantity,
-            'option_values' => $this->option_values
+            'option_values' => $this->option_values,
+            'prices' => $this->prices
         ];
     }
 }

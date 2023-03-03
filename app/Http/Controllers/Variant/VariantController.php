@@ -10,6 +10,8 @@ use App\Http\Services\Variant\VariantService;
 use App\Models\OptionName;
 use App\Models\OptionValue;
 use App\Models\OptionValueVariants;
+use App\Models\Price;
+use App\Models\PriceVariants;
 use App\Models\Product;
 use App\Models\Variant;
 use Illuminate\Http\Request;
@@ -52,12 +54,17 @@ class VariantController extends Controller
         $values = $data['values'] ?? null;
         $newOptions = $data['newOptions'] ?? null;
         try {
-            $error = $this->variantService->validateVariantWhenCreate($values, $newValues, $newOptions, $product);
+            $error = $this->variantService
+                ->validateVariantWhenCreate($values, $newValues, $newOptions, $product);
             if (isset ($error)) {
-                if ($error === 'empty_options') return Response::json(['error' => 'Невозможно создать вариант без свойств!'], 400);
-                if ($error === 'new_value_already_exists') return Response::json(['error' => 'Невозможно добавить значение для свойства, т.к. оно уже существет!'], 400);
-                if ($error === 'variant_with_options_already_exists') return Response::json(['error' => 'Вариант с указанными свойствами уже существет!'], 400);
+                if ($error === 'empty_options')
+                    return Response::json(['error' => 'Невозможно создать вариант без свойств!'], 400);
+                if ($error === 'new_value_already_exists')
+                    return Response::json(['error' => 'Невозможно добавить значение для свойства, т.к. оно уже существет!'], 400);
+                if ($error === 'variant_with_options_already_exists')
+                    return Response::json(['error' => 'Вариант с указанными свойствами уже существет!'], 400);
             }
+
             DB::beginTransaction();
             $variant = Variant::create([
                 'product_id' => $product->id
@@ -105,6 +112,18 @@ class VariantController extends Controller
                     ]);
                 }
             }
+
+            $prices = Price::all();
+            if (count($prices) > 0) {
+                foreach ($prices as $price) {
+                    PriceVariants::create([
+                        'variant_id' => $variant->id,
+                        'price_id' => $price->id,
+                        'price' => 0
+                    ]);
+                }
+            }
+
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -136,6 +155,7 @@ class VariantController extends Controller
         }
         Variant::whereIn('id', $result)->delete();
         OptionValueVariants::whereIn('variant_id', $result)->delete();
+
         return Response::json(['status' => 'Deleted successfully!']);
     }
 }

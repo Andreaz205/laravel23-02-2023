@@ -26,7 +26,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             'is_active' => 'nullable|boolean',
-            'coefficient_conversion' => 'nullable|integer|min:0',
+            'coefficient_conversion' => 'nullable|numeric|min:0',
             'register_bonuses' => 'nullable|integer|min:0',
             'allow_discounted' => 'nullable|boolean',
             'allow_kits' => 'nullable|boolean',

@@ -62,6 +62,11 @@
                                         Комплекты
                                     </Link>
                                 </button>
+                                <button class="btn btn-default ml-4">
+                                    <Link href="/admin/prices">
+                                        Цены
+                                    </Link>
+                                </button>
                             </div>
 
                             <div class="card-body table-responsive p-0">

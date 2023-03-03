@@ -9,6 +9,7 @@ use App\Http\Services\Category\CategoryService;
 use App\Http\Services\Product\ProductService;
 use App\Models\Group;
 use App\Models\Parameter;
+use App\Models\Price;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
@@ -64,10 +65,12 @@ class ProductController extends Controller
         $product = $this->productService->aggregateOptionsForSingleProduct($product);
         $product->load('parameters');
         $product->images = $product->images()->orderBy('position', 'ASC')->get();
-        $product->variants = $product->variants()->with(['option_values', 'images'])->get();
+        $product->variants = $product->variants()->with(['option_values', 'images', 'prices'])->get();
         $categories = $this->productService->categoriesWithCheckedProp($product);
         $categories = $this->categoryService->nestedCategories($categories);
+        $prices = Price::all();
         return inertia('Product/Show', [
+            'prices' => $prices,
             'productData' => $product,
             'categoriesData' => $categories,
             'can-products' => [

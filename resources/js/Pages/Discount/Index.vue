@@ -364,65 +364,67 @@
                                         </div>
                                     </div>
                                 </div>
-                                <table class="table table-hover text-nowrap border-x-2 border-b-2">
-                                    <thead>
-                                        <tr>
-                                            <th>Купон</th>
-                                            <th>Тип</th>
-                                            <th>Минимальная стоимость заказа</th>
-                                            <th>Действителен до:</th>
-                                            <th>Использован</th>
-                                            <th>Описание</th>
-                                            <th>Уценённые товары</th>
-                                            <th>Комплекты</th>
-                                            <th>Категории</th>
-                                            <th>Группы</th>
-                                            <th>Величина скидки</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="discount in discounts.coupon_discounts.discounts">
-                                            <td>{{ discount.coupon_code }}</td>
-                                            <td>{{ discount.coupon_type === 'disposable' ? 'Одноразовый' : 'Многоразовый' }}</td>
-                                            <td>{{discount.threshold ? discount.threshold + ' р' : ''}}</td>
-                                            <td>{{ discount.deadline }}</td>
-                                            <td>{{ !discount.used_count ? "Не использовался": `Использован ${discount.used_count} раз(а)` }}</td>
-                                            <td>{{discount.description}}</td>
-                                            <td>{{discount.allow_discounted ? 'Да' : 'Нет'}}</td>
-                                            <td>{{ discount.allow_kits ? 'Да' : 'Нет'}}</td>
-                                            <td>
-                                                <template v-if="discount.discounted_categories && discount.discounted_categories.length">
-                                                    <span v-for="category in discount.discounted_categories">{{category.name}},</span>
-                                                </template>
-                                                <template v-else>
-                                                    Все
-                                                </template>
-                                            </td>
-                                            <td>
-                                                <template v-if="discount.available_groups === 'all'">
-                                                    Все
-                                                </template>
-                                                <template v-if="discount.available_groups === 'without_groups'">
-                                                    Вне группы
-                                                </template>
-                                                <template v-if="
-                                                                discount.available_groups === 'selected' &&
-                                                                discount.groups &&
-                                                                discount.groups.length"
-                                                >
-                                                    <span v-for="group in discount.groups">{{group.title}},</span>
-                                                </template>
-                                            </td>
-                                            <td>{{discount.value}} %</td>
-                                            <td>
-                                                <button class="btn btn-danger" @click="deleteDiscount(discount)" >
-                                                    Удалить
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="container-fluid table-responsive">
+                                    <table class="table table-hover text-nowrap border-x-2 border-b-2">
+                                        <thead>
+                                            <tr>
+                                                <th>Купон</th>
+                                                <th>Тип</th>
+                                                <th>Минимальная стоимость заказа</th>
+                                                <th>Действителен до:</th>
+                                                <th>Использован</th>
+                                                <th>Описание</th>
+                                                <th>Уценённые товары</th>
+                                                <th>Комплекты</th>
+                                                <th>Категории</th>
+                                                <th>Группы</th>
+                                                <th>Величина скидки</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="discount in discounts.coupon_discounts.discounts">
+                                                <td>{{ discount.coupon_code }}</td>
+                                                <td>{{ discount.coupon_type === 'disposable' ? 'Одноразовый' : 'Многоразовый' }}</td>
+                                                <td>{{discount.threshold ? discount.threshold + ' р' : ''}}</td>
+                                                <td>{{ discount.deadline }}</td>
+                                                <td>{{ !discount.used_count ? "Не использовался": `Использован ${discount.used_count} раз(а)` }}</td>
+                                                <td>{{discount.description}}</td>
+                                                <td>{{discount.allow_discounted ? 'Да' : 'Нет'}}</td>
+                                                <td>{{ discount.allow_kits ? 'Да' : 'Нет'}}</td>
+                                                <td>
+                                                    <template v-if="discount.discounted_categories && discount.discounted_categories.length">
+                                                        <span v-for="category in discount.discounted_categories">{{category.name}},</span>
+                                                    </template>
+                                                    <template v-else>
+                                                        Все
+                                                    </template>
+                                                </td>
+                                                <td>
+                                                    <template v-if="discount.available_groups === 'all'">
+                                                        Все
+                                                    </template>
+                                                    <template v-if="discount.available_groups === 'without_groups'">
+                                                        Вне группы
+                                                    </template>
+                                                    <template v-if="
+                                                                    discount.available_groups === 'selected' &&
+                                                                    discount.groups &&
+                                                                    discount.groups.length"
+                                                    >
+                                                        <span v-for="group in discount.groups">{{group.title}},</span>
+                                                    </template>
+                                                </td>
+                                                <td>{{discount.value}} %</td>
+                                                <td>
+                                                    <button class="btn btn-danger" @click="deleteDiscount(discount)" >
+                                                        Удалить
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>

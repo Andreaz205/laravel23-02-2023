@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('bonuses', function (Blueprint $table) {
             $table->id();
             $table->boolean('is_active')->default(false);
-            $table->integer('coefficient_conversion')->nullable();
+            $table->decimal('coefficient_conversion')->nullable();
             $table->integer('bonus_percent')->nullable();
             $table->integer('register_bonuses')->nullable();
             $table->boolean('allow_discounted')->default(false);

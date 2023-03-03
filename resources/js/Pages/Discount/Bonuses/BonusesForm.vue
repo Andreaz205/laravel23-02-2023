@@ -112,6 +112,7 @@
                                     :key="category.id"
                                     :delete-button="false"
                                     :has-checkbox="true"
+                                    :checked-ids="this.bonus.categories && this.bonus.categories.length ? this.bonus.categories.map(c => c.id) : []"
                                 />
                             </template>
                             </tbody>
@@ -130,12 +131,12 @@
                     <select class="form-control" v-model="groupSelect">
                         <option value="all">Все</option>
                         <option value="without_groups">Вне группы</option>
-                        <option value="select" v-if="groups">Выбрать группы</option>
+                        <option value="selected" v-if="groups && groups.length">Выбрать группы</option>
                     </select>
                 </div>
             </div>
 
-            <template v-if="groupSelect === 'select'">
+            <template v-if="groupSelect === 'selected'">
                 <div class="row mt-4" v-if="groups && groups.length">
                     <div class="col-12">
                         <template v-for="group in groups" :key="group.id">
@@ -175,10 +176,10 @@ export default {
     data() {
         return {
             errors: null,
-            categoriesForm: [],
-            groupsForm: [],
-            categorySelect: 'all',
-            groupSelect: 'all',
+            categoriesForm: this.bonus.categories && this.bonus.categories.length ? this.bonus.categories.map(category => category.id) : [],
+            groupsForm: this.bonus.groups && this.bonus.groups.length ? this.bonus.groups.map(category => category.id) : [],
+            categorySelect: this.bonus.categories && this.bonus.categories.length ? 'select' : 'all',
+            groupSelect: this.bonus.available_groups ?? 'all',
             is_active: this.bonus.is_active,
             bonus_percent: this.bonus.bonus_percent,
             max_discount_percents: this.bonus.max_discount_percents,
@@ -225,6 +226,9 @@ export default {
         groupSelect(currentValue, prevValue) {
             if (currentValue !== 'select') this.groupsForm = []
         }
+    },
+    mounted () {
+
     }
 }
 </script>

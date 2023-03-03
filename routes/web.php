@@ -163,6 +163,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::patch('/bonuses', [\App\Http\Controllers\Bonus\BonusController::class, 'update']);
 
+    Route::get('/prices', [\App\Http\Controllers\Price\PriceController::class, 'index']);
+    Route::post('/prices', [\App\Http\Controllers\Price\PriceController::class, 'store']);
+    Route::delete('/prices/{price}', [\App\Http\Controllers\Price\PriceController::class, 'destroy']);
+
 });
 
 require __DIR__.'/auth.php';

@@ -540,6 +540,11 @@
                                                <th>Старая цена</th>
                                                <th>Цена закупки</th>
                                                <th>Остаток</th>
+                                               <template v-if="prices && prices.length">
+                                                    <th v-for="price in prices">
+                                                        {{price.title}}
+                                                    </th>
+                                               </template>
                                                <th style="width: 100px;">
                                                </th>
                                            </tr>
@@ -665,6 +670,25 @@
                                                    </div>
                                                </td>
 
+                                               <template v-if="prices && prices.length">
+                                                   <td v-for="price in prices">
+
+                                                       <template v-for="variant_price in variant.prices">
+                                                           <div class="flex justify-center previous-column" v-if="variant_price.price_id == price.id">
+                                                               <div data-field="quantity" @focusout="updateField($event, variant)"
+                                                                     contenteditable="true">
+                                                                   {{ variant_price.price }}
+                                                               </div>
+<!--                                                               <div data-field="quantity" -->
+<!--                                                                    @focusout="updateField($event, variant)" v-else-->
+<!--                                                                    contenteditable="true">—-->
+<!--                                                               </div>-->
+                                                           </div>
+                                                       </template>
+
+                                                   </td>
+                                               </template>
+
 
 
                                                <td style="width: 50px;">
@@ -714,11 +738,11 @@ export default {
         'productData',
         'categoriesData',
         'canProducts',
+        'prices'
     ],
     data() {
         return {
             selectedOptionName: null,
-            groups: this.groupsData,
             changeVariantFormData: [],
             selectedVariant: null,
             creatingVariantFormData: this.$props.productData?.option_names,

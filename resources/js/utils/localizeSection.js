@@ -29,4 +29,7 @@ export const localizeSection = (name) => {
     if (name === 'discount') {
         return 'Скидки'
     }
+    if (name === 'price') {
+        return 'Цены'
+    }
 }

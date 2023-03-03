@@ -9,13 +9,13 @@ use App\Http\Requests\Discount\StoreRequest;
 use App\Http\Requests\Discount\ToggleAvailabilityRequest;
 use App\Http\Resources\Category\CategoryResource;
 use App\Http\Resources\Discount\AccumulativeDiscountResource;
+use App\Http\Services\Category\CategoryService;
 use App\Http\Services\Discount\DiscountService;
 use App\Models\Bonus;
 use App\Models\Category;
 use App\Models\Discount;
 use App\Models\DiscountsAvailability;
 use App\Models\Group;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 
@@ -32,7 +32,7 @@ class DiscountController extends Controller
     public function index(DiscountService $service)
     {
         $discounts = $service->getDiscountsWithAvailability();
-        $bonus = Bonus::first();
+        $bonus = Bonus::with('groups', 'categories')->first();
         $categories = Category::query()->whereNull('parent_category_id')->with('child_categories')->get();
         $groups = Group::all();
         return inertia('Discount/Index', [

@@ -66,7 +66,7 @@ class SocialiteController extends Controller
             ]
         );
         $token = $userCreated->createToken('token-name')->plainTextToken;
-        return response()->json($userCreated, 200, ['Access-Token' => $token]);
+        return response()->json($userCreated . " " . $token, 200, ['Access-Token' => $token]);
     }
 
     /**
