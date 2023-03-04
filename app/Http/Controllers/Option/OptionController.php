@@ -7,6 +7,7 @@ use App\Http\Requests\BindOptionWithNewValueToVariantRequest;
 use App\Http\Requests\Option\BindOptionToVariantRequest;
 use App\Http\Resources\Option\OptionValuesResource;
 use App\Models\OptionName;
+use App\Models\OptionNameProducts;
 use App\Models\OptionValue;
 use App\Models\OptionValueVariants;
 use App\Models\Product;
@@ -26,52 +27,116 @@ class OptionController extends Controller
         $this->middleware('can:product delete', ['only' => ['destroy']]);
     }
 
-
     public function store(Request $request, Product $product)
     {
+
         $validator = Validator::make($request->all(), [
             'options' => 'required|array',
-            'options.*.name' => 'string',
-            'options.*.default_value' => 'string',
+            'options.*.option_name_id' => 'integer|exists:option_names,id',
+            'options.*.option_value_id' => 'integer|exists:option_values,id',
+            'options.*.name' => 'string|unique:option_names,title',
+            'options.*.value' => 'string|unique:option_values,title',
         ]);
 
         if ($validator->fails()) {
             return Response::json(['errors' => $validator->messages()], 422);
         }
         $data = $validator->validated();
-
+        $options = $data['options'];
         try {
             DB::beginTransaction();
-            foreach ($data['options'] as $option) {
-                $newOptionValueAsDefault = OptionValue::create([
-                    'title' => $option['default_value'],
-                    'product_id' => $product->id,
-                    'is_default' => true
-                ]);
-                $newOptionName = OptionName::create([
-                    'title' => $option['name'],
-                    'product_id' => $product->id,
-                    'default_option_value_id' => $newOptionValueAsDefault->id,
-                ]);
-                $newOptionValueAsDefault->option_name_id = $newOptionName->id;
-                $newOptionValueAsDefault->save();
+            foreach ($options as $option) {
+                if (isset($option['name']) && isset($option['value'])) {
+                    $newName = $option['name'];
+                    $newValue = $option['value'];
 
-                $variants = $product->variants;
-                if (isset($variants) && count($variants) > 0) {
-                    foreach ($variants as $variant) {
-                        OptionValueVariants::create([
-                           'option_value_id' => $newOptionValueAsDefault->id,
-                           'variant_id' => $variant->id,
-                        ]);
+                    $optionName = OptionName::create([
+                        'title' =>  $newName,
+                    ]);
+                    $value = OptionValue::create([
+                        'title' => $newValue,
+                        'option_name_id' => $optionName->id,
+                    ]);
+                    $product->option_names()->attach($optionName->id, ['default_option_value_id' => $value->id]);
+
+                } else if (isset($option['option_name_id']) && isset($option['value'])) {
+                    $optionNameId = $option['option_name_id'];
+                    $newValue = $option['value'];
+                    $candidateName = OptionName::find($optionNameId);
+                    $candidateValue = $candidateName->option_values()->where('title', $newValue)->first();
+                    if (isset($candidateValue)) {
+                        $errorData = array(['Указанное вами значение ' . $candidateValue->title . ' уже существует!']);
+                        return Response::json(['errors' => $errorData], 422);
                     }
+                    $value = OptionValue::create([
+                        'title' => $newValue,
+                        'option_name_id' => $optionNameId,
+                    ]);
+                    $product->option_names()->attach($optionNameId, ['default_option_value_id' => $value->id]);
+
+                } else if (isset($option['option_name_id']) && isset($option['option_value_id'])) {
+
+                    $optionNameId = $option['option_name_id'];
+                    $optionValueId = $option['option_value_id'];
+                    $candidate = $product->option_names()->where('option_name_id', $optionNameId)->first();
+                    if (isset($candidate)) {
+                        $errorData = array(['Указанное вами свойство ' . $candidate->title . ' уже существует!']);
+                        return Response::json(['errors' => $errorData], 422);
+                    }
+                    $product->option_names()->attach($optionNameId, ['default_option_value_id' => $optionValueId]);
                 }
             }
-           DB::commit();
-        } catch (\Exception $exception) {
+            DB::commit();
+        } catch (\Exception $error) {
             DB::rollBack();
-            return response()->json(['error' => $exception->getMessage()]);
+            return Response::json(['error' => $error->getMessage()], 500);
         }
-        return Response::json(['status' => 'success']);
+
+        return null;
+
+//        $validator = Validator::make($request->all(), [
+//            'options' => 'required|array',
+//            'options.*.name' => 'string',
+//            'options.*.default_value' => 'string',
+//        ]);
+//
+//        if ($validator->fails()) {
+//            return Response::json(['errors' => $validator->messages()], 422);
+//        }
+//        $data = $validator->validated();
+//
+//        try {
+//            DB::beginTransaction();
+//            foreach ($data['options'] as $option) {
+//                $newOptionValueAsDefault = OptionValue::create([
+//                    'title' => $option['default_value'],
+//                    'product_id' => $product->id,
+//                    'is_default' => true
+//                ]);
+//                $newOptionName = OptionName::create([
+//                    'title' => $option['name'],
+//                    'product_id' => $product->id,
+//                    'default_option_value_id' => $newOptionValueAsDefault->id,
+//                ]);
+//                $newOptionValueAsDefault->option_name_id = $newOptionName->id;
+//                $newOptionValueAsDefault->save();
+//
+//                $variants = $product->variants;
+//                if (isset($variants) && count($variants) > 0) {
+//                    foreach ($variants as $variant) {
+//                        OptionValueVariants::create([
+//                           'option_value_id' => $newOptionValueAsDefault->id,
+//                           'variant_id' => $variant->id,
+//                        ]);
+//                    }
+//                }
+//            }
+//           DB::commit();
+//        } catch (\Exception $exception) {
+//            DB::rollBack();
+//            return response()->json(['error' => $exception->getMessage()]);
+//        }
+//        return Response::json(['status' => 'success']);
     }
 
 

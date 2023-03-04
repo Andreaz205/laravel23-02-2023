@@ -2,62 +2,11 @@
     <AuthenticatedLayout>
 
         <!--    TODO: Модальное окно для редактирования свойств-->
-        <div class="modal fade" id="createOptionsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Добавить свойства</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <template v-if="createOptionFormData && createOptionFormData.length">
-                            <div class="row" v-for="option in createOptionFormData">
-                                <div
-                                    :class="[{'col-sm-6': option.id == createOptionFormData[0].id}, {'col-sm-5': option.id != createOptionFormData[0].id}]">
-                                    <!-- text input -->
-                                    <div class="form-group">
-                                        <label>Название свойства</label>
-                                        <input type="text" v-model="option.name" class="form-control"
-                                               placeholder="Введите название свойства">
-                                    </div>
-                                </div>
-                                <div
-                                    :class="[{'col-sm-6': option.id == createOptionFormData[0].id}, {'col-sm-5': option.id != createOptionFormData[0].id}]">
-                                    <div class="form-group">
-                                        <label>Значение по умолчанию</label>
-                                        <input type="text" class="form-control" v-model="option.defaultValue"
-                                               placeholder="Введите значение по умолчанию">
-                                    </div>
-                                </div>
-                                <div class="col-sm-2 d-flex justify-center items-end"
-                                     v-if="option.id != createOptionFormData[0].id">
-                                    <div class="form-group">
-                                        <button class="btn btn-danger"
-                                                @click="deleteOptionInCreateForm($event, option.id)">
-                                            Удалить
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex justify-center">
-                                <button class="btn btn-info" @click="addOptionNameInForm">
-                                    Добавить свойство
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
-                        </button>
-                        <button type="button" class="btn btn-primary bg-blue-500" @click="createOptionFetch">Сохранить
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <OptionsModal
+            :product="product"
+            :product-option-names="this.product.option_names"
+            :all-option-names="allOptionNamesData"
+        />
 
         <!--    TODO: Модальное окно для редактирования свойства в целом-->
         <div class="modal fade" id="editOptionModal" tabindex="-1" role="dialog" aria-labelledby="optionNameColorModal"
@@ -87,90 +36,11 @@
         </div>
 
         <!--    TODO: Модальное окно для создания варианта-->
-        <div class="modal fade" id="createVariantModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Добавить свойства</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-
-                        <template v-if="creatingVariantFormData && creatingVariantFormData.length">
-                            <div class="container-fluid" v-for="dataItem in creatingVariantFormData">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label>{{ dataItem.title }}</label>
-                                            <select class="custom-select"
-                                                    @change="handleClickCreateVariantOptionValue($event, dataItem)"
-                                                    :value="dataItem.creating_variant_selected_id">
-                                                <option value="new">Добавить новое значение</option>
-                                                <option v-for="(value) in dataItem.option_values" :value="value.id">
-                                                    {{ value.title }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div v-if="dataItem.is_new" class="row">
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <input type="text" v-model="dataItem.new_value" class="form-control"
-                                                   placeholder="Введите название свойства">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-
-                        <template v-else>
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-xl-12 mb-2">
-                                        <button class="btn btn-primary" @click="addVariantCreatingOption">
-                                            Добавить свойство
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row" v-for="option in variantCreatingOptions">
-                                    <div class="col-5">
-                                        <div class="form-group">
-                                            <label>Название свойства</label>
-                                            <input type="text" class="form-control" v-model="option.name"
-                                                   placeholder="Введите название свойства">
-                                        </div>
-                                    </div>
-                                    <div class="col-5">
-                                        <div class="form-group">
-                                            <label>Значение по умолчанию</label>
-                                            <input type="text" class="form-control" v-model="option.value"
-                                                   placeholder="Введите значение по умолчанию">
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-2 flex justify-center items-center" v-if="option.id != 1">
-                                        <button class="btn btn-danger" @click="deleteVariantCreatingOption(option.id)">
-                                            Удалить
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
-                        </button>
-                        <button type="button" class="btn btn-primary bg-blue-500" @click="createVariant">Добавить
-                            вариант
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <CreateVariantModal
+            :product-option-names="this.productData?.option_names"
+            :product="product"
+            @variantCreated="handleCreatedVariant"
+        />
 
         <!--    TODO: Модальное окно для редактирования свойств варианта-->
         <div class="modal fade" id="changeVariantOptionsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -501,7 +371,7 @@
 
                                                 <div>
                                                     <button
-                                                        v-if="canProducts.edit"
+                                                        v-if="canProducts.edit && this.productData?.option_names && this.productData?.option_names.length"
                                                         type="button" class="btn btn-primary bg-blue"
                                                         data-toggle="modal" data-target="#createVariantModal"
                                                     >
@@ -722,11 +592,15 @@ import ProductCategories from '@/Pages/Product/ProductCategories.vue'
 import DraggableProductImages from '@/Pages/Product/DraggableProductImages.vue'
 import ModalImages from '@/Pages/Product/ModalImages.vue'
 import CustomSwitch from "@/Components/CustomSwitch.vue";
+import CreateVariantModal from "@/Pages/Product/Modal/CreateVariantModal.vue";
+import OptionsModal from "@/Pages/Product/Modal/OptionsModal.vue";
 
 export default {
     name: "Product",
     components: {
+        CreateVariantModal,
         CustomSwitch,
+        OptionsModal,
         AuthenticatedLayout,
         Link,
         ProductCategories,
@@ -738,14 +612,15 @@ export default {
         'productData',
         'categoriesData',
         'canProducts',
-        'prices'
+        'prices',
+        'allOptionNames'
     ],
     data() {
         return {
             selectedOptionName: null,
             changeVariantFormData: [],
             selectedVariant: null,
-            creatingVariantFormData: this.$props.productData?.option_names,
+            allOptionNamesData: this.allOptionNames,
             optionNames: null,
             isDeleteOptionOpen: null,
             isCreateOptionOpen: null,
@@ -758,17 +633,15 @@ export default {
                     defaultValue: null
                 }
             ],
-            variantCreatingOptions: [{
-                id: 1,
-                name: null,
-                value: null
-            }],
             optionsForDeleteForm: null
         }
     },
     methods: {
         addFocus(e) {
           e.target.focus()
+        },
+        handleCreatedVariant(variant) {
+            this.product.variants.push(variant)
         },
         async updateField(event, variant) {
             try {
@@ -834,71 +707,7 @@ export default {
                 alert(e)
             }
         },
-        async createVariant() {
-            try {
-                let newOptionValues = []
-                let optionsForBind = []
-                let data
-                if (this.product.option_names && this.product.option_names.length) {
-                    this.creatingVariantFormData.map(item => {
-                        if (item.creating_variant_selected_id != 'new') {
-                            optionsForBind.push(item.creating_variant_selected_id)
-                        }
-                    })
 
-                    this.creatingVariantFormData.map(item => {
-                        if (item.is_new) {
-                            newOptionValues.push({
-                                'value': item.new_value,
-                                'name_id': item.id,
-                            })
-                        }
-                    })
-                    data = {
-                        newValues: newOptionValues,
-                        values: optionsForBind
-                    }
-                    let response = await axios.post(`/admin/products/${this.product.id}/variants`, data)
-                    let newVariant = response.data.data
-                    this.product.variants.push(newVariant)
-
-
-                    if (newOptionValues &&  newOptionValues.length) {
-
-                        newOptionValues.map(newValue => {
-
-                            let val = newVariant.option_values.find(val => val.option_name_id == newValue.name_id)
-
-                            let nameToUpdate = this.creatingVariantFormData.find(name => name.id == newValue.name_id)
-                            nameToUpdate?.option_values.push({
-                                id: val.id,
-                                option_name_id: newValue.name_id,
-                                is_default: true,
-                                product_id: this.product.id,
-                                title: newValue.value,
-                            })
-
-                            nameToUpdate.creating_variant_selected_id = +val.id
-                            nameToUpdate.is_new = false
-                        })
-                    }
-                } else {
-                    data = {
-                        newOptions: this.variantCreatingOptions,
-                    }
-                    await axios.post(`/admin/products/${this.product.id}/variants`, data)
-                    location.reload()
-                }
-            } catch (e) {
-                alert(e)
-            }
-        },
-        deleteVariantCreatingOption(id) {
-            if (this.variantCreatingOptions.length <= 1) {
-                return;
-            }
-            this.variantCreatingOptions = this.variantCreatingOptions.filter(option => option.id != id)
-        },
         async handleClickChangeVariantOptionValue(event, optionName) {
             try {
                 let optionValueId = event.target.options[event.target.options.selectedIndex].value
@@ -919,16 +728,6 @@ export default {
                 alert(e)
             }
 
-        },
-        addVariantCreatingOption() {
-            let lastId = this.variantCreatingOptions[this.variantCreatingOptions.length - 1].id + 1
-            this.variantCreatingOptions.push({id: lastId, name: null, value: null})
-        },
-        handleClickCreateVariantOptionValue(event, dataItem) {
-            let selectedIndex = event.target.options.selectedIndex
-            dataItem.creating_variant_selected_id = event.target.options[event.target.options.selectedIndex].value
-            if (selectedIndex == 0) dataItem.is_new = !dataItem.is_new
-            if (dataItem.is_new == true && selectedIndex != 0) dataItem.is_new = false
         },
         deleteOptionInCreateForm(event, optionId) {
             event.stopPropagation()
@@ -1059,9 +858,9 @@ export default {
             this.dropzone.on("addedfile", (file) => this.storeImage(file));
         }
 
-        this.creatingVariantFormData = this.creatingVariantFormData.map(item => ({
-            ...item, is_new: false, new_value: null, creating_variant_selected_id: item.default_option_value_id
-        }))
+        // this.creatingVariantFormData = this.creatingVariantFormData.map(item => ({
+        //     ...item, is_new: false, new_value: null, creating_variant_selected_id: item.default_option_value_id
+        // }))
     }
 }
 </script>

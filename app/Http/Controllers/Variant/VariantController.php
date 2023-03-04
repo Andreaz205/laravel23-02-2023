@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Validator;
 
 class VariantController extends Controller
 {
-//    protected VariantService $variantService;
+    protected VariantService $variantService;
 
     public function __construct(VariantService $variantService)
     {
@@ -39,7 +39,7 @@ class VariantController extends Controller
             'newOptions.*.name' => 'required|string',
             'newOptions.*.value' => 'required|string',
             'newValues' => 'array',
-            'newValues.*.value' => 'required|string',
+            'newValues.*.value' => 'required|string|unique:option_values,title',
             'newValues.*.name_id' => 'required|integer|exists:option_names,id',
             'values' => 'array',
             'values.*' => 'integer|required',
@@ -53,6 +53,7 @@ class VariantController extends Controller
         $newValues = $data['newValues'] ?? null;
         $values = $data['values'] ?? null;
         $newOptions = $data['newOptions'] ?? null;
+
         try {
             $error = $this->variantService
                 ->validateVariantWhenCreate($values, $newValues, $newOptions, $product);
@@ -65,39 +66,42 @@ class VariantController extends Controller
                     return Response::json(['error' => 'Вариант с указанными свойствами уже существет!'], 400);
             }
 
+
             DB::beginTransaction();
             $variant = Variant::create([
                 'product_id' => $product->id
             ]);
 
+
             $productOptionNames = $product->option_names;
             if (isset($newOptions) && (count($newOptions) > 0) && count($productOptionNames) < 1) {
-                foreach ($newOptions as $newOption) {
-
-                    $newOptionValue = OptionValue::create([
-                        'title' => $newOption['value'],
-                        'product_id' => $product->id,
-                    ]);
-                    $newOptionName = OptionName::create([
-                        'title' => $newOption['name'],
-                        'product_id' => $product->id,
-                        'default_option_value_id' => $newOptionValue->id
-                    ]);
-                    $newOptionValue->update([
-                        'option_name_id' =>  $newOptionName->id,
-                    ]);
-                    OptionValueVariants::create([
-                        'variant_id' => $variant->id,
-                        'option_value_id' => $newOptionValue->id,
-                    ]);
-                }
+                $errorData = array(['Чтобы добавить вариант необходмо создать свойства!']);
+                return Response::json(['errors' => $errorData], 422);
+//                foreach ($newOptions as $newOption) {
+//
+//                    $newOptionValue = OptionValue::create([
+//                        'title' => $newOption['value'],
+//                        'product_id' => $product->id,
+//                    ]);
+//                    $newOptionName = OptionName::create([
+//                        'title' => $newOption['name'],
+//                        'product_id' => $product->id,
+//                        'default_option_value_id' => $newOptionValue->id
+//                    ]);
+//                    $newOptionValue->update([
+//                        'option_name_id' =>  $newOptionName->id,
+//                    ]);
+//                    OptionValueVariants::create([
+//                        'variant_id' => $variant->id,
+//                        'option_value_id' => $newOptionValue->id,
+//                    ]);
+//                }
             }
 
             else if (isset($newValues) and isset($values)) {
                 foreach($newValues as $newValue) {
-                    $createdValue = OptionValue::firstOrCreate([
+                    $createdValue = OptionValue::create([
                         'title' => $newValue['value'],
-                        'product_id' => $product->id,
                         'option_name_id' => $newValue['name_id']
                     ]);
                     OptionValueVariants::firstOrCreate([

@@ -32,8 +32,13 @@ class Product extends Model
 
     public function option_names()
     {
-        return $this->hasMany(OptionName::class, 'product_id', 'id');
+        return $this->belongsToMany(OptionName::class, OptionNameProducts::class)->withPivot('default_option_value_id');
     }
+
+//    public function option_names()
+//    {
+//        return $this->hasMany(OptionName::class, 'product_id', 'id');
+//    }
 
     public function variants()
     {

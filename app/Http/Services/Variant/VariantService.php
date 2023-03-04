@@ -68,16 +68,16 @@ class  VariantService implements VariantServiceInterface
 
     public function validateNewValues($newValues, $product) {
 
-        if (isset($newValues)) {
-            $productOptionValues = $product->option_values;
-            foreach ($productOptionValues as $productOptionValue) {
-                foreach ($newValues as $newValue) {
-                    if ($newValue['name_id'] === $productOptionValue->option_name_id && $productOptionValue->title === $newValue['value']) {
-                        return true;
-                    }
-                }
-            }
-        }
+//        if (isset($newValues)) {
+//            $productOptionValues = $product->option_values;
+//            foreach ($productOptionValues as $productOptionValue) {
+//                foreach ($newValues as $newValue) {
+//                    if ($newValue['name_id'] === $productOptionValue->option_name_id && $productOptionValue->title === $newValue['value']) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
         return false;
     }
 

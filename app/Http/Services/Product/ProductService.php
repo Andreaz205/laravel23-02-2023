@@ -36,14 +36,14 @@ class ProductService implements ProductServiceInterface
 
     public function aggregateOptionsForSingleProduct($product)
     {
-        if (isset($product) ) {
-            $optionNames = $product->option_names;
-            foreach ($optionNames as $optionName) {
-                $optionName->option_values;
-            }
-            $product->option_names = $optionNames;
-        }
-        return $product;
+//        if (isset($product) ) {
+//            $optionNames = $product->option_names;
+//            foreach ($optionNames as $optionName) {
+//                $optionName->option_values;
+//            }
+//            $product->option_names = $optionNames;
+//        }
+//        return $product;
     }
 
     public function categoriesWithCheckedProp($product)

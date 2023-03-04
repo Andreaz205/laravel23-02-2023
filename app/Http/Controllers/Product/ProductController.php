@@ -8,6 +8,7 @@ use App\Http\Requests\Product\UpdateRequest;
 use App\Http\Services\Category\CategoryService;
 use App\Http\Services\Product\ProductService;
 use App\Models\Group;
+use App\Models\OptionName;
 use App\Models\Parameter;
 use App\Models\Price;
 use App\Models\Product;
@@ -62,7 +63,10 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product = $this->productService->aggregateOptionsForSingleProduct($product);
+//        $product = $this->productService->aggregateOptionsForSingleProduct($product);
+        $productNames = $product->option_names()->with('option_values')->get();
+        $product->option_names = $productNames;
+        $allOptionNames = OptionName::query()->with('option_values')->get();
         $product->load('parameters');
         $product->images = $product->images()->orderBy('position', 'ASC')->get();
         $product->variants = $product->variants()->with(['option_values', 'images', 'prices'])->get();
@@ -73,6 +77,7 @@ class ProductController extends Controller
             'prices' => $prices,
             'productData' => $product,
             'categoriesData' => $categories,
+            'allOptionNames' => $allOptionNames,
             'can-products' => [
                 'list' => Auth('admin')->user()->can('product list'),
                 'create' => Auth('admin')->user()->can('product create'),
