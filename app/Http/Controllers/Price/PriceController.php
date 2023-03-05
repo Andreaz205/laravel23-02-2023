@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Price;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Price\StoreRequest;
+use App\Http\Requests\Price\UpdateRequest;
 use App\Models\Group;
 use App\Models\Price;
 use App\Models\PriceVariants;
@@ -71,6 +72,13 @@ class PriceController extends Controller
         }
 
         return $price->load('groups');
+    }
+
+    public function update(UpdateRequest $request, PriceVariants $pivot)
+    {
+        $data = $request->validated();
+        $pivot->update(['price' => $data['price']]);
+        return $pivot;
     }
 
     public function destroy(Price $price)

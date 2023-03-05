@@ -67,6 +67,11 @@
                                         Цены
                                     </Link>
                                 </button>
+                                <button class="btn btn-default ml-4">
+                                    <Link href="/admin/options">
+                                        Свойства
+                                    </Link>
+                                </button>
                             </div>
 
                             <div class="card-body table-responsive p-0">

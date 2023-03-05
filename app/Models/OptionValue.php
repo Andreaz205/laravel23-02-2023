@@ -12,11 +12,19 @@ class OptionValue extends Model
 
     protected $table = 'option_values';
     protected $guarded = false;
+    protected $hidden = [
+        'pivot'
+    ];
 
     public function getColorLinkAttribute()
     {
         $variantsIds = OptionValueVariants::where('option_value_id', $this->id)->pluck('id')->toArray();
         return Variant::whereIn('id', $variantsIds)->get();
+    }
+
+    public function image()
+    {
+        return $this->hasOne(OptionImage::class, 'option_value_id', 'id');
     }
 //    protected $with = ['option_name'];
 

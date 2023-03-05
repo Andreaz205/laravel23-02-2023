@@ -5,16 +5,20 @@ namespace App\Http\Controllers\Option;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BindOptionWithNewValueToVariantRequest;
 use App\Http\Requests\Option\BindOptionToVariantRequest;
+use App\Http\Requests\Option\StoreImageRequest;
+use App\Http\Resources\Image\OptionImageResource;
 use App\Http\Resources\Option\OptionValuesResource;
+use App\Models\OptionImage;
 use App\Models\OptionName;
-use App\Models\OptionNameProducts;
 use App\Models\OptionValue;
 use App\Models\OptionValueVariants;
 use App\Models\Product;
 use App\Models\Variant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class OptionController extends Controller
@@ -25,6 +29,35 @@ class OptionController extends Controller
         $this->middleware('can:product create', ['only' => ['create', 'store']]);
         $this->middleware('can:product edit', ['only' => ['bind', 'bindWithNewValue', 'toggleIsColor']]);
         $this->middleware('can:product delete', ['only' => ['destroy']]);
+    }
+
+    public function index()
+    {
+        $optionNames = OptionName::with('option_values')->get();
+        return inertia('Option/Index', [
+            'optionNames' => $optionNames,
+            'can-options' => [
+                'list' => Auth('admin')->user()?->can('options list'),
+                'create' => Auth('admin')->user()?->can('options create'),
+                'edit' => Auth('admin')->user()?->can('options edit'),
+                'delete' => Auth('admin')->user()?->can('options delete'),
+            ]
+        ]);
+    }
+
+    public function show(OptionName $name)
+    {
+        $optionValues = $name->option_values()->with('image')->get();
+        return inertia('Option/Show', [
+            'optionName' => $name,
+            'optionValues' => $optionValues,
+            'can-options' => [
+                'list' => Auth('admin')->user()?->can('options list'),
+                'create' => Auth('admin')->user()?->can('options create'),
+                'edit' => Auth('admin')->user()?->can('options edit'),
+                'delete' => Auth('admin')->user()?->can('options delete'),
+            ]
+        ]);
     }
 
     public function store(Request $request, Product $product)
@@ -139,7 +172,6 @@ class OptionController extends Controller
 //        return Response::json(['status' => 'success']);
     }
 
-
     public function bind(Product $product, Variant $variant, BindOptionToVariantRequest $request)
     {
         $data = $request->validated();
@@ -160,16 +192,16 @@ class OptionController extends Controller
           return Response::json(['error' => $e->getMessage()], 500);
         }
         $freshBoundOptionValue = OptionValue::find($optionValueId);
-        return new OptionValuesResource($freshBoundOptionValue);
+//        return new OptionValuesResource($freshBoundOptionValue);
+        return $freshBoundOptionValue;
     }
-
 
     public function bindWithNewValue(Product $product, Variant $variant, BindOptionWithNewValueToVariantRequest $request)
     {
         $data = $request->validated();
         $optionNameId = $data['option_name_id'];
         $newValue = $data['value'];
-        $existsValue = $variant->option_values->where('option_name_id', $optionNameId)->first();
+        $existsValue = $variant->option_values()->where('option_name_id', $optionNameId)->first();
         if (!isset($existsValue)) return Response::json(['error' => 'Invalid request, try to create option_value firstly!'], 400);
         try {
             DB::beginTransaction();
@@ -177,8 +209,8 @@ class OptionController extends Controller
             $newOptionValue = OptionValue::create([
                 'title' => $newValue,
                 'option_name_id' => $optionNameId,
-                'product_id' => $product->id,
             ]);
+//            $variant->option_values()
             OptionValueVariants::where('variant_id', $variant->id)->where('option_value_id', $existsValue->id)->delete();
             OptionValueVariants::create([
                 'variant_id' => $variant->id,
@@ -190,6 +222,43 @@ class OptionController extends Controller
             return Response::json(['error' => $e->getMessage()], 500);
         }
         return new OptionValuesResource($newOptionValue);
+    }
+
+    public function uploadImage(StoreImageRequest $request, OptionValue $value)
+    {
+        $data = $request->validated();
+        $image = $data['image'];
+        $name = md5(Carbon::now() . '_' . $image->getClientOriginalName()) . '.' . $image->getClientOriginalExtension();
+        $filePath = Storage::disk('public')->putFileAs('images', $image, $name);
+        $imageUrl = url('/storage/images/'. $name);
+        $newImage = OptionImage::create([
+            'option_value_id' => $value->id,
+            'image_url' => $imageUrl,
+            'image_path' => $filePath,
+        ]);
+        return new OptionImageResource($newImage);
+    }
+
+    public function updateImage(StoreImageRequest $request, OptionValue $value)
+    {
+        $data = $request->validated();
+        $image = $data['image'];
+        $name = md5(Carbon::now() . '_' . $image->getClientOriginalName()) . '.' . $image->getClientOriginalExtension();
+        $filePath = Storage::disk('public')->putFileAs('images', $image, $name);
+        $imageUrl = url('/storage/images/'. $name);
+        $value->image()->delete();
+        $newImage = OptionImage::create([
+            'option_value_id' => $value->id,
+            'image_url' => $imageUrl,
+            'image_path' => $filePath,
+        ]);
+        return new OptionImageResource($newImage);
+    }
+
+    public function destroyImage(OptionValue $value)
+    {
+        $value->image()->delete();
+        return Response::json(['status' => 'success']);
     }
 
     public function toggleIsColor(Product $product, OptionName $optionName)

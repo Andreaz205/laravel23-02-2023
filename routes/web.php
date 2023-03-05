@@ -165,8 +165,14 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::get('/prices', [\App\Http\Controllers\Price\PriceController::class, 'index']);
     Route::post('/prices', [\App\Http\Controllers\Price\PriceController::class, 'store']);
+    Route::patch('/prices/{pivot}', [\App\Http\Controllers\Price\PriceController::class, 'update']);
     Route::delete('/prices/{price}', [\App\Http\Controllers\Price\PriceController::class, 'destroy']);
 
+    Route::get('/options', [\App\Http\Controllers\Option\OptionController::class, 'index']);
+    Route::get('/options/{name}', [\App\Http\Controllers\Option\OptionController::class, 'show']);
+    Route::post('/options/option-values/{value}/image', [\App\Http\Controllers\Option\OptionController::class, 'uploadImage']);
+    Route::post('/options/option-values/{value}/image/update', [\App\Http\Controllers\Option\OptionController::class, 'updateImage']);
+    Route::delete('/options/option-values/{value}/image', [\App\Http\Controllers\Option\OptionController::class, 'destroyImage']);
 });
 
 require __DIR__.'/auth.php';

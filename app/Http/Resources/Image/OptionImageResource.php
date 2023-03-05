@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\Option;
+namespace App\Http\Resources\Image;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OptionValuesResource extends JsonResource
+class OptionImageResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,8 +17,6 @@ class OptionValuesResource extends JsonResource
         return [
             'id' => $this->id,
             'image_url' => $this->image_url,
-            'option_name_id' => $this->option_name_id,
-            'title' => $this->title,
         ];
     }
 }

@@ -161,9 +161,8 @@ export default {
                     }
                     let response = await axios.post(`/admin/products/${this.product.id}/variants`, data)
                     let newVariant = response.data.data
-                    this.$emit('variantCreated', newVariant)
-                    // this.product.variants.push(newVariant)
 
+                    // this.product.variants.push(newVariant)
 
                     if (newOptionValues &&  newOptionValues.length) {
 
@@ -184,13 +183,15 @@ export default {
                             nameToUpdate.is_new = false
                         })
                     }
-                } else {
-                    data = {
-                        newOptions: this.variantCreatingOptions,
-                    }
-                    await axios.post(`/admin/products/${this.product.id}/variants`, data)
-                    location.reload()
+                    this.$emit('variantCreated', newVariant)
                 }
+                // else {
+                //     data = {
+                //         newOptions: this.variantCreatingOptions,
+                //     }
+                //     await axios.post(`/admin/products/${this.product.id}/variants`, data)
+                //     location.reload()
+                // }
             } catch (e) {
                 console.log(e)
                 let {errorsList} = handleError(e)

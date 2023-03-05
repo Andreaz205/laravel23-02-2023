@@ -70,7 +70,8 @@ class BannerController extends Controller
         $orderArray = $data['order'];
         $bannerItems = BannerImages::all();
         $bannerItemsLength = count($bannerItems);
-        if ($bannerItemsLength !== count($orderArray)) return Response::json(['error' => 'Requested items count does not match records count!'], 400);
+        if ($bannerItemsLength !== count($orderArray))
+            return Response::json(['error' => 'Requested items count does not match records count!'], 400);
         foreach ($orderArray as $key=>$orderItemId) {
             $item = $this->findById($orderItemId, $bannerItems);
             $item->update(['position' => $key]);

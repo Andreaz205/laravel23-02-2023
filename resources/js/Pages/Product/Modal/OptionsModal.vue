@@ -197,6 +197,7 @@ export default {
         async submit() {
             try {
                 let options = []
+
                 this.formData.map(element => {
                     if (element.option_name_id === 'new') {
                         options.push({
@@ -204,11 +205,13 @@ export default {
                             value: element.value,
                         })
                     } else if (element.default_option_value_id === 'new') {
+
                         options.push({
                             option_name_id: element.option_name_id,
                             value: element.value,
                         })
                     } else if (element.option_name_id !== 'default' && element.option_value_id !== 'default') {
+
                         options.push({
                             option_name_id: element.option_name_id,
                             option_value_id: element.default_option_value_id
@@ -216,6 +219,7 @@ export default {
                     }
                 })
                 let response = await axios.post(`/admin/products/${this.product.id}/options`, {options: options})
+
             } catch (e) {
                 console.log(e)
                 let {message, errors, errorsList} = handleError(e)
