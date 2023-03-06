@@ -28,12 +28,7 @@ class SocialiteController extends Controller
         return Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
     }
 
-    /**
-     * Obtain the user information from Provider.
-     *
-     * @param $provider
-     * @return JsonResponse
-     */
+
     public function handleProviderCallback($provider)
     {
         $validated = $this->validateProvider($provider);
@@ -46,6 +41,9 @@ class SocialiteController extends Controller
             return response()->json(['error' => 'Invalid credentials provided.'], 422);
         }
 
+        $email = $user->getEmail();
+        if (!isset($email))
+            return redirect(env('FRONTEND_AUTH_CALLBACK').'?error=В указанном сервисе отсутсвет почта необходимая для регистрации! Попробуйте через другой сервис!');
         $userCreated = User::firstOrCreate(
             [
                 'email' => $user->getEmail()
@@ -65,8 +63,9 @@ class SocialiteController extends Controller
                 'avatar' => $user->getAvatar()
             ]
         );
-        $token = $userCreated->createToken('token-name')->plainTextToken;
-        return response()->json($userCreated . " " . $token, 200, ['Access-Token' => $token]);
+        $token = $userCreated->createToken('auth')->plainTextToken;
+        return redirect(env('FRONTEND_AUTH_CALLBACK').'?token='.$token.'&userId='.$userCreated->id);
+//        return response()->json($userCreated . " " . $token, 200, ['Access-Token' => $token]);
     }
 
     /**

@@ -45,6 +45,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
 
     Route::get('/products', [\App\Http\Controllers\Product\ProductController::class, 'index'])->name('product.index');
+    Route::get('/products/by-term', [\App\Http\Controllers\Product\ProductController::class, 'byTerm']);
     Route::post('/products', [\App\Http\Controllers\Product\ProductController::class, 'store']);
     Route::get('/products/{product}', [\App\Http\Controllers\Product\ProductController::class, 'show'])->name('product.show');
     Route::get('/products/{product}/edit', [\App\Http\Controllers\Product\ProductController::class, 'edit']);
@@ -53,17 +54,17 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::post('/products/{product}/images', [\App\Http\Controllers\Image\ProductImageController::class, 'store']);
     Route::post('/products/{product}/images/order', [\App\Http\Controllers\Image\ProductImageController::class, 'order']);
-
     Route::delete('/products/{product}/images/{productVariantImage}', [\App\Http\Controllers\Image\ProductImageController::class, 'destroy']);
 
     Route::post('/products/{product}/variants', [\App\Http\Controllers\Variant\VariantController::class, 'store']);
     Route::patch('/products/{product}/variants/{variant}/', [\App\Http\Controllers\Variant\VariantController::class, 'updateField']);
-    Route::post('/products/{product}/variants/{variant}/photos/bind', [\App\Http\Controllers\Image\VariantImageController::class, 'bind']);
     Route::delete('/products/{product}/variants', [\App\Http\Controllers\Variant\VariantController::class, 'destroy']);
+
+    Route::post('/products/{product}/variants/{variant}/photos', [\App\Http\Controllers\Image\VariantImageController::class, 'storeImage']);
+    Route::post('/products/{product}/variants/{variant}/photos/bind', [\App\Http\Controllers\Image\VariantImageController::class, 'bind']);
 
     Route::post('/products/{product}/variants/{variant}/options/bind', [\App\Http\Controllers\Option\OptionController::class, 'bind']);
     Route::post('/products/{product}/variants/{variant}/options/bind-with-new-value', [\App\Http\Controllers\Option\OptionController::class, 'bindWithNewValue']);
-
     Route::post('/products/{product}/options', [\App\Http\Controllers\Option\OptionController::class, 'store']);
     Route::delete('/products/{product}/options/{optionName}', [\App\Http\Controllers\Option\OptionController::class, 'destroy']);
     Route::get('/products/{product}/options/{optionName}/toggle-is-color', [\App\Http\Controllers\Option\OptionController::class, 'toggleIsColor']);

@@ -72,6 +72,16 @@
                                         Свойства
                                     </Link>
                                 </button>
+                                <div class="card-tools">
+                                    <div class="input-group input-group-sm" style="width: 150px;">
+                                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search" v-model="searchTerm">
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-default" @click="search(searchTerm)">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="card-body table-responsive p-0">
@@ -114,10 +124,12 @@
 
                                     <li v-for="link in calcPagination">
 <!--                                        <span :class="{active : link.active}" class="page-link" @click="fetchOrdersPage(link.url)">{{link.label}}</span>-->
-                                        <span
+                                        <Link
                                             :class="['cursor-pointer border-[1px] rounded-sm border-blue-500 bg-white p-1 mx-[2px]', {'bg-gray': link.active}]"
-                                            @click="fetchProductsPage(link.url)"
-                                        >{{link.label}}</span>
+                                            :href="link.url"
+                                        >
+                                            {{link.label}}
+                                        </Link>
                                     </li>
 
                                     <li v-if="productsData.current_page !== productsData.last_page" class="h-[32px] cursor-pointer border-[1px] p-1 rounded-sm border-blue-500 bg-white mx-[2px]">
@@ -149,6 +161,7 @@ export default {
     ],
     data () {
         return {
+            searchTerm: '',
             productName: null,
             products: this.$props.productsData?.data,
             pagination: this.productsData?.links
@@ -156,7 +169,7 @@ export default {
     },
     methods: {
         fetchProductsPage(url) {
-            router.visit(url)
+            // router.visit(url)
         },
         async storeProduct() {
             let {data: newProduct} = await axios.post('/admin/products', {title: this.productName})
@@ -165,6 +178,16 @@ export default {
                 //     '/admin/product', {
                 //     method: 'GET'
                 // })
+        },
+        async search(searchTerm) {
+            try {
+                let response = await axios.get(`/admin/products/by-term?term=${searchTerm}`)
+                let data = response.data
+                this.products = data.data
+                this.pagination = data.links
+            } catch (e) {
+                alert(e?.response?.data?.errors ?? e?.message ?? e)
+            }
         },
         visitProduct(product) {
             router.visit(`/admin/products/${product.id}`)

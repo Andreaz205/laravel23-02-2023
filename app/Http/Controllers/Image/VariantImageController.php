@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Image;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Variant\StoreImageRequest;
 use App\Http\Requests\VariantImage\BindImagesVariantRequest;
 use App\Http\Resources\Image\ImageResource;
 use App\Http\Resources\Product\ProductResource;
+use App\Http\Services\Image\UploadImageService;
 use App\Models\Product;
 use App\Models\ProductVariantImage;
 use App\Models\Variant;
@@ -49,5 +51,32 @@ class VariantImageController extends Controller
 //        return ImageResource::collection($refreshedProductImages);
 //        return Response::json(['status' => 'success']);
         return new ProductResource($product);
+    }
+
+    public function storeImage(StoreImageRequest $request, Product $product, Variant $variant, UploadImageService $uploadImageService)
+    {
+        $data = $request->validated();
+        $image = $data['image'];
+
+        try {
+            DB::beginTransaction();
+
+            $data = $uploadImageService->upload($image);
+            $imageUrl = $data['url'];
+            $filePath = $data['path'];
+
+            $newImage = ProductVariantImage::create([
+                'image_path' => $filePath,
+                'image_url' => $imageUrl,
+                'variant_id' => $variant->id,
+                'product_id' => $product->id,
+            ]);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return Response::json(['error' => $e->getMessage()], 400);
+        }
+        return new ImageResource($newImage);
     }
 }

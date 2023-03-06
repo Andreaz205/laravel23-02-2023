@@ -139,6 +139,12 @@
                     <div class="modal-body">
 
                         <ModalImages :product="product" :selected-variant-images="selectedVariant"/>
+                        <div
+                            class="h-[180px] w-[260px] border-dashed border-2 border-black m-2 flex justify-center items-center cursor-pointer"
+                            ref="variant-dropzone"
+                        >
+                            Добавить фото
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
@@ -643,6 +649,7 @@ export default {
     ],
     data() {
         return {
+            variantDropzone: null,
             selectedOptionName: null,
             changeVariantFormData: [],
             selectedVariant: null,
@@ -818,6 +825,18 @@ export default {
                 alert(e)
             }
         },
+        async storeVariantImage(file) {
+            let formData = new FormData()
+            formData.append('image', file)
+            let res = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant.id}/photos`, formData)
+            let newImage = res.data.data
+            this.product.images.push(newImage)
+            let searchedVariant = this.product.variants.find(v => v.id === this.selectedVariant.id)
+            searchedVariant?.images?.push(newImage)
+            // let newImage = res.data.data
+            // this.product.images.push(newImage)
+            // console.log(newImage)
+        },
         async handleDeleteVariants(event) {
             try {
                 event.preventDefault()
@@ -878,7 +897,7 @@ export default {
                 let draggableComponent = this.$refs.draggable
                 let draggableData = draggableComponent.$data
                 let requestData = draggableData.imgs?.map(img => img.id)
-                if (requestData && requestData.length) await axios.post(`/admin/products/${this.product.id}/images/orde`, {order: requestData})
+                if (requestData && requestData.length) await axios.post(`/admin/products/${this.product.id}/images/order`, {order: requestData})
             } catch (e) {
                 alert(e?.response?.data?.message ?? e.message)
             }
@@ -900,8 +919,6 @@ export default {
         }
     },
     mounted() {
-        console.log(this.product)
-        console.log(this.categories)
         if (this.canProducts.edit) {
             this.dropzone = new Dropzone(this.$refs.dropzone, {
                 url: '/admin/products/image/test',
@@ -910,12 +927,16 @@ export default {
                 disablePreviews: true
             })
             this.dropzone.on("addedfile", (file) => this.storeImage(file));
-        }
-        console.log(document.createRange())
 
-        // this.creatingVariantFormData = this.creatingVariantFormData.map(item => ({
-        //     ...item, is_new: false, new_value: null, creating_variant_selected_id: item.default_option_value_id
-        // }))
+            this.variantDropzone = new Dropzone(this.$refs["variant-dropzone"], {
+                url: '/admin/products/image/test',
+                autoProcessQueue: false,
+                maxFiles: 10,
+                disablePreviews: true
+            })
+
+            this.variantDropzone.on("addedfile", (file) => this.storeVariantImage(file));
+        }
     }
 }
 </script>

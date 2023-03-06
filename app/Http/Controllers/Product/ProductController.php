@@ -12,8 +12,10 @@ use App\Models\OptionName;
 use App\Models\Parameter;
 use App\Models\Price;
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -47,7 +49,28 @@ class ProductController extends Controller
                 'delete' => Auth('admin')->user()->can('product delete'),
             ]
         ]);
+    }
 
+    public function byTerm(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'term' => 'nullable|string|max:255'
+        ]);
+        if ($validator->fails()) {
+            return Response::json(['errors' => $validator->errors()], 422);
+        }
+        $data = $validator->validated();
+
+        if (isset($data['term']))
+            $products = Product::where('title', 'ilike', '%'.$data['term'].'%')->with('images')->withCount('variants')->paginate(20);
+        else
+            $products =  Product::with('images')->withCount('variants')->paginate(20);
+
+        foreach ($products as $product) {
+            $product->min_max_price = $product->getMinMaxPriceAttribute();
+            $product->quantity = $product->getQuantityAttribute();
+        }
+        return $products;
     }
 
     public function store(StoreRequest $request)
