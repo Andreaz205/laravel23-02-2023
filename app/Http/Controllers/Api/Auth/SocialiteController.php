@@ -75,7 +75,7 @@ class SocialiteController extends Controller
     protected function validateProvider($provider)
     {
         if (!in_array($provider, ['vkontakte', 'yandex'])) {
-            return response()->json(['error' => 'Please login using vkontakte'], 422);
+            return response()->json(['error' => 'Please login using vkontakte, yandex'], 422);
         }
     }
 }

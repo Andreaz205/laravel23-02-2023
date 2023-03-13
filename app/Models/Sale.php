@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sale extends Model
@@ -11,10 +12,9 @@ class Sale extends Model
     use HasFactory;
     protected $guarded = false;
 
-    public function getProductsAttribute($sale)
+    public function products(): BelongsToMany
     {
-        $productIds = ProductSales::where('sale_id', $sale->id)->pluck('product_id')->toArray();
-        return Product::whereIn('id', $productIds)->get();
+        return $this->belongsToMany(Product::class, ProductSales::class, 'sale_id', 'product_id');
     }
 }
 

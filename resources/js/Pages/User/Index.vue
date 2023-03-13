@@ -11,6 +11,10 @@
                                 <button class="btn btn-default">Группы</button>
                             </Link>
 
+                            <Link href="/admin/user-settings">
+                                <button class="btn btn-default">Настройки</button>
+                            </Link>
+
                             <Link href="/admin/users/create" class="btn btn-primary ml-3">
                                 Добавить
                             </Link>
@@ -101,8 +105,7 @@ export default {
 
     },
     mounted() {
-        console.log(this.pagination)
-        console.log(this.usersData)
+
     }
 }
 </script>

@@ -45,7 +45,7 @@ export default {
 
 <template>
     <div class="hold-transition sidebar-mini layout-fixed">
-        <div class="wrapper">
+        <div class="wrapper" style="background-color: #f4f6f9">
 
             <!-- Navbar -->
             <nav class="main-header navbar navbar-expand navbar-white navbar-light">

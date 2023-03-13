@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -15,6 +16,11 @@ class Product extends Model
 //    {
 //        return $this->hasMany(Variant::class, 'product_id', 'id');
 //    }
+    public function accent_properties(): BelongsToMany
+    {
+        return $this->belongsToMany(AccentProperty::class, 'accent_property_products');
+    }
+
     public function kits()
     {
         return $this->belongsToMany(Kit::class, KitProducts::class, 'product_id', 'kit_id');
@@ -33,6 +39,11 @@ class Product extends Model
     public function option_names()
     {
         return $this->belongsToMany(OptionName::class, OptionNameProducts::class)->withPivot('default_option_value_id');
+    }
+
+    public function product_models()
+    {
+        return $this->hasMany(ProductModel::class);
     }
 
 //    public function option_names()

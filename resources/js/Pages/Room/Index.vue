@@ -1,77 +1,124 @@
 <template>
-    <AuthenticatedLayout>
-        <div class="d-flex justify-center items-center m-2">
-            <button class="btn btn-primary" @click="togglePopup(true)">
-                Добавить комнату
-            </button>
-        </div>
-        <div v-if="isPopupOpen">
-            <div class="fixed top-0 left-0 w-full h-full bg-black opacity-25"></div>
-            <div class="fixed w-full h-full top-0 left-0 d-flex justify-center items-center z-10" @click="clickCallback">
-                <div class='w-96 h-96 bg-white' ref="popup">
-                    <div class="d-flex justify-center items-center m-2">Введите название</div>
-                    <div class="d-flex justify-center items-center m-2">
-                        <input type="text" v-model="roomName" class="border border-black w-full"
-                               placeholder="Введите название комнаты">
-                    </div>
-                    <div class="d-flex justify-center items-center m-2">Прикрепите фотографию для превью</div>
-                    <div class="d-flex justify-center items-center m-2">
-                        <button class="btn btn-default rounded-full m-2" @click="handleFileClick">
-                            Выберите изображение
-                        </button>
-                        <input type="file" @change="setImage" hidden ref="file">
-                    </div>
-                    <div class='d-flex justify-center items-center m-2'>
-                        <div v-if="image" class="relative w-36 h-36">
-                            <img :src="image" alt="" class="absolute object-contain">
+    <Spinner v-if="isLoading"/>
+
+    <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="optionNameColorModal" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Редактировать свойство</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <Errors :errors="errors" />
+
+                    <div class="row">
+                        <div class="col-3">
+                            <label>
+                                Введите название
+                            </label>
+                        </div>
+                        <div class="col-9">
+                            <input type="text" v-model="roomName" class="form-control" placeholder="Введите название комнаты" />
                         </div>
                     </div>
 
-                    <div class="d-flex justify-center items-center m-2">
-                        <button class="btn btn-primary rounded-full m-2" @click="storeRoom">
-                            Создать
-                        </button>
+                    <div class="row">
+                        <div class="col-3">
+                            <label>
+                                Прикрепите фотографию для превью
+                            </label>
+                        </div>
+                        <div class="col-9">
+                            <div ref="create-dropzone" class="h-[400px] bg-gray rounded-xl overflow-hidden"></div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <div v-if="isEditPopupOpen">
-            <div class="fixed top-0 left-0 w-full h-full bg-black opacity-25"></div>
-            <div class="fixed w-full h-full top-0 left-0 d-flex justify-center items-center z-50 popup-wrapper"
-                 @click="editPopupClickCallback">
-                <div class='popup bg-white' ref="editPopup">
-                    <div class="d-flex justify-center items-center m-2">Выберите категории</div>
-
-                    <div v-if="isCategoriesLoading">Loading...</div>
-
-                    <div v-if="fetchedCategories && fetchedCategories.length" class="m-5">
-                        <div v-for="category in fetchedCategories" class="border-b border-b-black">
-                            <div class="d-flex justify-between items-center">
-                                <div>
-                                    {{ category.name }}
-                                </div>
-                                <div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input
-                                                type="checkbox"
-                                                class="custom-control-input cursor-pointer"
-                                                :id="'customSwitch' + category.id"
-                                                @change="toggleBind(category)"
-                                                :checked="category.is_exists"
-                                            >
-                                            <label class="custom-control-label cursor-pointer"
-                                                   :for="'customSwitch' + category.id">Добавить</label>
-                                        </div>
-                                    </div>
+                            <div class="d-flex justify-center items-center m-2">
+                                <button class="btn btn-default rounded-full m-2" @click="handleFileClick">
+                                    Выберите изображение
+                                </button>
+                                <input type="file" @change="setImage" hidden ref="file">
+                            </div>
+                            <div class='d-flex justify-center items-center m-2'>
+                                <div v-if="image" class="relative w-36 h-36">
+                                    <img :src="image" alt="" class="absolute object-contain">
                                 </div>
                             </div>
-                        </div>
-                    </div>
+
+                            <div class="d-flex justify-center items-center m-2">
+                                <button class="btn btn-primary rounded-full m-2" @click="storeRoom">
+                                    Создать
+                                </button>
+                            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
+                    </button>
+                    <button type="button" class="btn btn-primary bg-blue-500" @click="addModel">Добавить
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <AuthenticatedLayout>
+
+        <div class="my-1">
+            <button class="btn btn-primary bg-blue ml-4"
+                    type="button"
+                    data-toggle="modal"
+                    data-target="#createModal"
+            >
+                Добавить
+            </button>
+        </div>
+        <div class="card">
+            <div class="card-header text-center text-xl bg-amber-500">
+                Комнаты
+            </div>
+            <div class="card-body">
+
+            </div>
+        </div>
+
+<!--        <div v-if="isEditPopupOpen">-->
+<!--            <div class="fixed top-0 left-0 w-full h-full bg-black opacity-25"></div>-->
+<!--            <div class="fixed w-full h-full top-0 left-0 d-flex justify-center items-center z-50 popup-wrapper"-->
+<!--                 @click="editPopupClickCallback">-->
+<!--                <div class='popup bg-white' ref="editPopup">-->
+<!--                    <div class="d-flex justify-center items-center m-2">Выберите категории</div>-->
+
+<!--                    <div v-if="isCategoriesLoading">Loading...</div>-->
+
+<!--                    <div v-if="fetchedCategories && fetchedCategories.length" class="m-5">-->
+<!--                        <div v-for="category in fetchedCategories" class="border-b border-b-black">-->
+<!--                            <div class="d-flex justify-between items-center">-->
+<!--                                <div>-->
+<!--                                    {{ category.name }}-->
+<!--                                </div>-->
+<!--                                <div>-->
+<!--                                    <div class="form-group">-->
+<!--                                        <div class="custom-control custom-switch">-->
+<!--                                            <input-->
+<!--                                                type="checkbox"-->
+<!--                                                class="custom-control-input cursor-pointer"-->
+<!--                                                :id="'customSwitch' + category.id"-->
+<!--                                                @change="toggleBind(category)"-->
+<!--                                                :checked="category.is_exists"-->
+<!--                                            >-->
+<!--                                            <label class="custom-control-label cursor-pointer"-->
+<!--                                                   :for="'customSwitch' + category.id">Добавить</label>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <input type="file" ref="updateImage" hidden @change="fetchUpdateImage">
         <div v-if="rooms">
@@ -113,12 +160,17 @@
 
 <script>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Errors from "@/Components/Errors/Errors.vue";
+import Spinner from "@/Components/Spinner.vue";
+import Dropzone from "dropzone";
 export default {
     name: "Rooms",
-    components: {AuthenticatedLayout},
+    components: {Spinner, AuthenticatedLayout, Errors},
     props: ['data'],
     data() {
         return {
+            errors: null,
+            isLoading: false,
             isCategoriesLoading: false,
             selectedRoom: null,
             isPopupOpen: false,
@@ -127,7 +179,8 @@ export default {
             roomName: '',
             image: null,
             imageData: null,
-            fetchedCategories: null
+            fetchedCategories: null,
+            createDropzone: null,
         }
     },
     methods: {
@@ -138,15 +191,6 @@ export default {
             } else if (method === 'delete') {
                 this.deleteImage(room)
             }
-        },
-        handleFileClick() {
-            this.$refs.file.click()
-        },
-        togglePopup(isOpen) {
-            this.isPopupOpen = isOpen
-        },
-        toggleEditPopup(isOpen) {
-            this.isEditPopupOpen = isOpen
         },
         clickCallback(event) {
             let popup = this.$refs.popup
@@ -252,7 +296,16 @@ export default {
         },
     },
     mounted() {
-        console.log(this.$props.data)
+        console.log(this.$refs['create-dropzone'])
+        this.createDropzone =  new Dropzone(this.$refs[`create-dropzone`], {
+            url: '/admin/products/image/test',
+            autoProcessQueue: false,
+            maxFiles: 10,
+            disablePreviews: true
+        })
+        this.createDropzone.on("addedfile", (file) => {
+            this.setImage(this.createDropzone, file)
+        });
     }
 }
 </script>

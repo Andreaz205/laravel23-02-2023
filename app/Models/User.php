@@ -76,7 +76,7 @@ class User extends Authenticatable
 
     public function sendPasswordResetNotification($token)
     {
-        $url = url('password-reset?token=' . $token);
+        $url = env('FRONTEND_RESET_PASSWORD_CALLBACK').'?token='. $token;
         $this->notify(new ResetPasswordNotification($url));
     }
 

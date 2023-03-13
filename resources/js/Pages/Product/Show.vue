@@ -1,6 +1,15 @@
 <template>
     <AuthenticatedLayout>
 
+        <AppendAccentPropertiesModal
+            :all-accent-properties="accentPropertiesData"
+            :product-accent-properties="product.accent_properties"
+            :product="product"
+            @bound="handleAccentPropertiesBound"
+            @delete="handleDeleteAccentProperty"
+        />
+
+        <CreateAccentPropertyModal @created="handleCreateAccentProperty"/>
         <!--    TODO: Модальное окно для редактирования свойств-->
         <OptionsModal
             :product="product"
@@ -22,14 +31,16 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Отображать свойтсво как цвет товара</label>
-                            <CustomSwitch :is-checked="selectedOptionName?.is_color" :switch-id="'option-name-' + selectedOptionName?.id" @changeSwitch="onChangeOptionColor"/>
+                            <CustomSwitch :is-checked="selectedOptionName?.is_color"
+                                          :switch-id="'option-name-' + selectedOptionName?.id"
+                                          @changeSwitch="onChangeOptionColor"/>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
                         </button>
-<!--                        <button type="button" class="btn btn-primary bg-blue-500" @click="saveOption">Сохранить-->
-<!--                        </button>-->
+                        <!--                        <button type="button" class="btn btn-primary bg-blue-500" @click="saveOption">Сохранить-->
+                        <!--                        </button>-->
                     </div>
                 </div>
             </div>
@@ -43,7 +54,8 @@
         />
 
         <!--    TODO: Модальное окно для редактирования свойств варианта-->
-        <div class="modal fade" id="changeVariantOptionsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        <div class="modal fade" id="changeVariantOptionsModal" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalLabel"
              aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
@@ -65,17 +77,21 @@
                                                     @change="handleClickChangeVariantOptionValue($event, option_name)"
                                                     :value="getSelectedVariantOptionNameValue(option_name)">
                                                 <option value="new">Добавить новое значение</option>
-                                                <option v-for="(value, key) in option_name.option_values" :key="value.id" :value="value.id">
+                                                <option v-for="(value, key) in option_name.option_values"
+                                                        :key="value.id" :value="value.id">
                                                     {{ value.title }}
                                                 </option>
                                             </select>
-                                            <form v-if="option_name.edit_form_data_is_new" @submit="onSubmitEditOptionsFormNewValue($event, option_name)">
-                                                <div class="form-group" >
+                                            <form v-if="option_name.edit_form_data_is_new"
+                                                  @submit="onSubmitEditOptionsFormNewValue($event, option_name)">
+                                                <div class="form-group">
                                                     <label>Введите значение</label>
-                                                    <input class="form-control" type="text" placeholder="Введите значение">
+                                                    <input class="form-control" type="text"
+                                                           placeholder="Введите значение">
                                                 </div>
                                                 <div class="form-group">
-                                                    <button class="btn btn-primary bg-blue" type="submit">Сохранить</button>
+                                                    <button class="btn btn-primary bg-blue" type="submit">Сохранить
+                                                    </button>
                                                 </div>
                                             </form>
 
@@ -208,7 +224,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="row  ">
+                                                <div class="row">
                                                     <div v-for="parameter in product.parameters" class="ml-3 col-12">
                                                         <span>{{ parameter.title }}: </span>
                                                         <span>{{ parameter.value }}</span>
@@ -224,9 +240,9 @@
 
                                             <div class="row  ">
                                                 <div class="col-12 pl-4">
-                                                    <div v-if="product.length">Длина - {{product.length}}</div>
-                                                    <div v-if="product.width">Ширина - {{product.width}}</div>
-                                                    <div v-if="product.height">Высота - {{product.height}}</div>
+                                                    <div v-if="product.length">Длина - {{ product.length }}</div>
+                                                    <div v-if="product.width">Ширина - {{ product.width }}</div>
+                                                    <div v-if="product.height">Высота - {{ product.height }}</div>
                                                 </div>
                                             </div>
 
@@ -238,7 +254,7 @@
 
                                             <div class="row my-2">
                                                 <div class="col-12">
-                                                    {{product.description}}
+                                                    {{ product.description }}
                                                 </div>
                                             </div>
                                         </div>
@@ -265,16 +281,14 @@
                                             <div class="col-4">
                                                 <div
                                                     v-if="canProducts.edit"
-                                                     ref="dropzone"
-                                                     class="p-5 flex justify-center items-center min-h-[200px] bg-dark cursor-pointer text-center rounded"
+                                                    ref="dropzone"
+                                                    class="p-5 flex justify-center items-center min-h-[200px] bg-dark cursor-pointer text-center rounded"
                                                 >
                                                     Нажмите либо поместите ваши изображения здесь
                                                 </div>
                                                 <div class="my-3">
                                                     <button class="btn btn-primary w-full"
                                                             @click="saveOrder"
-                                                            v-if="$refs.draggable?.$data?.imgs &&
-                                                            $refs.draggable?.$data?.imgs.length > 1"
                                                     >
                                                         Сохранить порядок
                                                     </button>
@@ -301,6 +315,57 @@
                         </div>
                     </div>
                 </div>
+
+                <AccentProperties :accent-properties-props="product.accent_properties" :product="product"/>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header text-center text-lg bg-yellow">
+                                Прокручиваемые модели
+                            </div>
+                            <div class="card-body">
+                                <div class="container-fluid ">
+
+                                    <template v-if="models && models.length">
+                                        <div v-for="model in models" class="row border rounded-xl mb-3">
+                                            <div class="col-12 text-center py-4">
+                                                <Link :href="`/admin/products/${product.id}/models/edit`" class="text-lg">
+                                                    {{ model.title ?? 'Модель' }}
+                                                </Link>
+                                            </div>
+                                           <div class="col-12 flex justify-center gap-2 items-center" v-if="model.images && model.images.length">
+                                                <div v-for="image in model.images" class="w-[200px] h-[200px]">
+                                                    <img :src="image.image_url" alt="">
+                                                </div>
+                                               <div v-if="model.images_count > 5">
+                                                   <Link :href="`/admin/products/${product.id}/models/edit`">
+                                                       +{{model.images_count - 5}} фото
+                                                   </Link>
+                                               </div>
+                                           </div>
+                                            <div class="col-12 text-center my-2">
+                                                {{model.images_count}}/32
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <div v-else class="text-lg flex justify-center items-center">
+                                        У вас пока нет моделей для данного товара
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <Link :href="`/admin/products/${product.id}/models/edit`">
+                                    <button class="btn btn-primary">
+                                        Редактировать
+                                    </button>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div class="row">
                     <div class="col-12">
@@ -347,9 +412,10 @@
 
                                             <div class="flex absolute right-2">
                                                 <div class="mx-4">
-                                                    <select style="position: fixed; width: 0; height: 0; top: 0; opacity: 0"
-                                                            name="variant_ids[]"
-                                                            id="delete-select" multiple>
+                                                    <select
+                                                        style="position: fixed; width: 0; height: 0; top: 0; opacity: 0"
+                                                        name="variant_ids[]"
+                                                        id="delete-select" multiple>
                                                     </select>
                                                     <button
                                                         v-if="canProducts.edit"
@@ -376,230 +442,234 @@
                                 </div>
 
                                 <div class="row">
-                                   <div class="col-12">
-                                       <table class="variants-table">
-                                           <thead>
-                                           <tr>
-                                               <th style="width: 50px"></th>
-                                               <th>Фото</th>
-                                               <template v-if="product.option_names && product.option_names.length">
-                                                   <th v-for="optionName in product.option_names">
-                                                       <button
-                                                           @click="setSelectedOptionName(optionName)"
-                                                           type="button"
-                                                           data-toggle="modal" data-target="#editOptionModal"
-                                                       >
-                                                           <span class="mr-1">{{ optionName.title }}</span>
-                                                           <i class="fas fa-palette" v-if="optionName.is_color"></i>
-
-                                                       </button>
-                                                   </th>
-                                               </template>
-                                               <th>Артикул</th>
-                                               <th>Цена продажи</th>
-                                               <th>Старая цена</th>
-                                               <th>Цена закупки</th>
-                                               <th>Остаток</th>
-                                               <template v-if="prices && prices.length">
-                                                    <th v-for="price in prices">
-                                                        {{price.title}}
+                                    <div class="col-12">
+                                        <table class="variants-table">
+                                            <thead>
+                                            <tr>
+                                                <th style="width: 50px"></th>
+                                                <th>Фото</th>
+                                                <template v-if="product.option_names && product.option_names.length">
+                                                    <th v-for="optionName in product.option_names">
+                                                        <button
+                                                            @click="setSelectedOptionName(optionName)"
+                                                            type="button"
+                                                            data-toggle="modal" data-target="#editOptionModal"
+                                                        >
+                                                            <span class="mr-1">{{ optionName.title }}</span>
+                                                            <i class="fas fa-palette" v-if="optionName.is_color"></i>
+                                                        </button>
                                                     </th>
-                                               </template>
-                                               <th style="width: 100px;">
-                                               </th>
-                                           </tr>
-                                           </thead>
-                                           <tbody v-if="product.variants && product.variants.length">
+                                                </template>
+                                                <th>Артикул</th>
+                                                <th>Цена продажи</th>
+                                                <th>Старая цена</th>
+                                                <th>Цена закупки</th>
+                                                <th>Остаток</th>
+                                                <template v-if="prices && prices.length">
+                                                    <th v-for="price in prices">
+                                                        {{ price.title }}
+                                                    </th>
+                                                </template>
+                                                <th style="width: 100px;">
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody v-if="product.variants && product.variants.length">
 
-                                           <tr v-for="variant in product.variants">
-                                               <td>
-                                                   <div class="flex justify-center">
-                                                       <input type="checkbox" class="checkbox" :data-variant-id="variant.id">
-                                                   </div>
-                                               </td>
-                                               <td>
-                                                   <div class="flex justify-center">
-                                                       <div class="image-button">
-                                                           <button
-                                                               @click="setSelectedVariant(variant)"
-                                                               v-if="variant.images && variant.images.length"
-                                                               data-toggle="modal" data-target="#bindImagesToVariant"
-                                                               type="button"
-                                                           >
-                                                               <img :src="variant.images[0].image_url" alt="" width="100" height="100">
-                                                           </button>
-                                                           <button v-else
-                                                                   @click="setSelectedVariant(variant)"
-                                                                   data-toggle="modal" data-target="#bindImagesToVariant"
-                                                                   type="button"
-                                                           >
-                                                               <img src="/storage/images/no-image.jpg" alt="" width="100" height="100">
-                                                           </button>
-                                                       </div>
-                                                   </div>
-                                               </td>
+                                            <tr v-for="variant in product.variants">
+                                                <td>
+                                                    <div class="flex justify-center">
+                                                        <input type="checkbox" class="checkbox"
+                                                               :data-variant-id="variant.id">
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex justify-center">
+                                                        <div class="image-button">
+                                                            <button
+                                                                @click="setSelectedVariant(variant)"
+                                                                v-if="variant.images && variant.images.length"
+                                                                data-toggle="modal" data-target="#bindImagesToVariant"
+                                                                type="button"
+                                                            >
+                                                                <img :src="variant.images[0].image_url" alt=""
+                                                                     width="100" height="100">
+                                                            </button>
+                                                            <button v-else
+                                                                    @click="setSelectedVariant(variant)"
+                                                                    data-toggle="modal"
+                                                                    data-target="#bindImagesToVariant"
+                                                                    type="button"
+                                                            >
+                                                                <img src="/storage/images/no-image.jpg" alt=""
+                                                                     width="100" height="100">
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
 
-                                               <template v-for="name in product.option_names">
-                                                   <template v-for="value in variant.option_values">
+                                                <template v-for="name in product.option_names">
+                                                    <template v-for="value in variant.option_values">
 
-                                                       <td v-if="name.id == value.option_name_id">
-                                                           <div class="flex justify-center previous-column">
-                                                               <button
-                                                                   data-toggle="modal" data-target="#changeVariantOptionsModal"
-                                                                   type="button"
-                                                                   @click="setSelectedVariant(variant)"
-                                                               >{{ value.title }}</button>
-                                                           </div>
-                                                       </td>
+                                                        <td v-if="name.id == value.option_name_id">
+                                                            <div class="flex justify-center previous-column">
+                                                                <button
+                                                                    data-toggle="modal"
+                                                                    data-target="#changeVariantOptionsModal"
+                                                                    type="button"
+                                                                    @click="setSelectedVariant(variant)"
+                                                                >{{ value.title }}
+                                                                </button>
+                                                            </div>
+                                                        </td>
 
-                                                   </template>
-                                               </template>
+                                                    </template>
+                                                </template>
 
-                                               <td>
-                                                   <div class="flex justify-center previous-column">
-                                                       <div data-field="code"
-                                                            @focusout="updateField($event, variant)"
-                                                            @focus="handleFocus"
-                                                            v-if="variant.code"
-                                                            contenteditable="true"
-                                                       >
-                                                           {{ variant.code }}
-                                                       </div>
-                                                       <div v-else
-                                                            data-field="code"
-                                                            @focusout="updateField($event, variant)"
-                                                            @focus="handleFocus"
-                                                            contenteditable="true"
-                                                       >
-                                                           —
-                                                       </div>
+                                                <td>
+                                                    <div class="flex justify-center previous-column">
+                                                        <div data-field="code"
+                                                             @focusout="updateField($event, variant)"
+                                                             @focus="handleFocus"
+                                                             v-if="variant.code"
+                                                             contenteditable="true"
+                                                        >
+                                                            {{ variant.code }}
+                                                        </div>
+                                                        <div v-else
+                                                             data-field="code"
+                                                             @focusout="updateField($event, variant)"
+                                                             @focus="handleFocus"
+                                                             contenteditable="true"
+                                                        >
+                                                            —
+                                                        </div>
 
-                                                   </div>
-                                               </td>
-                                               <td>
-                                                   <div class="flex justify-center previous-column">
-                                                       <div
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex justify-center previous-column">
+                                                        <div
                                                             v-if="variant.price" contenteditable="true"
                                                             data-field="price"
                                                             @focusout="updateField($event, variant)"
                                                             @focus="handleFocus"
-                                                       >
-                                                           {{ variant.price }}
+                                                        >
+                                                            {{ variant.price }}
 
-                                                       </div>
-                                                       <div
+                                                        </div>
+                                                        <div
                                                             data-field="price"
                                                             @focus="handleFocus"
                                                             @focusout="updateField($event, variant)" v-else
                                                             contenteditable="true"
-                                                       >
-                                                           —
-                                                       </div>
-                                                   </div>
-                                               </td>
-                                               <td>
-                                                   <div class="flex justify-center previous-column">
-                                                       <div
+                                                        >
+                                                            —
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex justify-center previous-column">
+                                                        <div
                                                             v-if="variant.old_price"
                                                             contenteditable="true"
                                                             data-field="old_price"
                                                             @focusout="updateField($event, variant)"
                                                             @focus="handleFocus"
-                                                       >
-                                                           {{ variant.old_price }}
-                                                       </div>
-                                                       <div
+                                                        >
+                                                            {{ variant.old_price }}
+                                                        </div>
+                                                        <div
                                                             v-else
                                                             data-field="old_price"
                                                             @focusout="updateField($event, variant)"
                                                             @focus="handleFocus"
                                                             contenteditable="true"
-                                                       >
-                                                           —
-                                                       </div>
-                                                   </div>
-                                               </td>
-                                               <td>
-                                                   <div class="flex justify-center previous-column">
-                                                       <div
-                                                           v-if="variant.purchase_price"
-                                                           data-field="purchase_price"
-                                                           @focusout="updateField($event, variant)"
-                                                           contenteditable="true"
-                                                           @focus="handleFocus"
-                                                       >
-                                                           {{ variant.purchase_price }}
-                                                       </div>
-                                                       <div
+                                                        >
+                                                            —
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex justify-center previous-column">
+                                                        <div
+                                                            v-if="variant.purchase_price"
+                                                            data-field="purchase_price"
+                                                            @focusout="updateField($event, variant)"
+                                                            contenteditable="true"
+                                                            @focus="handleFocus"
+                                                        >
+                                                            {{ variant.purchase_price }}
+                                                        </div>
+                                                        <div
                                                             v-else
                                                             data-field="purchase_price"
                                                             @focus="handleFocus"
                                                             @focusout="updateField($event, variant)"
                                                             contenteditable="true">—
-                                                       </div>
-                                                   </div>
-                                               </td>
+                                                        </div>
+                                                    </div>
+                                                </td>
 
-                                               <td>
-                                                   <div class="flex justify-center previous-column">
-                                                       <div
+                                                <td>
+                                                    <div class="flex justify-center previous-column">
+                                                        <div
                                                             v-if="variant.quantity"
                                                             data-field="quantity"
                                                             @focusout="updateField($event, variant)"
                                                             @focus="handleFocus"
                                                             contenteditable="true"
-                                                       >
-                                                           {{ variant.quantity }}
-                                                       </div>
-                                                       <div
-                                                           v-else
-                                                           data-field="quantity"
-                                                           @focusout="updateField($event, variant)"
-                                                           @focus="handleFocus"
-                                                           contenteditable="true"
-                                                       >—
-                                                       </div>
-                                                   </div>
-                                               </td>
+                                                        >
+                                                            {{ variant.quantity }}
+                                                        </div>
+                                                        <div
+                                                            v-else
+                                                            data-field="quantity"
+                                                            @focusout="updateField($event, variant)"
+                                                            @focus="handleFocus"
+                                                            contenteditable="true"
+                                                        >—
+                                                        </div>
+                                                    </div>
+                                                </td>
 
-                                               <template v-if="prices && prices.length">
-                                                   <td v-for="price in prices">
+                                                <template v-if="prices && prices.length">
+                                                    <td v-for="price in prices">
 
-                                                       <template v-for="variant_price in variant.prices">
-                                                           <div class="flex justify-center previous-column" v-if="variant_price.price_id == price.id">
-                                                               <div
+                                                        <template v-for="variant_price in variant.prices">
+                                                            <div class="flex justify-center previous-column"
+                                                                 v-if="variant_price.price_id == price.id">
+                                                                <div
                                                                     v-if="variant_price.price"
                                                                     @focusout="updatePrice($event, variant_price)"
                                                                     contenteditable="true"
                                                                     @focus="handleFocus"
-                                                               >
-                                                                   {{ variant_price.price }}
-                                                               </div>
-                                                               <div
+                                                                >
+                                                                    {{ variant_price.price }}
+                                                                </div>
+                                                                <div
                                                                     v-else
                                                                     @focus="handleFocus"
                                                                     @focusout="updatePrice($event, variant_price)"
                                                                     contenteditable="true"
-                                                               >
-                                                                   —
-                                                               </div>
-                                                           </div>
-                                                       </template>
+                                                                >
+                                                                    —
+                                                                </div>
+                                                            </div>
+                                                        </template>
 
-                                                   </td>
-                                               </template>
+                                                    </td>
+                                                </template>
 
 
+                                                <td style="width: 50px;">
+                                                    <button type="submit">Ред.</button>
 
-                                               <td style="width: 50px;">
-                                                   <!--                                    <form :action="'/admin/variants/' + variant.id +  '/edit'" method="GET">-->
-                                                   <button type="submit">Ред.</button>
-                                                   <!--                                    </form>-->
-                                               </td>
-                                           </tr>
-                                           </tbody>
-                                       </table>
-                                   </div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
 
                             </div>
@@ -624,12 +694,16 @@ import ModalImages from '@/Pages/Product/ModalImages.vue'
 import CustomSwitch from "@/Components/CustomSwitch.vue";
 import CreateVariantModal from "@/Pages/Product/Modal/CreateVariantModal.vue";
 import OptionsModal from "@/Pages/Product/Modal/OptionsModal.vue";
-import {handleError} from "@/utils/handleError";
-import {reactive, ref} from "vue";
+import AccentProperties from "@/Components/AccentProperty/AccentProperties.vue";
+import CreateAccentPropertyModal from "@/Components/AccentProperty/CreateAccentPropertyModal.vue";
+import AppendAccentPropertiesModal from "@/Components/AccentProperty/AppendAccentPropertiesModal.vue";
 
 export default {
     name: "Product",
     components: {
+        AppendAccentPropertiesModal,
+        CreateAccentPropertyModal,
+        AccentProperties,
         CreateVariantModal,
         CustomSwitch,
         OptionsModal,
@@ -641,14 +715,17 @@ export default {
     },
 
     props: [
+        'models',
         'productData',
         'categoriesData',
         'canProducts',
         'prices',
-        'allOptionNames'
+        'allOptionNames',
+        'accentPropertiesProps'
     ],
     data() {
         return {
+            accentPropertiesData: this.accentPropertiesProps,
             variantDropzone: null,
             selectedOptionName: null,
             changeVariantFormData: [],
@@ -799,7 +876,6 @@ export default {
         async deleteImage(imageId) {
             try {
                 await axios.delete(`/admin/products/${this.product.id}/images/${imageId}`)
-
                 let itemToDelete = this.product.images.find(image => image.id == imageId)
                 let idx = this.product.images.indexOf(itemToDelete)
                 this.product.images.splice(idx, 1)
@@ -868,7 +944,7 @@ export default {
                 let newValue = newValueInputElement.value
                 let data = {
                     'option_name_id': optionName.id,
-                    'value':newValue,
+                    'value': newValue,
                 }
                 let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant.id}/options/bind-with-new-value`, data)
                 let newOptionValue = response.data.data
@@ -892,7 +968,7 @@ export default {
                 alert(e)
             }
         },
-        async saveOrder () {
+        async saveOrder() {
             try {
                 let draggableComponent = this.$refs.draggable
                 let draggableData = draggableComponent.$data
@@ -902,6 +978,21 @@ export default {
                 alert(e?.response?.data?.message ?? e.message)
             }
         },
+        handleCreateAccentProperty(property) {
+            this.accentPropertiesData.push(property)
+
+        },
+        handleAccentPropertiesBound(accentProperties) {
+            this.product.accent_properties = accentProperties;
+        },
+        handleDeleteAccentProperty(property) {
+            let searchedProperty = this.accentPropertiesData.find(p => p.id === property.id)
+
+            let index = this.accentPropertiesData.indexOf(searchedProperty)
+
+            this.accentPropertiesData.splice(index, 1)
+
+        },
         setSelectedOptionName(optionName) {
             this.selectedOptionName = optionName
         },
@@ -909,7 +1000,7 @@ export default {
             try {
                 let value = +event.target.innerText
                 event.target.blur()
-                let response = await axios.patch(`/admin/prices/${price.id}`, {price: value})
+                await axios.patch(`/admin/prices/${price.id}`, {price: value})
             } catch (e) {
                 event.target.innerText = price.price
                 console.log(e)
@@ -927,14 +1018,12 @@ export default {
                 disablePreviews: true
             })
             this.dropzone.on("addedfile", (file) => this.storeImage(file));
-
             this.variantDropzone = new Dropzone(this.$refs["variant-dropzone"], {
                 url: '/admin/products/image/test',
                 autoProcessQueue: false,
                 maxFiles: 10,
                 disablePreviews: true
             })
-
             this.variantDropzone.on("addedfile", (file) => this.storeVariantImage(file));
         }
     }

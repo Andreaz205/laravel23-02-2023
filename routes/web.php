@@ -71,6 +71,14 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::get('/products/{product}/categories/{category}/toggle', [\App\Http\Controllers\Category\CategoryController::class, 'toggleProduct']);
 
+    Route::post('/products/{product}/accent-properties', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'bind']);
+
+    Route::get('/products/{product}/models/edit', [\App\Http\Controllers\Product\ProductModelController::class, 'edit']);
+    Route::post('/products/{product}/models', [\App\Http\Controllers\Product\ProductModelController::class, 'store']);
+    Route::post('/products/{product}/models/{model}/images', [\App\Http\Controllers\Product\ProductModelController::class, 'addImage']);
+    Route::delete('/products/{product}/models/{model}/images/{image}', [\App\Http\Controllers\Product\ProductModelController::class, 'deleteImage']);
+    Route::delete('/products/{product}/models/{productModel}', [\App\Http\Controllers\Product\ProductModelController::class, 'destroy']);
+
     Route::get('/categories', [\App\Http\Controllers\Category\CategoryController::class, 'index']);
     Route::post('/categories', [\App\Http\Controllers\Category\CategoryController::class, 'store']);
 //    Route::get('/categories/{category}/edit', [\App\Http\Controllers\Category\CategoryController::class, 'edit']);
@@ -106,6 +114,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/rooms/{room}/filtered-categories', [\App\Http\Controllers\Room\RoomController::class, 'filteredCategories']);
     Route::post('/rooms', [\App\Http\Controllers\Room\RoomController::class, 'store']);
 
+
     Route::get('/reviews', [\App\Http\Controllers\Review\ReviewController::class, 'index']);
     Route::get('/reviews/{review}', [\App\Http\Controllers\Review\ReviewController::class, 'review']);
     Route::post('/reviews/{review}/publish', [\App\Http\Controllers\Review\ReviewController::class, 'publish']);
@@ -113,6 +122,11 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::patch('/reviews/{review}/unpublic', [\App\Http\Controllers\Review\ReviewController::class, 'unpublic']);
     Route::delete('/reviews/{review}/delete', [\App\Http\Controllers\Review\ReviewController::class, 'delete']);
     Route::delete('/reviews/{review}/answer', [\App\Http\Controllers\Review\ReviewController::class, 'deleteReviewAnswer']);
+
+
+    Route::get('/user-settings', [\App\Http\Controllers\User\UserSettingsController::class, 'index']);
+    Route::post('/user-settings/fields', [\App\Http\Controllers\User\UserFiledController::class, 'store']);
+    Route::delete('/user-settings/fields/{field}', [\App\Http\Controllers\User\UserFiledController::class, 'destroy']);
 
     Route::get('/users', [\App\Http\Controllers\User\UserController::class, 'index']);
     Route::get('/users/create', [\App\Http\Controllers\User\UserController::class, 'create']);
@@ -124,13 +138,14 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::patch('/users/{user}/kind', [\App\Http\Controllers\User\UserController::class, 'changeKind']);
 
     Route::get('/sales', [\App\Http\Controllers\Sale\SaleController::class, 'index']);
-    Route::post('/sales', [\App\Http\Controllers\Sale\SaleController::class, 'create']);
+    Route::post('/sales', [\App\Http\Controllers\Sale\SaleController::class, 'store']);
     Route::get('/sales/{sale}', [\App\Http\Controllers\Sale\SaleController::class, 'show']);
     Route::get('/sales/{sale}/sale-products', [\App\Http\Controllers\Sale\SaleController::class, 'saleProducts']);
     Route::post('/sales/{sale}/public', [\App\Http\Controllers\Sale\SaleController::class, 'publish']);
     Route::post('/sales/{sale}/image', [\App\Http\Controllers\Sale\SaleController::class, 'setImage']);
     Route::delete('/sales/{sale}/image', [\App\Http\Controllers\Sale\SaleController::class, 'deleteImage']);
     Route::get('/sales/{sale}/toggle-exists-product/{product}', [\App\Http\Controllers\Sale\SaleController::class, 'toggleProductExists']);
+    Route::delete('/sales/{sale}', [\App\Http\Controllers\Sale\SaleController::class, 'destroy']);
 
     Route::get('/groups', [\App\Http\Controllers\Group\GroupController::class, 'index']);
     Route::get('/groups/{group}', [\App\Http\Controllers\Group\GroupController::class, 'show']);
@@ -174,6 +189,11 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/options/option-values/{value}/image', [\App\Http\Controllers\Option\OptionController::class, 'uploadImage']);
     Route::post('/options/option-values/{value}/image/update', [\App\Http\Controllers\Option\OptionController::class, 'updateImage']);
     Route::delete('/options/option-values/{value}/image', [\App\Http\Controllers\Option\OptionController::class, 'destroyImage']);
+
+    Route::post('/accent-properties', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'store']);
+    Route::delete('/accent-properties/{accentProperty}', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'destroy']);
+
+
 });
 
 require __DIR__.'/auth.php';

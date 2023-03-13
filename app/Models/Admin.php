@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
 class Admin extends Authenticatable
 {
-    use HasFactory, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     protected $fillable = [
         'name',
@@ -28,9 +29,9 @@ class Admin extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function sendPasswordResetNotification($token)
-    {
-        $url = url('admin/password/reset/' . $token);
-        $this->notify(new ResetPasswordNotification($url));
-    }
+//    public function sendPasswordResetNotification($token)
+//    {
+//        $url = url('admin/password/reset/' . $token);
+//        $this->notify(new ResetPasswordNotification($url));
+//    }
 }

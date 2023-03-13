@@ -5,7 +5,7 @@
                    :id="this.switchId" :checked="this.isChecked"
                    @change="$emit('changeSwitch', $event)"
             >
-            <label class="custom-control-label" :for="switchId"></label>
+            <label class="custom-control-label cursor-pointer" :for="switchId" ></label>
         </div>
     </div>
 </template>

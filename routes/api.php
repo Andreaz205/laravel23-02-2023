@@ -27,10 +27,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::patch('/favorites/toggle-variant/{variant}', [\App\Http\Controllers\Api\Favorite\FavoriteController::class, 'toggle']);
     Route::delete('/favorites', [\App\Http\Controllers\Api\Favorite\FavoriteController::class, 'clear']);
 });
-Route::post('/register', [\App\Http\Controllers\Api\Auth\AuthController::class,'register']);
+Route::get('/auth/logout', [\App\Http\Controllers\Api\Auth\AuthController::class,'logout']);
+Route::post('/auth/login', [\App\Http\Controllers\Api\Auth\AuthController::class,'login']);
+Route::post('/auth/register', [\App\Http\Controllers\Api\Auth\AuthController::class,'register']);
+Route::post('/auth/reset-link', [\App\Http\Controllers\Api\Auth\AuthController::class,'sendForgotPasswordLink']);
+Route::post('/auth/reset-password', [\App\Http\Controllers\Api\Auth\AuthController::class,'reset']);
 
-Route::post('/login', [\App\Http\Controllers\Api\Auth\AuthController::class,'login']);
-Route::get('/logout', [\App\Http\Controllers\Api\Auth\AuthController::class,'logout']);
 Route::get('/login/{provider}', [\App\Http\Controllers\Api\Auth\SocialiteController::class,'redirectToProvider']);
 Route::get('/login/{provider}/callback', [\App\Http\Controllers\Api\Auth\SocialiteController::class,'handleProviderCallback']);
 

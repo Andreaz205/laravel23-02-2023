@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Sale;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Sale\StoreRequest;
+use App\Http\Services\Image\UploadImageService;
 use App\Models\Product;
 use App\Models\ProductSales;
 use App\Models\Sale;
@@ -22,9 +24,9 @@ class SaleController extends Controller
 
     public function index()
     {
-        $sales = Sale::latest()->get();
+        $sales = Sale::with(['products'], fn ($query) => $query->limit(10))->withCount('products')->latest()->get();
         return inertia('Sale/Index', [
-            'data' => $sales,
+            'sales' => $sales,
             'can-sales' => [
                 'list' => Auth('admin')->user()?->can('sale list'),
                 'create' => Auth('admin')->user()?->can('sale create'),
@@ -34,17 +36,15 @@ class SaleController extends Controller
         ]);
     }
 
-    public function create(Request $request)
+    public function store(StoreRequest $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string|unique:sales,title'
-        ]);
-
+        $data = $request->validated();
         return Sale::create($data);
     }
 
     public function show(Sale $sale)
     {
+        $sale->load('products');
         return inertia('Sale/Show', [
             'data' => $sale,
             'can-sales' => [
@@ -56,26 +56,23 @@ class SaleController extends Controller
         ]);
     }
 
-    public function setImage(Sale $sale, Request $request)
+    public function setImage(Sale $sale, Request $request, UploadImageService $uploadImageService)
     {
         $data = $request->validate([
             'image' => 'required|file'
         ]);
         $image = $data['image'];
-
-        $name = md5( Carbon::now() . '_' . $image->getClientOriginalName()) . '.' . $image->getClientOriginalExtension();
-        $filePath = Storage::disk('public')->putFileAs('images', $image, $name);
-
+        $data = $uploadImageService->upload($image);
         $sale->update([
-            'image_path' => $filePath,
-            'image_url' => url('/storage/' . $filePath),
+            'image_path' => $data['path'],
+            'image_url' => $data['url'],
         ]);
         return $sale;
     }
 
     public function deleteImage(Sale $sale) {
         Storage::delete($sale->image_path);
-        $sale->update(['image_url' =>  null]);
+        $sale->update(['image_url' =>  null, 'image_path' => null]);
         return response()->json(['status' => 'success']);
     }
 
@@ -83,9 +80,7 @@ class SaleController extends Controller
     {
         $products = Product::all();
         if (isset($products)) {
-//            $productIds = ProductSales::where('sale_id', $sale->id)->get();
-//            dd($productIds);
-            $saleProducts = $sale->getProductsAttribute($sale);
+            $saleProducts = $sale->products()->get();
             foreach ($products as $product) {
                 foreach ($saleProducts as $saleProduct) {
                     if ($product->id === $saleProduct->id) {
@@ -116,5 +111,11 @@ class SaleController extends Controller
     {
         $sale->update(['is_public' => !$sale->is_public]);
         return response()->json(['status' => 'success']);
+    }
+
+    public function destroy(Sale $sale)
+    {
+        $sale->delete();
+        return redirect('/admin/sales')->withMessage('Акция '. $sale->title. ' успешно удалена!');
     }
 }
