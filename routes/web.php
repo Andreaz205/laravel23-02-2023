@@ -99,12 +99,15 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::get('/orders', [\App\Http\Controllers\Order\OrderController::class, 'index']);
     Route::get('/orders/data', [\App\Http\Controllers\Order\OrderController::class, 'data']);
+    Route::get('/orders/settings', [\App\Http\Controllers\Order\OrderSettingsController::class, 'index']);
     Route::get('/orders/{order}', [\App\Http\Controllers\Order\OrderController::class, 'show']);
     Route::post('/orders/{order}/status', [\App\Http\Controllers\Order\OrderController::class, 'changeStatus']);
     Route::post('/orders/{order}/toggle-pay', [\App\Http\Controllers\Order\OrderController::class, 'togglePay']);
     Route::post('/orders/{order}/payment', [\App\Http\Controllers\Order\OrderController::class, 'setPaymentVariant']);
     Route::post('/orders/{order}/duty', [\App\Http\Controllers\Order\OrderController::class, 'setManager']);
     Route::post('/orders/{order}/admin-comment', [\App\Http\Controllers\Order\OrderController::class, 'setAdminComment']);
+
+    Route::post('/orders/fields', [\App\Http\Controllers\Order\OrderFieldController::class, 'store']);
 
     Route::get('/rooms', [\App\Http\Controllers\Room\RoomController::class, 'index']);
     Route::post('/rooms/{room}/images', [\App\Http\Controllers\Room\RoomController::class, 'updateImage']);
@@ -193,7 +196,13 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/accent-properties', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'store']);
     Route::delete('/accent-properties/{accentProperty}', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'destroy']);
 
+    Route::get('/interiors', [\App\Http\Controllers\Interior\InteriorController::class, 'index']);
+    Route::post('/interiors/{interior}/variant/{variant}', [\App\Http\Controllers\Interior\InteriorController::class, 'appendVariant']);
+    Route::delete('/interiors/{interior}/variant', [\App\Http\Controllers\Interior\InteriorController::class, 'deleteVariant']);
+    Route::post('/interiors/{interior}/image', [\App\Http\Controllers\Interior\InteriorController::class, 'storeImage']);
+    Route::delete('/interiors/{interior}/image', [\App\Http\Controllers\Interior\InteriorController::class, 'deleteImage']);
 
+    Route::get('/variants/search', [\App\Http\Controllers\Variant\VariantController::class, 'search']);
 });
 
 require __DIR__.'/auth.php';

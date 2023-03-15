@@ -267,6 +267,17 @@ export default {
                                 <!--                            </a>-->
                             </li>
 
+                            <li class="nav-item">
+                                <Link href="/admin/interiors" class="nav-link">
+                                    <!--                            <a href="/admin/rooms" class="nav-link">-->
+                                    <i class="nav-icon fab fa-invision"></i>
+                                    <p>Интерьеры</p>
+                                </Link>
+                                <!--                            </a>-->
+                            </li>
+
+
+
                         </ul>
                     </nav>
                     <!-- /.sidebar-menu -->

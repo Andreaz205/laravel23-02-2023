@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Statistic;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Inertia\Response;
 
 class StatisticController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
         return inertia('Statistic/Index');
     }

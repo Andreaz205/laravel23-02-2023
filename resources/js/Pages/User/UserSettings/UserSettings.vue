@@ -14,19 +14,7 @@
                 <div class="modal-body">
                    <div class="container-fluid">
 
-                       <div v-if="errors" class="bg-red-100 mb-4 border border-red-500 rounded-lg">
-                           <div class="row" v-for="(errorField, key) in errors" :key="key">
-                               <div class="col-12">
-
-                                   <div class="row" v-for="error in errorField">
-                                       <div class="col-12">
-                                           {{error}}
-                                       </div>
-                                   </div>
-
-                               </div>
-                           </div>
-                       </div>
+                       <Errors :errors="errors"/>
 
                        <div class="row">
                            <div class="col-4">
@@ -114,7 +102,7 @@
                             <td>{{ field.title }}</td>
                             <td>{{ field.type === 'string' ? 'Строковое' : field.type === 'text' ? 'Несколько строк' ? field.type === 'date' : 'Дата' : 'Логическое Да/Нет(Checkbox)'}}</td>
                             <td>
-                                <button @click="deleteField(field)">
+                                <button @click="deleteField(field)" class="btn btn-danger">
                                     Удалить
                                 </button>
                             </td>
@@ -142,16 +130,17 @@
 <script>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import Spinner from "@/Components/Spinner.vue";
+import Errors from "@/Components/Errors/Errors.vue";
 export default {
     name: "UserSettings",
-    components: {Spinner, AuthenticatedLayout},
+    components: {Errors, Spinner, AuthenticatedLayout},
     props: [
         'fieldsProps'
     ],
     data () {
         return {
             fields: this.fieldsProps,
-            errors: [],
+            errors: null,
             title: null,
             is_required: false,
             is_user_fill: true,
@@ -172,7 +161,8 @@ export default {
                     description: this.description
                 }
                 let response = await axios.post(`/admin/user-settings/fields`, data)
-                this.errors = []
+                this.fields.push(response.data)
+                this.errors = null
                 this.isLoading = false
             } catch (e) {
                 this.isLoading = false
@@ -184,8 +174,12 @@ export default {
         },
         async deleteField(field) {
             try {
+                this.isLoading = true
                 await axios.delete(`/admin/user-settings/fields/${field.id}`)
+                this.fields.splice(this.fields.indexOf(field), 1)
+                this.isLoading = false
             } catch (e) {
+                this.isLoading = false
                 alert(e.message ?? e)
             }
         }

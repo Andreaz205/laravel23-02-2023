@@ -39,6 +39,7 @@ class ProductModelController extends Controller
     /**
      * @throws ValidationException
      */
+
     public function addImage(Product $product, ProductModel $model, StoreImageRequest $request, UploadImageService $service)
     {
         $data = $request->validated();

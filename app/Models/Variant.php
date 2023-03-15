@@ -21,6 +21,11 @@ class Variant extends Model
         return $this->belongsToMany(OptionValue::class, OptionValueVariants::class, 'variant_id', 'option_value_id')->where('option_value_variants.deleted_at', null);
     }
 
+    public function image()
+    {
+        return $this->hasMany(ProductVariantImage::class, 'variant_id', 'id')->limit(1);
+    }
+
     public function images()
     {
         return $this->hasMany(ProductVariantImage::class, 'variant_id', 'id');
@@ -68,8 +73,8 @@ class Variant extends Model
     {
         $optionValuesIds = OptionValueVariants::where('variant_id', $this->id)->pluck('option_value_id')->toArray();
         $optionValues = OptionValue::whereIn('id', $optionValuesIds)->get(['id', 'title', 'option_name_id']);
-        $title = '';
-        $optionNames = OptionName::where('product_id', $this->product->id)->get(['id']);
+        $title = $this->product->title;
+        $optionNames = $this->product->option_names;
         if (isset($optionNames) && count($optionNames) > 0) {
             foreach ($optionNames as $optionName) {
                 if (isset($optionValues) && count($optionValues) > 0) {

@@ -2,7 +2,15 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Заказы</h3>
+                <div class="flex gap-4 items-center">
+
+                <button class="btn btn-default">
+                    <Link href="/admin/orders/settings">
+                        Настройки оформления заказов
+                    </Link>
+                </button>
+                <span class="text-lg text-bold">Заказы</span>
+                </div>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
@@ -54,13 +62,14 @@
 </template>
 
 <script>
+import {Link} from '@inertiajs/vue3'
 import axios from "axios";
 import OrderRow from "@/Pages/Order/OrderRow.vue";
 import {formatDate} from "/resources/js/utils/formatDate";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 export default {
     name: "Orders",
-    components: {AuthenticatedLayout, OrderRow},
+    components: {AuthenticatedLayout, OrderRow, Link},
     layout: AuthenticatedLayout,
     data () {
         return {

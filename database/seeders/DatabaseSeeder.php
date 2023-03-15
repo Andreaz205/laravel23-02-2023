@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(BasicAdminPermissionSeeder::class);
         $this->call(DiscountsAvailabilitySeeder::class);
         $this->call(BonusesSeeder::class);
+        $this->call(InteriorSeeder::class);
 
         // \App\Models\User::factory(10)->create();
 

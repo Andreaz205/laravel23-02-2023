@@ -64,4 +64,5 @@ class VariantController extends Controller
 
         return $variant;
     }
+
 }

@@ -92,7 +92,11 @@ class ProductController extends Controller
         $productNames = $product->option_names()->with('option_values')->get();
         $product->option_names = $productNames;
         $allOptionNames = OptionName::query()->with('option_values')->get();
-        $models = $product->product_models()->with(['images' => fn ($query) => $query->limit(6)])->withCount('images')->get();
+        $models = $product->product_models()->get()
+            ->map(function ($model) {
+                $model->setRelation('images', $model->images->take(6));
+                return $model;
+            });
         $product->load('parameters');
         $product->accent_properties = $product->accent_properties()->with('media')->get();
         $product->images = $product->images()->orderBy('position', 'ASC')->get();

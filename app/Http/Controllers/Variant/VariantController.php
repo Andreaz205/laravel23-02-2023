@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Variant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Variant\DeleteVariantsRequest;
+use App\Http\Requests\Variant\SearchRequest;
 use App\Http\Requests\Variant\UpdateVariantFieldRequest;
 use App\Http\Resources\Variant\CreatedVariantResource;
 use App\Http\Services\Variant\VariantService;
@@ -161,5 +162,26 @@ class VariantController extends Controller
         OptionValueVariants::whereIn('variant_id', $result)->delete();
 
         return Response::json(['status' => 'Deleted successfully!']);
+    }
+
+    public function search(SearchRequest $request)
+    {
+        $data = $request->validated();
+        if (isset($data['count'])) {
+            $count = $data['count'];
+        }
+        $term = $data['term'];
+        $variants = Variant::query()
+            ->whereRelation('option_values', 'title', 'ILike', '%'. $term.'%')
+            ->orWhereRelation('product', 'title', 'ILike', '%'.$term.'%')
+            ->paginate($count ?? 50)
+            ->through(function ($variant) {
+                $variant->setRelation('images', $variant->images->take(1));
+                return $variant;
+            });
+        foreach ($variants as $variant) {
+            $variant->title = $variant->getTitleAttribute();
+        }
+        return $variants;
     }
 }
