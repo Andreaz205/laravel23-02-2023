@@ -29,6 +29,7 @@ class StoreFieldRequest extends FormRequest
             'type' => 'required|in:string,text,bool,date',
             'is_user_fill' => 'required|boolean',
             'description' => 'nullable|string|max:255',
+            'user_kind' => 'required|in:single,organization'
         ];
     }
 
@@ -47,6 +48,8 @@ class StoreFieldRequest extends FormRequest
             'is_user_fill.boolean' => 'Поле "заполняется клиентом" должно быть типа boolean!',
             'description.string' => 'Поле "описание" должно быть строкой!',
             'description.max' => 'Поле "описание" должно быть не длиннее 255 символов!',
+            'user_kind.required' => 'Поле "тип клиента" обязательное!!',
+            'user_kind.in' => 'Поле "тип клиента" должно быть физическим лицом либо организацией (single, organization)!',
         ];
     }
 }

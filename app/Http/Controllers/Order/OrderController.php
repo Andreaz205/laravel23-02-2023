@@ -33,9 +33,11 @@ class OrderController extends Controller
             ]
         ]);
     }
+
     public function data()
     {
-        $orders = Order::orderBy('created_at', 'desc')->paginate(25);
+
+        $orders = Order::orderBy('created_at', 'desc')->with('fields')->paginate(25);
         foreach ($orders as $order) {
             $sum = 0;
             $variants = $order->variants;

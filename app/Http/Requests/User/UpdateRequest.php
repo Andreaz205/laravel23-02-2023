@@ -25,8 +25,8 @@ class UpdateRequest extends FormRequest
     {
         return [
             'is_subscribed_to_news' => 'boolean|nullable',
-            'name' => 'string|nullable',
-            'email' => 'email|nullable',
+            'name' => 'string|required',
+            'email' => 'email|required|unique:users,email',
             'phone' => 'string|nullable',
             'jural_address' => 'string|nullable',
             'additional_phone' => 'string|nullable',
@@ -38,6 +38,9 @@ class UpdateRequest extends FormRequest
             'calculated_account' => 'string|nullable',
             'unloading_address' => 'string|nullable',
             'group_id' => 'nullable|integer|exists:groups,id',
+            'fields' => 'nullable|array',
+            'fields.*.user_field_id' => 'required|integer|exists:user_field_users,id',
+            'fields.*.value' => 'nullable|string',
         ];
     }
 }

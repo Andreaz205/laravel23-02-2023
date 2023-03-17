@@ -1,4 +1,6 @@
 <template>
+    <Spinner v-if="isLoading"/>
+    <Errors :errors="errors"/>
     <div class="form-horizontal">
         <div class="row my-3">
             <div class="col-4">Тип пользователя</div>
@@ -108,20 +110,43 @@
                 </div>
             </div>
         </div>
+        <template v-if="fields && fields.length">
+            <div class="row">
+                <div class="col-12">
+                    Дополнительные поля
+                </div>
+            </div>
+            <div class="row" v-for="field in fields" :key="field.id">
+                <div class="col-3">
+                    <label>{{ field.title }}</label>
+                </div>
+
+                <div class="col-9">
+                    <template v-for="userField in user.fields" :key="userField.id">
+                        <input v-if="userField.user_field_id === field.id" class="form-control" type="text" v-model="userField.value">
+                    </template>
+                </div>
+            </div>
+        </template>
         <div class="form-group row">
             <div class="offset-sm-2 col-sm-10">
-                <button type="submit" class="btn btn-danger bg-red-500" @click="onSubmit">Сохранить</button>
+                <button type="submit" class="btn btn-primary bg-blue-500" @click="onSubmit">Сохранить</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import Spinner from "@/Components/Spinner.vue";
+import Errors from "@/Components/Errors/Errors.vue";
 export default {
     name: "ShowOrganization",
-    props: ['user', 'groups', 'changeUserKind'],
+    components: {Errors, Spinner},
+    props: ['user', 'groups', 'changeUserKind', 'fields'],
     data () {
         return {
+            isLoading: false,
+            errors: null,
             is_subscribed_to_news: this.user.is_subscribed_to_news,
             name: this.user.name,
             email: this.user.email,
@@ -140,25 +165,39 @@ export default {
     },
     methods: {
         async onSubmit () {
-            let data = {
-                is_subscribed_to_news: this.is_subscribed_to_news,
-                name: this.name,
-                email: this.email,
-                phone: this.phone,
-                inn: this.inn,
-                jural_address: this.jural_address,
-                additional_phone: this.additional_phone,
-                ogrn: this.ogrn,
-                bic: this.bic,
-                bank_name: this.bank_name,
-                correspondent_account: this.correspondent_account,
-                calculated_account: this.calculated_account,
-                unloading_address: this.unloading_address,
-                group_id: this.group_id === 'destroy' ? null : this.group_id,
-            }
             try {
-                let response = await axios.patch(`/admin/users/${this.user.id}/update`, data)
+                this.isLoading = true
+                let data = {
+                    is_subscribed_to_news: this.is_subscribed_to_news,
+                    name: this.name,
+                    email: this.email,
+                    phone: this.phone,
+                    inn: this.inn,
+                    jural_address: this.jural_address,
+                    additional_phone: this.additional_phone,
+                    ogrn: this.ogrn,
+                    bic: this.bic,
+                    bank_name: this.bank_name,
+                    correspondent_account: this.correspondent_account,
+                    calculated_account: this.calculated_account,
+                    unloading_address: this.unloading_address,
+                    group_id: this.group_id === 'destroy' ? null : this.group_id,
+                }
+                let fields = Object.keys(this.$refs).map(key => {
+                    if (key.includes('field')) return this.$refs[key][0]
+                })
+                let fieldsData = fields.map(field => {
+                    return {
+                        user_field_id: field.id,
+                        value: field.value,
+                    }
+                })
+                let response = await axios.patch(`/admin/users/${this.user.id}/update`, {data, fields: fieldsData})
+                this.$page.props.user = response.data.data
+                this.isLoading = false
             } catch (e) {
+                this.isLoading = false
+                if (e?.response?.status === 422) return this.errors = e.response.data.errors
                 alert(e.message ?? e)
             }
         }

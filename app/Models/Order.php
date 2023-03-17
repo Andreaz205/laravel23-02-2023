@@ -11,6 +11,11 @@ class Order extends Model
     use HasFactory;
     protected $guarded = false;
 
+    public function fields()
+    {
+        return $this->hasMany(OrderFieldOrder::class, );
+    }
+
     public function variants()
     {
         return $this->belongsToMany(Variant::class, OrderVariants::class, 'order_id', 'variant_id');

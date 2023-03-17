@@ -24,7 +24,7 @@ class UserResource extends JsonResource
                 'kind' => $this->kind,
                 'name' => $this->name,
                 'is_subscribed_to_news' => $this->is_subscribed_to_news,
-                'group' => new GroupResource($this->group)
+                'group' => new GroupResource($this->group),
             ];
         }
         return [

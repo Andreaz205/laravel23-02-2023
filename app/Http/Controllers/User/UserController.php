@@ -10,7 +10,10 @@ use App\Http\Requests\User\UpdateRequest;
 use App\Http\Resources\User\UserResource;
 use App\Models\Group;
 use App\Models\User;
+use App\Models\UserField;
+use App\Models\UserFieldUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
@@ -66,8 +69,25 @@ class UserController extends Controller
 //            $defaultGroup = Group::query()->where('is_default', true)->first();
 //            if (isset($defaultGroup)) $data['group_id'] = $defaultGroup->id;
 //        }
-        $user = User::create($data);
-        return $user;
+        try {
+            DB::beginTransaction();
+            $user = User::create($data);
+            $fields = UserField::all();
+            $map = [];
+            foreach ($fields as $field) {
+                $map[] = [
+                    'user_field_id' => $field->id,
+                    'user_id' => $user->id,
+                    'value' => '',
+                ];
+            }
+            User::insert($map);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            return Response::json(['message' => $error->getMessage()], 500);
+        }
+        return redirect('/admin/users/'. $user->id)->with('message', 'Пользователь успешно создан');
     }
 
     public function storeSingleUser(StoreSingleUserRequest $request)
@@ -81,8 +101,26 @@ class UserController extends Controller
 //            $defaultGroup = Group::query()->where('is_default', true)->first();
 //            if (isset($defaultGroup)) $data['group_id'] = $defaultGroup->id;
 //        }
-        $user = User::create($data);
-        return $user;
+        try {
+            DB::beginTransaction();
+            $user = User::create($data);
+            $fields = UserField::all();
+            $map = [];
+            foreach ($fields as $field) {
+                $map[] = [
+                    'user_field_id' => $field->id,
+                    'user_id' => $user->id,
+                    'value' => '',
+                ];
+            }
+            User::insert($map);
+            DB::commit();
+        } catch (\Exception $error) {
+            DB::rollBack();
+            return Response::json(['message' => $error->getMessage()], 500);
+        }
+
+        return redirect('/admin/users/'. $user->id)->with('message', 'Пользователь успешно создан');
     }
 
     public function byTerm(Request $request)
@@ -103,9 +141,21 @@ class UserController extends Controller
     public function show(User $user)
     {
         $groups = Group::all();
+        $fields = UserField::where('user_kind', $user->kind)->get();
+        $user->fields = $user->fields()->get()->map(function ($field) use($fields, $user) {
+            foreach ($fields as $globalUserField) {
+                if ($field->user_field_id === $globalUserField->id) {
+                    if ($globalUserField->user_kind === $user->kind) {
+                        return $field;
+                    }
+                }
+            }
+            return null;
+        })->filter()->all();
         return inertia('User/Show', [
             'userData' => $user,
             'groupsData' => $groups,
+            'fields' => $fields,
             'can-users' => [
                 'list' => Auth('admin')->user()?->can('user list'),
                 'create' => Auth('admin')->user()?->can('user create'),
@@ -118,6 +168,13 @@ class UserController extends Controller
     public function update(User $user, UpdateRequest $request)
     {
         $data = $request->validated();
+        if (isset($data['fields'])) {
+            foreach ($data['fields'] as $field) {
+                $searchedField = UserFieldUsers::find($field['user_field_id']);
+                $searchedField->update(['value' => $field['value']]);
+            }
+        }
+
         $user->update($data);
         return new UserResource($user);
     }
@@ -125,7 +182,30 @@ class UserController extends Controller
     public function changeKind(User $user, ChangeUserKindRequest $request)
     {
         $data = $request->validated();
-        $user->update($data);
-        return new UserResource($user);
+        $user->update(['kind' => $data['kind']]);
+        $map = [];
+        $globalUserFields = UserField::where('user_kind', $user->kind)->get();
+        $user->fields = $user->fields()->get()->map(function ($field) use($globalUserFields, $user) {
+            foreach ($globalUserFields as $globalUserField) {
+                if ($field->user_field_id === $globalUserField->id) {
+                    if ($globalUserField->user_kind === $user->kind) {
+                        return $field;
+                    }
+                }
+            }
+            return null;
+        })->filter()->all();
+        $fields = UserField::where('user_kind', $user->kind)->get();
+        return Response::json(['data' => [
+            "user" => $user,
+            'fields' => $fields
+        ]]);
+//        return new UserResource($user);
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect('/admin/users')->with('message', 'Пользователь' . $user->name .' успешно удалён');
     }
 }

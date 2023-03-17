@@ -43,6 +43,18 @@
                            </div>
                        </div>
 
+                       <div class="row">
+                           <div class="col-4">
+                               <label>Тип клиента</label>
+                           </div>
+                           <div class="col-8">
+                               <label for="single">Физическое лицо</label>
+                               <input type="radio" class="form-control" v-model="user_kind" value="single" id="single">
+                               <label for="organization">Организация</label>
+                               <input type="radio" class="form-control" v-model="user_kind" value="organization" id="organization">
+                           </div>
+                       </div>
+
                        <div class="row ">
                            <div class="col-4">
                                <label>Тип</label>
@@ -139,6 +151,7 @@ export default {
     ],
     data () {
         return {
+            user_kind: 'single',
             fields: this.fieldsProps,
             errors: null,
             title: null,
@@ -157,6 +170,7 @@ export default {
                     title: this.title,
                     is_required: this.is_required,
                     is_user_fill: this.is_user_fill,
+                    user_kind: this.user_kind,
                     type: this.type,
                     description: this.description
                 }

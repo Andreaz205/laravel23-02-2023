@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('order_field_orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('order_id')->index()->constrained('orders')->onDelete('cascade');
+            $table->foreignId('order_field_id')->index()->constrained('order_fields')->onDelete('cascade');
+            $table->string('value', 255)->nullable();
             $table->timestamps();
         });
     }

@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('order_fields', function (Blueprint $table) {
             $table->id();
+            $table->string('title')->unique();
+            $table->boolean('is_required')->default(false);
+            $table->boolean('is_user_fill')->default(false);
+            $table->string('description')->nullable();
+            $table->enum('type', ['string', 'text', 'bool', 'date']);
             $table->timestamps();
         });
     }

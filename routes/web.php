@@ -19,6 +19,15 @@ use Inertia\Inertia;
 // Роуты для авторизации клиентов
 Auth::routes();
 
+Route::get('/test', [\App\Http\Controllers\TestController::class, 'index'])->middleware(['guest']);
+
+Route::post('/recaptcha', [\App\Http\Controllers\TestController::class, 'initToken'])->middleware(['guest']);
+Route::get('/recaptcha', [\App\Http\Controllers\TestController::class, 'getRecaptchaToken'])->middleware(['guest']);
+
+Route::get('/put', [\App\Http\Controllers\TestController::class, 'putSomeDataToSession'])->middleware(['guest']);
+Route::get('/get', [\App\Http\Controllers\TestController::class, 'getDataFromSession'])->middleware(['guest']);
+
+
 Route::get('/', [\App\Http\Controllers\Main\MainController::class, 'index'])->middleware(['auth']);
 Route::get('/dashboard', [\App\Http\Controllers\Main\MainController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
@@ -108,6 +117,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/orders/{order}/admin-comment', [\App\Http\Controllers\Order\OrderController::class, 'setAdminComment']);
 
     Route::post('/orders/fields', [\App\Http\Controllers\Order\OrderFieldController::class, 'store']);
+    Route::delete('/orders/fields/{field}', [\App\Http\Controllers\Order\OrderFieldController::class, 'destroy']);
 
     Route::get('/rooms', [\App\Http\Controllers\Room\RoomController::class, 'index']);
     Route::post('/rooms/{room}/images', [\App\Http\Controllers\Room\RoomController::class, 'updateImage']);

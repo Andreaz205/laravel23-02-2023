@@ -50,3 +50,8 @@ Route::get('/banner/data', [\App\Http\Controllers\Api\Banner\BannerController::c
 Route::get('/hits', [\App\Http\Controllers\Api\Hit\HitsController::class, 'data']);
 
 Route::get('/vk/posts', [App\Http\Controllers\Vk\PostsController::class, 'posts']);
+
+Route::get('/recaptcha', [App\Http\Controllers\Api\RecaptchaController::class, 'getSessionData']);
+Route::post('/recaptcha', [App\Http\Controllers\Api\RecaptchaController::class, 'storeToken']);
+
+

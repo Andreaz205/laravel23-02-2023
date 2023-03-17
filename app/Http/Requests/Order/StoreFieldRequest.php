@@ -27,7 +27,7 @@ class StoreFieldRequest extends FormRequest
             'title' => 'required|string|unique:order_fields,title|max:50',
             'is_required' => 'required|boolean',
             'type' => 'required|in:string,text,bool,date',
-//            'is_user_fill' => 'required|boolean',
+            'is_user_fill' => 'required|boolean',
             'description' => 'nullable|string|max:255',
         ];
     }
