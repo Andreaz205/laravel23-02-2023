@@ -194,6 +194,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::delete('/accent-properties/{accentProperty}', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'destroy']);
 
 
+    Route::get('/materials', [\App\Http\Controllers\Material\MaterialController::class, 'index']);
+    Route::get('/materials/{category}', [\App\Http\Controllers\Material\MaterialController::class, 'edit']);
 });
 
 require __DIR__.'/auth.php';

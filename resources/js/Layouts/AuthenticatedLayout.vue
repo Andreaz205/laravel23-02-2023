@@ -211,6 +211,14 @@ export default {
                                 <!--                            </a>-->
                             </li>
 
+                            <li class="nav-item">
+                                <Link href="/admin/materials" class="nav-link">
+                                    <i class="nav-icon fas fa-dollar-sign"></i>
+                                    <p>Материалы</p>
+                                </Link>
+
+                            </li>
+
 
                             <li class="nav-item">
                                 <Link href="/admin/managers" class="nav-link">

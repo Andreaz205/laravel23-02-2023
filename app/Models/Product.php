@@ -71,6 +71,11 @@ class Product extends Model
         return $this->belongsToMany(Category::class, CategoryProducts::class, 'product_id', 'category_id')->where('category_products.deleted_at', null);
     }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
 
     public function getMinPriceAttribute()
     {

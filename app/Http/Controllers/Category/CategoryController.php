@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class CategoryController extends Controller
 {
@@ -41,6 +42,9 @@ class CategoryController extends Controller
         ]);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function store(CategoryStoreRequest $request)
     {
         $data = $request->validated();
@@ -48,6 +52,8 @@ class CategoryController extends Controller
         $categoryId = $data['category_id'];
 
         if (isset($categoryId)) {
+            $parentCategory = Category::find($categoryId);
+            if (isset($parentCategory->parent_category_id)) throw ValidationException::withMessages(['Недопустимая вложенность!']);
             $category = Category::create([
                 'name' => $name,
                 'parent_category_id' => $categoryId

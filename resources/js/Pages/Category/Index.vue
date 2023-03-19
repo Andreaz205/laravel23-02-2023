@@ -1,5 +1,5 @@
 <template>
-
+    <Spinner v-if="isLoading" />
     <!--    TODO: Модальное окно для добавления категорий-->
     <div class="modal fade" id="addCategoryButton" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -12,6 +12,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    <Errors :errors="errors"/>
 
 <!--                    <div class="container-fluid" v-if="product.option_names">-->
 <!--                        <div class="row" v-for="name in product.option_names">-->
@@ -148,20 +149,25 @@
 <script>
 import CategoryRow from '@/Pages/Category/CategoryRow.vue'
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Errors from "@/Components/Errors/Errors.vue";
+import Spinner from "@/Components/Spinner.vue";
 export default {
     name: "Index",
-    components: {AuthenticatedLayout, CategoryRow},
+    components: {Spinner, Errors, AuthenticatedLayout, CategoryRow},
     props: ['categoriesData'],
     data () {
         return {
+            isLoading: false,
             categories: this.categoriesData?.data,
             selectedCategory: null,
             newCategory: null,
+            errors: null,
         }
     },
     methods: {
         async addCategory() {
             try {
+                this.isLoading = true
                 let data = {
                     name: this.newCategory,
                     category_id: this.selectedCategory?.id || null
@@ -169,8 +175,11 @@ export default {
                 let response = await axios.post('/admin/categories', data)
                 this.selectedCategory ? this.selectedCategory.child_categories.push(response.data.data) : this.categories.push(response.data.data)
                 this.newCategory = null
+                this.isLoading = false
             } catch (e) {
-                alert(e)
+                this.isLoading = false
+                if (e?.response?.status === 422) return this.errors = e.response.data.errors
+                alert(e?.message ?? e)
             }
         },
         changeSelectedCategory(category) {
@@ -179,12 +188,14 @@ export default {
         },
         async deleteMainCategory(category) {
             try {
+                this.isLoading = true
                 await axios.delete(`/admin/categories/${category.id}`)
                 this.categories = this.categories.filter(cat => cat.id !== category.id)
-
                 this.$emit('changeSelectedCategory', null)
+                this.isLoading = false
             } catch (e) {
-                alert(e)
+                this.isLoading = false
+                alert(e?.message ?? e)
             }
         },
     }

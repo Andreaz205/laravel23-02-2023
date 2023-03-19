@@ -11,49 +11,49 @@
 
         <CreateAccentPropertyModal @created="handleCreateAccentProperty"/>
         <!--    TODO: Модальное окно для редактирования свойств-->
-        <OptionsModal
-            :product="product"
-            :product-option-names="this.product.option_names"
-            :all-option-names="allOptionNamesData"
-        />
+<!--        <OptionsModal-->
+<!--            :product="product"-->
+<!--            :product-option-names="this.product.option_names"-->
+<!--            :all-option-names="allOptionNamesData"-->
+<!--        />-->
 
         <!--    TODO: Модальное окно для редактирования свойства в целом-->
-        <div class="modal fade" id="editOptionModal" tabindex="-1" role="dialog" aria-labelledby="optionNameColorModal"
-             aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Редактировать свойство</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Отображать свойтсво как цвет товара</label>
-                            <CustomSwitch :is-checked="selectedOptionName?.is_color"
-                                          :switch-id="'option-name-' + selectedOptionName?.id"
-                                          @changeSwitch="onChangeOptionColor"/>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
-                        </button>
-                        <!--                        <button type="button" class="btn btn-primary bg-blue-500" @click="saveOption">Сохранить-->
-                        <!--                        </button>-->
-                    </div>
-                </div>
-            </div>
-        </div>
+<!--        <div class="modal fade" id="editOptionModal" tabindex="-1" role="dialog" aria-labelledby="optionNameColorModal"-->
+<!--             aria-hidden="true">-->
+<!--            <div class="modal-dialog modal-xl" role="document">-->
+<!--                <div class="modal-content">-->
+<!--                    <div class="modal-header">-->
+<!--                        <h5 class="modal-title" id="exampleModalLabel">Редактировать свойство</h5>-->
+<!--                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                            <span aria-hidden="true">&times;</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                    <div class="modal-body">-->
+<!--                        <div class="form-group">-->
+<!--                            <label>Отображать свойтсво как цвет товара</label>-->
+<!--                            <CustomSwitch :is-checked="selectedOptionName?.is_color"-->
+<!--                                          :switch-id="'option-name-' + selectedOptionName?.id"-->
+<!--                                          @changeSwitch="onChangeOptionColor"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="modal-footer">-->
+<!--                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть-->
+<!--                        </button>-->
+<!--                        &lt;!&ndash;                        <button type="button" class="btn btn-primary bg-blue-500" @click="saveOption">Сохранить&ndash;&gt;-->
+<!--                        &lt;!&ndash;                        </button>&ndash;&gt;-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
-        <!--    TODO: Модальное окно для создания варианта-->
+        <!--    TODO: Модальное окно для создания варианта НУЖНО РЕДАКТИРОВАТЬ-->
         <CreateVariantModal
             :product-option-names="this.productData?.option_names"
             :product="product"
             @variantCreated="handleCreatedVariant"
         />
 
-        <!--    TODO: Модальное окно для редактирования свойств варианта-->
+        <!--    TODO: Модальное окно для редактирования свойств варианта НУЖНО РЕДАКТИРОВАТЬ-->
         <div class="modal fade" id="changeVariantOptionsModal" tabindex="-1" role="dialog"
              aria-labelledby="exampleModalLabel"
              aria-hidden="true">
@@ -110,36 +110,36 @@
         </div>
 
         <!--    TODO: Модальное окно для удаления существующих свойств-->
-        <div class="modal fade" id="deleteOptionsModal" tabindex="-1" role="dialog"
-             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Удалить свойства</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
+<!--        <div class="modal fade" id="deleteOptionsModal" tabindex="-1" role="dialog"-->
+<!--             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">-->
+<!--            <div class="modal-dialog modal-dialog-centered" role="document">-->
+<!--                <div class="modal-content">-->
+<!--                    <div class="modal-header">-->
+<!--                        <h5 class="modal-title" id="exampleModalLongTitle">Удалить свойства</h5>-->
+<!--                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                            <span aria-hidden="true">&times;</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                    <div class="modal-body">-->
 
-                        <div class="container-fluid" v-if="product.option_names">
-                            <div class="row my-2" v-for="name in product.option_names">
-                                <div class="col-sm-6">
-                                    <span>{{ name.title }}</span>
-                                </div>
-                                <div class="col-sm-6">
-                                    <button class="btn btn-danger" @click="deleteOption(name.id)">Удалить</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!--                        <div class="container-fluid" v-if="product.option_names">-->
+<!--                            <div class="row my-2" v-for="name in product.option_names">-->
+<!--                                <div class="col-sm-6">-->
+<!--                                    <span>{{ name.title }}</span>-->
+<!--                                </div>-->
+<!--                                <div class="col-sm-6">-->
+<!--                                    <button class="btn btn-danger" @click="deleteOption(name.id)">Удалить</button>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="modal-footer">-->
+<!--                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <!--    TODO: Модальное окно для привязки изображений варианту-->
         <div class="modal fade" id="bindImagesToVariant" tabindex="-1" role="dialog"
@@ -378,36 +378,36 @@
                                     <div class="col-12">
                                         <div class="relative h-10">
                                             <div class="absolute left-2 flex gap-2">
-                                                <div>
-                                                    <button
-                                                        v-if="canProducts.edit"
-                                                        type="button" class="btn btn-primary bg-blue"
-                                                        data-toggle="modal" data-target="#createOptionsModal"
-                                                    >
-                                                        Добавить свойство
-                                                    </button>
-                                                </div>
-                                                <div>
-                                                    <button
-                                                        v-if="canProducts.edit"
-                                                        type="button" class="btn btn-danger bg-red-500"
-                                                        data-toggle="modal" data-target="#deleteOptionsModal"
-                                                    >
-                                                        Удалить свойства
-                                                    </button>
-                                                </div>
-                                                <div>
-                                                    <button
-                                                        v-if="canProducts.edit"
-                                                        type="submit"
-                                                        class="btn btn-warning bg-warning"
-                                                    >
-                                                        <Link href="/admin/options">
-                                                            Редактировать свойства
-                                                        </Link>
-                                                    </button>
+<!--                                                <div>-->
+<!--                                                    <button-->
+<!--                                                        v-if="canProducts.edit"-->
+<!--                                                        type="button" class="btn btn-primary bg-blue"-->
+<!--                                                        data-toggle="modal" data-target="#createOptionsModal"-->
+<!--                                                    >-->
+<!--                                                        Добавить свойство-->
+<!--                                                    </button>-->
+<!--                                                </div>-->
+<!--                                                <div>-->
+<!--                                                    <button-->
+<!--                                                        v-if="canProducts.edit"-->
+<!--                                                        type="button" class="btn btn-danger bg-red-500"-->
+<!--                                                        data-toggle="modal" data-target="#deleteOptionsModal"-->
+<!--                                                    >-->
+<!--                                                        Удалить свойства-->
+<!--                                                    </button>-->
+<!--                                                </div>-->
+<!--                                                <div>-->
+<!--                                                    <button-->
+<!--                                                        v-if="canProducts.edit"-->
+<!--                                                        type="submit"-->
+<!--                                                        class="btn btn-warning bg-warning"-->
+<!--                                                    >-->
+<!--                                                        <Link href="/admin/options">-->
+<!--                                                            Редактировать свойства-->
+<!--                                                        </Link>-->
+<!--                                                    </button>-->
 
-                                                </div>
+<!--                                                </div>-->
                                             </div>
 
                                             <div class="flex absolute right-2">

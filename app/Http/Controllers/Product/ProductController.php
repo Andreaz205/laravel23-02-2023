@@ -89,24 +89,24 @@ class ProductController extends Controller
     {
 //        $product = $this->productService->aggregateOptionsForSingleProduct($product);
         $accentProperties = AccentProperty::with('media')->get();
-        $productNames = $product->option_names()->with('option_values')->get();
-        $product->option_names = $productNames;
-        $allOptionNames = OptionName::query()->with('option_values')->get();
+//        $productNames = $product->option_names()->with('option_values')->get();
+//        $product->option_names = $productNames;
+//        $allOptionNames = OptionName::query()->with('option_values')->get();
         $models = $product->product_models()->with(['images' => fn ($query) => $query->limit(6)])->withCount('images')->get();
         $product->load('parameters');
         $product->accent_properties = $product->accent_properties()->with('media')->get();
         $product->images = $product->images()->orderBy('position', 'ASC')->get();
         $product->variants = $product->variants()->with(['option_values', 'images', 'prices'])->get();
-        $categories = $this->productService->categoriesWithCheckedProp($product);
-        $categories = $this->categoryService->nestedCategories($categories);
+//        $categories = $this->productService->categoriesWithCheckedProp($product);
+//        $categories = $this->categoryService->nestedCategories($categories);
         $prices = Price::all();
+//            'allOptionNames' => $allOptionNames,
+//            'categoriesData' => $categories,
         return inertia('Product/Show', [
             'models' => $models,
             'accentPropertiesProps' => $accentProperties,
             'prices' => $prices,
             'productData' => $product,
-            'categoriesData' => $categories,
-            'allOptionNames' => $allOptionNames,
             'can-products' => [
                 'list' => Auth('admin')->user()->can('product list'),
                 'create' => Auth('admin')->user()->can('product create'),

@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class VariantController extends Controller
 {
@@ -39,7 +40,7 @@ class VariantController extends Controller
             'newOptions.*.name' => 'required|string',
             'newOptions.*.value' => 'required|string',
             'newValues' => 'array',
-            'newValues.*.value' => 'required|string|unique:option_values,title',
+            'newValues.*.value' => 'required|string',
             'newValues.*.name_id' => 'required|integer|exists:option_names,id',
             'values' => 'array',
             'values.*' => 'integer|required',
@@ -59,11 +60,11 @@ class VariantController extends Controller
                 ->validateVariantWhenCreate($values, $newValues, $newOptions, $product);
             if (isset ($error)) {
                 if ($error === 'empty_options')
-                    return Response::json(['error' => 'Невозможно создать вариант без свойств!'], 400);
+                    return Response::json(['error' => 'Невозможно создать вариант без свойств!'], 422);
                 if ($error === 'new_value_already_exists')
-                    return Response::json(['error' => 'Невозможно добавить значение для свойства, т.к. оно уже существет!'], 400);
+                    return Response::json(['error' => 'Невозможно добавить значение для свойства, т.к. оно уже существет!'], 422);
                 if ($error === 'variant_with_options_already_exists')
-                    return Response::json(['error' => 'Вариант с указанными свойствами уже существет!'], 400);
+                    return Response::json(['error' => 'Вариант с указанными свойствами уже существет!'], 422);
             }
 
 
@@ -100,6 +101,11 @@ class VariantController extends Controller
 
             else if (isset($newValues) and isset($values)) {
                 foreach($newValues as $newValue) {
+                    $optionName = OptionName::find($newValue['name_id']);
+                    if ($newValue['value'])  {
+                        $candidate = $optionName->option_values()->where('title', $newValue['value'])->first();
+                        if (isset($candidate)) throw ValidationException::withMessages(['У свйства ' . $optionName->title . ' уже существует свойство с названием ' . $newValue['value']]);
+                    }
                     $createdValue = OptionValue::create([
                         'title' => $newValue['value'],
                         'option_name_id' => $newValue['name_id']
@@ -131,7 +137,7 @@ class VariantController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            return response()->json(['error' => $exception->getMessage()], 500);
+            return response()->json(['message' => $exception->getMessage()], 500);
         }
         return new CreatedVariantResource($variant);
     }
