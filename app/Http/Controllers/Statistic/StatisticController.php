@@ -2,18 +2,29 @@
 
 namespace App\Http\Controllers\Statistic;
 
-use AkkiIo\LaravelGoogleAnalytics\Facades\LaravelGoogleAnalytics;
-use AkkiIo\LaravelGoogleAnalytics\Period;
+
 use App\Http\Controllers\Controller;
+use App\Http\Services\Analytics\AnalyticsService;
+use Google\Analytics\Data\V1beta\BetaAnalyticsDataClient;
+use Google\Analytics\Data\V1beta\DateRange;
+use Google\Analytics\Data\V1beta\Dimension;
+use Google\Analytics\Data\V1beta\Metric;
 use Illuminate\Http\Request;
 
 class StatisticController extends Controller
 {
-    public function index()
+    /**
+     * @throws \Google\ApiCore\ValidationException
+     * @throws \Google\ApiCore\ApiException
+     */
+    public function index(AnalyticsService $analyticsService)
     {
-        $data = LaravelGoogleAnalytics::dateRanges(Period::days(1))
-            ->metrics('screenPageViews')->dimensions('country', 'landingPage', 'date')->get();
-        dd($data->metricAggregationsTable);
-        return inertia('Statistic/Index');
+        $weekPagesData = $analyticsService::weekPagesData();
+        $weekViewsData = $analyticsService::weekViewsData();
+
+        return inertia('Statistic/Index', [
+            'weekPagesData' => $weekPagesData,
+            'weekViewsData' => $weekViewsData,
+        ]);
     }
 }
