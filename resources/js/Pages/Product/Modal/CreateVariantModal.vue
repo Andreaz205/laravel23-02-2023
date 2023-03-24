@@ -216,9 +216,9 @@ export default {
         },
     },
     mounted() {
-        this.creatingVariantFormData = this.creatingVariantFormData.map(item => ({
-            ...item, is_new: false, new_value: null, creating_variant_selected_id: item.pivot.default_option_value_id
-        }))
+        // this.creatingVariantFormData = this.creatingVariantFormData.map(item => ({
+        //     ...item, is_new: false, new_value: null, creating_variant_selected_id: item.pivot.default_option_value_id
+        // }))
     }
 }
 </script>

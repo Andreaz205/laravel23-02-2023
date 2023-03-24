@@ -62,10 +62,17 @@ class BasicAdminPermissionSeeder extends Seeder
             'price create',
             'price edit',
             'price delete',
+<<<<<<< HEAD
             'interior list',
             'interior create',
             'interior edit',
             'interior delete',
+=======
+            'material list',
+            'material create',
+            'material edit',
+            'material delete',
+>>>>>>> 0214fcea727fc806039ea6e9fdb2b60776e5fdf7
         ];
         foreach ($permissions as $permission) {
             Permission::create(['name' => $permission]);

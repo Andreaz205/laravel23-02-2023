@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Variant extends Model
@@ -11,9 +13,19 @@ class Variant extends Model
     use HasFactory;
     protected $guarded = false;
 
+    public function color(): BelongsTo
+    {
+        return $this->belongsTo(Color::class);
+    }
+
     public function prices()
     {
         return $this->hasMany(PriceVariants::class);
+    }
+
+    public function material_unit_values(): BelongsToMany
+    {
+        return $this->belongsToMany(MaterialUnitValue::class, MaterialUnitValueVariants::class);
     }
 
     public function option_values()
@@ -42,7 +54,6 @@ class Variant extends Model
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
-
     public function variantCategories()
     {
         return $this->belongsToMany(Category::class, 'category_variants')->where('category_variants.deleted_at', null);
@@ -51,7 +62,7 @@ class Variant extends Model
     public function getRelatedVariantsAttribute()
     {
         $relatedVariantsIds = RelatedVariant::where('parent_variant_id', $this->id)->pluck('related_variant_id')->toArray();
-        return  Variant::whereIn('id', $relatedVariantsIds)->get();
+        return Variant::whereIn('id', $relatedVariantsIds)->get();
     }
 
     public function reviews()
@@ -71,16 +82,22 @@ class Variant extends Model
 
     public function getTitleAttribute()
     {
-        $optionValuesIds = OptionValueVariants::where('variant_id', $this->id)->pluck('option_value_id')->toArray();
-        $optionValues = OptionValue::whereIn('id', $optionValuesIds)->get(['id', 'title', 'option_name_id']);
-        $title = $this->product->title;
-        $optionNames = $this->product->option_names;
-        if (isset($optionNames) && count($optionNames) > 0) {
-            foreach ($optionNames as $optionName) {
-                if (isset($optionValues) && count($optionValues) > 0) {
-                    foreach ($optionValues as $optionValue) {
-                        if ($optionValue->option_name_id === $optionName->id) {
-                            $title = $title. ' '.$optionValue->title;
+        $materialValues = $this->material_unit_values()->get();
+        $product = $this->product()->with(['materials' => fn ($query) => $query->with(['material_units'])])->first();
+        $title = $product->title;
+
+        $materialUnits = collect();
+        foreach ($product['materials'] as $material) {
+            $units = $material->material_units;
+            $materialUnits->push(...$units);
+        }
+
+        if (isset($materialUnits) && count($materialUnits) > 0) {
+            foreach ($materialUnits as $materialUnit) {
+                if (isset($materialValues) && count($materialValues) > 0) {
+                    foreach ($materialValues as $materialValue) {
+                        if ($materialValue->material_unit_id === $materialUnit->id) {
+                            $title = $title. ' '.$materialValue->value;
                         }
                     }
                 }

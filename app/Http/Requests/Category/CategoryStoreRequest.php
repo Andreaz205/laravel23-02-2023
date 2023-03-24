@@ -26,7 +26,7 @@ class CategoryStoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', Rule::unique('categories')->whereNull('deleted_at')],
-            'category_id' => 'nullable|integer'
+            'category_id' => 'nullable|integer:exists:categories,id'
         ];
     }
 }

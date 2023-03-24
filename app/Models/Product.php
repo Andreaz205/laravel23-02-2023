@@ -16,6 +16,11 @@ class Product extends Model
 //    {
 //        return $this->hasMany(Variant::class, 'product_id', 'id');
 //    }
+    public function materials(): BelongsToMany
+    {
+        return $this->belongsToMany(Material::class, CategoryMaterials::class, 'category_id', 'material_id', 'category_id');
+    }
+
     public function accent_properties(): BelongsToMany
     {
         return $this->belongsToMany(AccentProperty::class, 'accent_property_products');
@@ -36,9 +41,14 @@ class Product extends Model
         return $this->hasMany(Option::class, 'id', 'product_id');
     }
 
+//    public function option_names()
+//    {
+//        return $this->belongsToMany(OptionName::class, OptionNameProducts::class)->withPivot('default_option_value_id');
+//    }
+
     public function option_names()
     {
-        return $this->belongsToMany(OptionName::class, OptionNameProducts::class)->withPivot('default_option_value_id');
+        return $this->belongsToMany(OptionName::class, CategoryOptionNames::class, 'category_id', 'option_name_id',  'category_id');
     }
 
     public function product_models()
@@ -69,6 +79,11 @@ class Product extends Model
     public function categories()
     {
         return $this->belongsToMany(Category::class, CategoryProducts::class, 'product_id', 'category_id')->where('category_products.deleted_at', null);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
 

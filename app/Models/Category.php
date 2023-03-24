@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
@@ -31,7 +32,17 @@ class Category extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, CategoryProducts::class, 'category_id', 'product_id')->where('category_products.deleted_at', null);
+        return $this->hasMany(Product::class);
+    }
+
+    public function option_names()
+    {
+        return $this->belongsToMany(OptionName::class, CategoryOptionNames::class);
+    }
+
+    public function materials(): BelongsToMany
+    {
+        return $this->belongsToMany(Material::class, CategoryMaterials::class);
     }
 
 }

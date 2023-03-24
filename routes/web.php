@@ -61,6 +61,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::patch('/products/{product}/update', [\App\Http\Controllers\Product\ProductController::class, 'update']);
     Route::delete('/products/{product}', [\App\Http\Controllers\Product\ProductController::class, 'destroy']);
 
+    Route::get('/products/{product}/toggle-publish', [\App\Http\Controllers\Product\ProductController::class, 'togglePublish']);
+
     Route::post('/products/{product}/images', [\App\Http\Controllers\Image\ProductImageController::class, 'store']);
     Route::post('/products/{product}/images/order', [\App\Http\Controllers\Image\ProductImageController::class, 'order']);
     Route::delete('/products/{product}/images/{productVariantImage}', [\App\Http\Controllers\Image\ProductImageController::class, 'destroy']);
@@ -78,7 +80,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::delete('/products/{product}/options/{optionName}', [\App\Http\Controllers\Option\OptionController::class, 'destroy']);
     Route::get('/products/{product}/options/{optionName}/toggle-is-color', [\App\Http\Controllers\Option\OptionController::class, 'toggleIsColor']);
 
-    Route::get('/products/{product}/categories/{category}/toggle', [\App\Http\Controllers\Category\CategoryController::class, 'toggleProduct']);
+    Route::patch('/products/{product}/categories', [\App\Http\Controllers\Category\CategoryController::class, 'appendCategory']);
+    Route::delete('/products/{product}/categories', [\App\Http\Controllers\Category\CategoryController::class, 'clearCategory']);
 
     Route::post('/products/{product}/accent-properties', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'bind']);
 
@@ -87,6 +90,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/products/{product}/models/{model}/images', [\App\Http\Controllers\Product\ProductModelController::class, 'addImage']);
     Route::delete('/products/{product}/models/{model}/images/{image}', [\App\Http\Controllers\Product\ProductModelController::class, 'deleteImage']);
     Route::delete('/products/{product}/models/{productModel}', [\App\Http\Controllers\Product\ProductModelController::class, 'destroy']);
+
+    Route::patch('/variants/{variant}/materials/{material}', [\App\Http\Controllers\Variant\VariantController::class, 'bindMaterials']);
 
     Route::get('/categories', [\App\Http\Controllers\Category\CategoryController::class, 'index']);
     Route::post('/categories', [\App\Http\Controllers\Category\CategoryController::class, 'store']);
@@ -212,7 +217,23 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/interiors/{interior}/image', [\App\Http\Controllers\Interior\InteriorController::class, 'storeImage']);
     Route::delete('/interiors/{interior}/image', [\App\Http\Controllers\Interior\InteriorController::class, 'deleteImage']);
 
+
     Route::get('/variants/search', [\App\Http\Controllers\Variant\VariantController::class, 'search']);
+
+    Route::get('/materials', [\App\Http\Controllers\Material\MaterialController::class, 'index']);
+    Route::post('/materials', [\App\Http\Controllers\Material\MaterialController::class, 'storeMaterial']);
+    Route::post('/materials/{material}/units', [\App\Http\Controllers\Material\MaterialController::class, 'storeUnit']);
+    Route::get('/materials/units/{unit}', [\App\Http\Controllers\Material\MaterialController::class, 'unit']);
+    Route::delete('/materials/units/{unit}', [\App\Http\Controllers\Material\MaterialController::class, 'destroyUnit']);
+    Route::get('/materials/categories/{category}', [\App\Http\Controllers\Material\MaterialController::class, 'edit']);
+    Route::patch('/materials/{category}', [\App\Http\Controllers\Material\MaterialController::class, 'bind']);
+    Route::get('/materials/{material}', [\App\Http\Controllers\Material\MaterialController::class, 'material']);
+    Route::post('/materials/units/{unit}/values', [\App\Http\Controllers\Material\MaterialController::class, 'storeValue']);
+    Route::delete('/materials/values/{value}', [\App\Http\Controllers\Material\MaterialController::class, 'destroyValue']);
+    Route::delete('/materials/{material}', [\App\Http\Controllers\Material\MaterialController::class, 'destroy']);
+
+    Route::get('/materials/{material}/colors', [\App\Http\Controllers\Material\MaterialColorController::class, 'index']);
+    Route::patch('/materials/{material}/toggle-color', [\App\Http\Controllers\Material\MaterialColorController::class, 'toggleColor']);
 });
 
 require __DIR__.'/auth.php';

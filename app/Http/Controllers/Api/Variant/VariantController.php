@@ -27,6 +27,7 @@ class VariantController extends Controller
     public function variant(Variant $variant)
     {
         $this->variantService->aggregateVariantByNameValues($variant);
+        $variant->load('images');
 
         $relatedVariantNotes = RelatedVariant::where('parent_variant_id', $variant->id)->get();
         $ids = [];

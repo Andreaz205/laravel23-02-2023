@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreRequest;
 use App\Http\Requests\Product\UpdateRequest;
 use App\Http\Services\Category\CategoryService;
+use App\Http\Services\Material\MaterialService;
 use App\Http\Services\Product\ProductService;
 use App\Models\AccentProperty;
+use App\Models\Category;
 use App\Models\Group;
 use App\Models\OptionName;
 use App\Models\Parameter;
@@ -85,32 +87,49 @@ class ProductController extends Controller
 
     }
 
-    public function show(Product $product)
+    public function show(Product $product, MaterialService $materialService)
     {
 //        $product = $this->productService->aggregateOptionsForSingleProduct($product);
         $accentProperties = AccentProperty::with('media')->get();
+
         $productNames = $product->option_names()->with('option_values')->get();
         $product->option_names = $productNames;
-        $allOptionNames = OptionName::query()->with('option_values')->get();
-        $models = $product->product_models()->get()
+//        $allOptionNames = OptionName::query()->with('option_values')->get();
+        $models = $product
+            ->product_models()
+            ->withCount('images')
+            ->get()
             ->map(function ($model) {
                 $model->setRelation('images', $model->images->take(6));
                 return $model;
             });
-        $product->load('parameters');
+
+//        $productNames = $product->option_names()->with('option_values')->get();
+//        $product->option_names = $productNames;
+//        $allOptionNames = OptionName::query()->with('option_values')->get();
+//        $models = $product->product_models()->with(['images'])->withCount('images')->get();
+
+        $materials = $product->materials()->with(['material_units' => fn ($query) => $query->with('values')])->get();
+        $materialSets =  $materialService->getSets($materials);
+        $product->load('parameters', 'category');
         $product->accent_properties = $product->accent_properties()->with('media')->get();
         $product->images = $product->images()->orderBy('position', 'ASC')->get();
-        $product->variants = $product->variants()->with(['option_values', 'images', 'prices'])->get();
-        $categories = $this->productService->categoriesWithCheckedProp($product);
+        $product->variants = $product->variants()->with(['option_values', 'images', 'prices', 'material_unit_values', 'color'])->get();
+        $categories = Category::all();
+//        $categories = $this->productService->categoriesWithCheckedProp($product);
         $categories = $this->categoryService->nestedCategories($categories);
         $prices = Price::all();
+//            'allOptionNames' => $allOptionNames,
+//            'categoriesData' => $categories,
+
         return inertia('Product/Show', [
+            'material_sets' => $materialSets,
             'models' => $models,
             'accentPropertiesProps' => $accentProperties,
             'prices' => $prices,
             'productData' => $product,
-            'categoriesData' => $categories,
-            'allOptionNames' => $allOptionNames,
+            'categories' => $categories,
+            'materials' => $materials,
             'can-products' => [
                 'list' => Auth('admin')->user()->can('product list'),
                 'create' => Auth('admin')->user()->can('product create'),
@@ -158,6 +177,11 @@ class ProductController extends Controller
         unset($data['parameters']);
         $product->update($data);
         return Response::json(['status' => 'success']);
+    }
+
+    public function togglePublish(Product $product)
+    {
+        return $product->update(['is_published' => !$product->is_published]);
     }
 
     public function destroy(Product $product)

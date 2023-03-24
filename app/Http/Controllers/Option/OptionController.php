@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class OptionController extends Controller
 {
@@ -205,7 +206,9 @@ class OptionController extends Controller
         if (!isset($existsValue)) return Response::json(['error' => 'Invalid request, try to create option_value firstly!'], 400);
         try {
             DB::beginTransaction();
-
+            $optionName = OptionName::find($optionNameId);
+            $candidate = $optionName->option_values()->where('title', $newValue)->first();
+            if (isset($candidate))throw ValidationException::withMessages(['У свойства ' . $optionName->title . ' уже существует значение ' . $newValue]);
             $newOptionValue = OptionValue::create([
                 'title' => $newValue,
                 'option_name_id' => $optionNameId,

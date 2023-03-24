@@ -104,6 +104,110 @@
         </div>
     </div>
 
+    <div class="modal fade" id="appendImageModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Редактировать свойства</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <Errors :errors="errors"/>
+                        </div>
+                    </div>
+                    <img :src="file?.url" alt="">
+<!--                    <div class="row">-->
+<!--                        <div class="col-9">-->
+<!--                            <div class="card">-->
+<!--                                <div data-v-6ef2e16d="" class="card-tools">-->
+<!--                                    <div data-v-6ef2e16d="" class="input-group input-group-sm" style="width: 100%;">-->
+<!--                                        <input data-v-6ef2e16d="" type="text" name="table_search" class="form-control float-right" placeholder="Search" @keydown.enter="search" autocomplete="off" v-model="term">-->
+<!--                                        <div data-v-6ef2e16d="" class="input-group-append w-[50px]">-->
+<!--                                            <button data-v-6ef2e16d="" class="btn btn-default w-full" @click="search">-->
+<!--                                                <i data-v-6ef2e16d="" class="fas fa-search"></i>-->
+<!--                                            </button>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="col-3 flex gap-2">-->
+<!--                            <span> На странице</span>-->
+<!--                            <div>-->
+<!--                                <label for="fist-radio">25</label>-->
+<!--                                <input type="radio" class="form-control cursor-pointer" v-model="variantsPerPage" :value="25" id="fist-radio">-->
+<!--                            </div>-->
+<!--                            <div>-->
+<!--                                <label for="second-radio">50</label>-->
+<!--                                <input type="radio" class="form-control cursor-pointer" v-model="variantsPerPage" :value="50" id="second-radio">-->
+<!--                            </div>-->
+
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    <div class="row" v-if="fetchedVariants && fetchedVariants.data && fetchedVariants.data.length">-->
+<!--                        <div class="col-12" v-for="variant in fetchedVariants.data">-->
+<!--                            <div class="flex gap-4 items-center">-->
+
+<!--                                <div class="w-[100px] h-[100px] bg-gray-50 rounded-xl overflow-hidden">-->
+<!--                                    <img class="object-contain w-full h-full" :src="variant?.images[0]?.image_url ?? '/storage/images/no-image.jpg'" alt="">-->
+<!--                                </div>-->
+
+<!--                                {{variant.title}}-->
+
+<!--                                <div>-->
+<!--                                    <button class="btn btn-primary" @click="appendVariant(variant)">-->
+<!--                                        Добавить-->
+<!--                                    </button>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+
+<!--                        </div>-->
+<!--                        <div class="col-12">-->
+<!--                            <nav aria-label="Page navigation example">-->
+<!--                                <ul class="pagination">-->
+<!--                                    &lt;!&ndash;                                    <li class="page-item">&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                        <a class="page-link" href="#" aria-label="Previous">&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                            <span aria-hidden="true">&laquo;</span>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                            <span class="sr-only">Previous</span>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                        </a>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                    </li>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                    <li class="page-item">&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                        <a class="page-link" href="#">1</a>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                    </li>&ndash;&gt;-->
+
+<!--                                    <li class="page-item"  v-for="(link, key) in fetchedVariants.links.slice(1, fetchedVariants.links.length - 1)" :key="key">-->
+<!--                                        <a class="page-link cursor-pointer" @click="searchWithPage(link.url)">{{link.label}}</a>-->
+<!--                                    </li>-->
+
+<!--                                    &lt;!&ndash;                                    <li class="page-item">&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                        <a class="page-link" href="#">{{fetchedVariants.last_page}}</a>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                    </li>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                    <li class="page-item">&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                        <a class="page-link" href="#" aria-label="Next">&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                            <span aria-hidden="true">&raquo;</span>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                            <span class="sr-only">Next</span>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                        </a>&ndash;&gt;-->
+<!--                                    &lt;!&ndash;                                    </li>&ndash;&gt;-->
+<!--                                </ul>-->
+<!--                            </nav>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+                </div>
+                <div class="modal-footer">
+                    <button ref="close" type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <Spinner v-if="isLoading"/>
     <AuthenticatedLayout>
 
@@ -172,6 +276,10 @@
                 </div>
             </div>
         </div>
+        <button ref="upload-image" class="hidden"
+                type="button"
+                data-toggle="modal" data-target="#appendImageModal"
+        ></button>
     </AuthenticatedLayout>
 </template>
 
@@ -187,6 +295,7 @@ export default {
     components: {Spinner, Errors, AuthenticatedLayout},
     data() {
         return {
+            file: null,
             selectedInterior: null,
             fetchedVariants: null,
             variantsPerPage: 25,
@@ -197,6 +306,17 @@ export default {
         }
     },
     methods: {
+        async handleUploadImage(file, interiorId) {
+            this.isLoading = true
+            this.selectedInterior = this.interiors?.find(interior => interior.id === interiorId)
+            this.$refs["upload-image"].click()
+            let reader = new FileReader()
+            console.log(file)
+            // reader.readAsDataURL(file)
+            // reader.onload(() => {
+            //     console.log(reader.result)
+            // })
+        },
         async storeImage(file, interiorId) {
             try {
                 this.isLoading = true
@@ -205,6 +325,7 @@ export default {
                 let response = await axios.post(`/admin/interiors/${interiorId}/image`, formData)
                 let searchedInterior = this.interiors.find(interior => interior.id === interiorId)
                 searchedInterior.image = response.data
+                this.$refs["upload-image"].click()
                 this.isLoading = false
             } catch (e) {
                 this.isLoading = false
@@ -286,8 +407,9 @@ export default {
                 disablePreviews: true
             })
             obj.on("addedfile", (file) => {
-                this.storeImage(file, item)
-            });
+                this.handleUploadImage(file, item)
+                // this.storeImage(file, item)
+            })
         })
     },
     watch: {

@@ -61,9 +61,9 @@
                                     >
                                         <option disabled value="default">Выберите значение</option>
                                         <option value="new">Добавить новое значение</option>
-                                        <template v-if="element.option_name_id && allNames.find(n => n.id === element.option_name_id)">
+                                        <template v-if="element.option_name_id && allNames?.find(n => n.id === element.option_name_id)">
                                             <option
-                                                v-for="value in allNames.find(n => n.id === element.option_name_id).option_values"
+                                                v-for="value in allNames?.find(n => n.id === element.option_name_id).option_values"
                                                 :key="value.id"
                                                 :value="value.id"
                                             >

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Category;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Category\BindRequest;
 use App\Http\Requests\Category\CategoryStoreRequest;
 use App\Http\Requests\Category\StoreCategoryImageRequest;
 use App\Http\Resources\Category\CategoryResource;
@@ -14,8 +15,10 @@ use App\Models\Product;
 use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class CategoryController extends Controller
 {
@@ -41,6 +44,9 @@ class CategoryController extends Controller
         ]);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function store(CategoryStoreRequest $request)
     {
         $data = $request->validated();
@@ -48,6 +54,8 @@ class CategoryController extends Controller
         $categoryId = $data['category_id'];
 
         if (isset($categoryId)) {
+            $parentCategory = Category::find($categoryId);
+            if (isset($parentCategory->parent_category_id)) throw ValidationException::withMessages(['Недопустимая вложенность!']);
             $category = Category::create([
                 'name' => $name,
                 'parent_category_id' => $categoryId
@@ -66,22 +74,51 @@ class CategoryController extends Controller
         return Response::json(['status' => 'success']);
     }
 
-    public function toggleProduct(Product $product, Category $category)
+    public function appendCategory(Product $product, BindRequest $request)
     {
-        $categoryProducts = $category->products()->whereNull('category_products.deleted_at')->get();
-        if (isset($categoryProducts) && count($categoryProducts) > 0) {
-            foreach ($categoryProducts as $categoryProduct) {
-                if ($categoryProduct->id === $product->id) {
-                    CategoryProducts::where('product_id', $product->id)->where('category_id', $category->id)->delete();
-                    return Response::json(['status' => 'Deleted successfully!']);
-                }
-            }
+        $data = $request->validated();
+        $categoryId = $data['category_id'];
+        $variants = $product->variants;
+        $category = Category::find($categoryId);
+        $categoryOptionNames = $category->option_names;
+        try {
+            DB::beginTransaction();
+//            foreach ($variants as $variant) {
+//                $variant->option_values()->where('option_name_id');
+//            }
+            $product->update(['category_id' => $categoryId]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return Response::json(['message' => $e->getMessage()], 500);
         }
-        CategoryProducts::create([
-            'product_id' => $product->id,
-            'category_id' => $category->id,
-        ]);
-        return Response::json(['status' => 'success']);
+
+        return 1111;
+//        return redirect('/admin/products/'. $product->id)
+//            ->with('message', 'Категория ' . $category->name . ' была добавлена к товару ' . $product->title);
+//        $categoryProducts = $category->products()->whereNull('category_products.deleted_at')->get();
+//        if (isset($categoryProducts) && count($categoryProducts) > 0) {
+//            foreach ($categoryProducts as $categoryProduct) {
+//                if ($categoryProduct->id === $product->id) {
+//                    CategoryProducts::where('product_id', $product->id)->where('category_id', $category->id)->delete();
+//                    return Response::json(['status' => 'Deleted successfully!']);
+//                }
+//            }
+//        }
+//        CategoryProducts::create([
+//            'product_id' => $product->id,
+//            'category_id' => $category->id,
+//        ]);
+//        return Response::json(['status' => 'success']);
+
+    }
+
+    public function clearCategory(Product $product)
+    {
+        $category = $product->category()->first();
+        $name = $category->name;
+        $product->update(['category_id' => null]);
+        return 11;
     }
 
 

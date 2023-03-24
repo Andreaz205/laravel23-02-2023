@@ -90,7 +90,6 @@
                                     type="button" class="btn btn-primary bg-blue"
                                     data-toggle="modal" data-target="#createManagerModal"
                                 >
-
                                     Добавить
                                 </button>
 <!--                                <Link class="underline font-bold text-blue-400" href="/admin/roles">Роли</Link>-->

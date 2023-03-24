@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OptionValue extends Model
@@ -25,6 +26,16 @@ class OptionValue extends Model
     public function image()
     {
         return $this->hasOne(OptionImage::class, 'option_value_id', 'id');
+    }
+
+    public function material_unit_value(): BelongsTo
+    {
+        return $this->belongsTo(MaterialUnitValue::class);
+    }
+
+    public function material_unit(): BelongsTo
+    {
+        return $this->belongsTo(MaterialUnit::class);
     }
 //    protected $with = ['option_name'];
 

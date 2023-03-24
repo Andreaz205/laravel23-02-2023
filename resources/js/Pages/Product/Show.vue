@@ -1,5 +1,10 @@
 <template>
+    <Spinner v-if="isLoading"/>
     <AuthenticatedLayout>
+        <FlashMessage />
+        <!--TODO: Модальное окно для редактирования материала варианта-->
+        <MaterialVariantModal :material="selectedMaterial" :material_sets="material_sets" :selected_variant="selectedVariant" @changeVariantMaterial="handleChangeVariantMaterialCallback"/>
+
 
         <AppendAccentPropertiesModal
             :all-accent-properties="accentPropertiesData"
@@ -9,51 +14,53 @@
             @delete="handleDeleteAccentProperty"
         />
 
+
         <CreateAccentPropertyModal @created="handleCreateAccentProperty"/>
+
         <!--    TODO: Модальное окно для редактирования свойств-->
-        <OptionsModal
-            :product="product"
-            :product-option-names="this.product.option_names"
-            :all-option-names="allOptionNamesData"
-        />
+<!--        <OptionsModal-->
+<!--            :product="product"-->
+<!--            :product-option-names="this.product.option_names"-->
+<!--            :all-option-names="allOptionNamesData"-->
+<!--        />-->
 
         <!--    TODO: Модальное окно для редактирования свойства в целом-->
-        <div class="modal fade" id="editOptionModal" tabindex="-1" role="dialog" aria-labelledby="optionNameColorModal"
-             aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Редактировать свойство</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Отображать свойтсво как цвет товара</label>
-                            <CustomSwitch :is-checked="selectedOptionName?.is_color"
-                                          :switch-id="'option-name-' + selectedOptionName?.id"
-                                          @changeSwitch="onChangeOptionColor"/>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
-                        </button>
-                        <!--                        <button type="button" class="btn btn-primary bg-blue-500" @click="saveOption">Сохранить-->
-                        <!--                        </button>-->
-                    </div>
-                </div>
-            </div>
-        </div>
+<!--        <div class="modal fade" id="editOptionModal" tabindex="-1" role="dialog" aria-labelledby="optionNameColorModal"-->
+<!--             aria-hidden="true">-->
+<!--            <div class="modal-dialog modal-xl" role="document">-->
+<!--                <div class="modal-content">-->
+<!--                    <div class="modal-header">-->
+<!--                        <h5 class="modal-title" id="exampleModalLabel">Редактировать свойство</h5>-->
+<!--                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                            <span aria-hidden="true">&times;</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                    <div class="modal-body">-->
+<!--                        <div class="form-group">-->
+<!--                            <label>Отображать свойтсво как цвет товара</label>-->
+<!--                            <CustomSwitch :is-checked="selectedOptionName?.is_color"-->
+<!--                                          :switch-id="'option-name-' + selectedOptionName?.id"-->
+<!--                                          @changeSwitch="onChangeOptionColor"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="modal-footer">-->
+<!--                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть-->
+<!--                        </button>-->
+<!--                        &lt;!&ndash;                        <button type="button" class="btn btn-primary bg-blue-500" @click="saveOption">Сохранить&ndash;&gt;-->
+<!--                        &lt;!&ndash;                        </button>&ndash;&gt;-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
-        <!--    TODO: Модальное окно для создания варианта-->
-        <CreateVariantModal
-            :product-option-names="this.productData?.option_names"
-            :product="product"
-            @variantCreated="handleCreatedVariant"
-        />
+<!--        &lt;!&ndash;    TODO: Модальное окно для создания варианта НУЖНО РЕДАКТИРОВАТЬ&ndash;&gt;-->
+<!--        <CreateVariantModal-->
+<!--            :product-option-names="this.productData?.option_names"-->
+<!--            :product="product"-->
+<!--            @variantCreated="handleCreatedVariant"-->
+<!--        />-->
 
-        <!--    TODO: Модальное окно для редактирования свойств варианта-->
+        <!--    TODO: Модальное окно для редактирования свойств варианта НУЖНО РЕДАКТИРОВАТЬ-->
         <div class="modal fade" id="changeVariantOptionsModal" tabindex="-1" role="dialog"
              aria-labelledby="exampleModalLabel"
              aria-hidden="true">
@@ -109,33 +116,86 @@
             </div>
         </div>
 
-        <!--    TODO: Модальное окно для удаления существующих свойств-->
-        <div class="modal fade" id="deleteOptionsModal" tabindex="-1" role="dialog"
-             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+        <!--    TODO: Модальное окно для указанаия категории-->
+        <div class="modal fade" id="selectCategoryButton" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Удалить свойства</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Выберите категорию</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-hover" style="border: none">
+                            <tbody>
+                            <tr class="expandable-body">
+                                <td style="border: none">
+                                    <div class="p-0">
+                                        <table class="table table-hover" style="border: none">
+                                            <tbody v-if="categories && categories.length">
+                                                <template v-for="category in categories">
+                                                    <ProductCategoryRow
+                                                        v-if="category.parent_category_id == null"
+                                                        :category-data="category"
+                                                        :product-data="this.$props.productData"
+                                                        :select-button="true"
+                                                        :is-switch="false"
+                                                        @select="handleSelectCategory"
+                                                    />
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary bg-gray-500" ref="closeCategoriesModal" data-dismiss="modal">Закрыть
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--    TODO: Модальное окно для создания варианта-->
+        <div class="modal fade" id="createVariantModal" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-center" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Укажитое материалы</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
 
-                        <div class="container-fluid" v-if="product.option_names">
-                            <div class="row my-2" v-for="name in product.option_names">
-                                <div class="col-sm-6">
-                                    <span>{{ name.title }}</span>
+                        <div class="container-fluid" v-if="materials && materials.length">
+                            <div class="row mt-3" v-for="material in materials">
+
+                                <label class="col-4">
+                                    Необходимо указать {{material.title}}
+                                </label>
+
+                                <div class="col-8">
+                                    <ModelSelect
+                                        v-if="createVariantForm && createVariantForm.length"
+                                        :options="options(material) ?? [{text: 1, value: 1}]"
+                                        v-model="createVariantForm.find(createForm => createForm.material_id === material.id).form"
+                                    />
                                 </div>
-                                <div class="col-sm-6">
-                                    <button class="btn btn-danger" @click="deleteOption(name.id)">Удалить</button>
-                                </div>
+
                             </div>
                         </div>
+
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
-                        </button>
+                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть</button>
                     </div>
                 </div>
             </div>
@@ -163,8 +223,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
-                        </button>
+                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть</button>
                         <button type="submit" class="btn btn-primary bg-blue">Сохранить</button>
                     </div>
                 </form>
@@ -262,55 +321,91 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header text-center text-xl">
-                                        <div class="p-2">Фотографии товара</div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-8">
-                                                <DraggableProductImages
-                                                    ref="draggable"
-                                                    @deleteImage="deleteImage"
-                                                    :product="product"
-                                                    :images="product.images"
-                                                />
-                                            </div>
-                                            <div class="col-4">
-                                                <div
-                                                    v-if="canProducts.edit"
-                                                    ref="dropzone"
-                                                    class="p-5 flex justify-center items-center min-h-[200px] bg-dark cursor-pointer text-center rounded"
-                                                >
-                                                    Нажмите либо поместите ваши изображения здесь
-                                                </div>
-                                                <div class="my-3">
-                                                    <button class="btn btn-primary w-full"
-                                                            @click="saveOrder"
-                                                    >
-                                                        Сохранить порядок
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div class="col-3">
                         <div class="card">
                             <div class="card-header text-center">
-                                <div class="p-2 text-xl">Категории</div>
+                                <div class="p-2 text-xl">Категория</div>
                             </div>
                             <div class="card-body">
-                                <ProductCategories
-                                    :categories-data="this.$props.categoriesData"
-                                    :product-data="product"
-                                />
+<!--                                <ProductCategories-->
+<!--                                    :categories-data="this.$props.categoriesData"-->
+<!--                                    :product-data="product"-->
+<!--                                />-->
+                                <div v-if="product.category">
+                                    {{product.category.name}}
+                                    <button
+                                        type="button"
+                                        class="btn btn-default ml-2"
+                                        data-toggle="modal"
+                                        data-target="#selectCategoryButton"
+                                    >
+                                        Изменить
+                                    </button>
+                                    <button class="btn btn-danger ml-2" @click="clearCategory">
+                                        Убрать
+                                    </button>
+                                </div>
+                                <div v-else class="text-center">
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary bg-blue"
+                                        data-toggle="modal"
+                                        data-target="#selectCategoryButton"
+                                    >
+                                        Указать категорию
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-footer">
+                                <div class="flex gap-2">
+                                    Товар на витрине:
+                                    <CustomSwitch
+                                        :is-checked="product.is_published"
+                                        @changeSwitch="handlePublishProduct"
+                                        switch-id="publish-switch"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header text-center text-xl">
+                                <div class="p-2">Фотографии товара</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <DraggableProductImages
+                                            ref="draggable"
+                                            @deleteImage="deleteImage"
+                                            :product="product"
+                                            :images="product.images"
+                                        />
+                                    </div>
+                                    <div class="col-4">
+                                        <div
+                                            v-if="canProducts.edit"
+                                            ref="dropzone"
+                                            class="p-5 flex justify-center items-center min-h-[200px] bg-dark cursor-pointer text-center rounded"
+                                        >
+                                            Нажмите либо поместите ваши изображения здесь
+                                        </div>
+                                        <div class="my-3">
+                                            <button class="btn btn-primary w-full"
+                                                    @click="saveOrder"
+                                            >
+                                                Сохранить порядок
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -378,36 +473,36 @@
                                     <div class="col-12">
                                         <div class="relative h-10">
                                             <div class="absolute left-2 flex gap-2">
-                                                <div>
-                                                    <button
-                                                        v-if="canProducts.edit"
-                                                        type="button" class="btn btn-primary bg-blue"
-                                                        data-toggle="modal" data-target="#createOptionsModal"
-                                                    >
-                                                        Добавить свойство
-                                                    </button>
-                                                </div>
-                                                <div>
-                                                    <button
-                                                        v-if="canProducts.edit"
-                                                        type="button" class="btn btn-danger bg-red-500"
-                                                        data-toggle="modal" data-target="#deleteOptionsModal"
-                                                    >
-                                                        Удалить свойства
-                                                    </button>
-                                                </div>
-                                                <div>
-                                                    <button
-                                                        v-if="canProducts.edit"
-                                                        type="submit"
-                                                        class="btn btn-warning bg-warning"
-                                                    >
-                                                        <Link href="/admin/options">
-                                                            Редактировать свойства
-                                                        </Link>
-                                                    </button>
+<!--                                                <div>-->
+<!--                                                    <button-->
+<!--                                                        v-if="canProducts.edit"-->
+<!--                                                        type="button" class="btn btn-primary bg-blue"-->
+<!--                                                        data-toggle="modal" data-target="#createOptionsModal"-->
+<!--                                                    >-->
+<!--                                                        Добавить свойство-->
+<!--                                                    </button>-->
+<!--                                                </div>-->
+<!--                                                <div>-->
+<!--                                                    <button-->
+<!--                                                        v-if="canProducts.edit"-->
+<!--                                                        type="button" class="btn btn-danger bg-red-500"-->
+<!--                                                        data-toggle="modal" data-target="#deleteOptionsModal"-->
+<!--                                                    >-->
+<!--                                                        Удалить свойства-->
+<!--                                                    </button>-->
+<!--                                                </div>-->
+<!--                                                <div>-->
+<!--                                                    <button-->
+<!--                                                        v-if="canProducts.edit"-->
+<!--                                                        type="submit"-->
+<!--                                                        class="btn btn-warning bg-warning"-->
+<!--                                                    >-->
+<!--                                                        <Link href="/admin/options">-->
+<!--                                                            Редактировать свойства-->
+<!--                                                        </Link>-->
+<!--                                                    </button>-->
 
-                                                </div>
+<!--                                                </div>-->
                                             </div>
 
                                             <div class="flex absolute right-2">
@@ -420,14 +515,15 @@
                                                     <button
                                                         v-if="canProducts.edit"
                                                         data-delete-variants-button
-                                                        type="submit" class="btn btn-danger bg-red">
+                                                        type="submit" class="btn btn-danger bg-red"
+                                                    >
                                                         Удалить выбранное
                                                     </button>
                                                 </div>
 
                                                 <div>
                                                     <button
-                                                        v-if="canProducts.edit && this.productData?.option_names && this.productData?.option_names.length"
+                                                        v-if="canProducts.edit && this.materials?.length"
                                                         type="button" class="btn btn-primary bg-blue"
                                                         data-toggle="modal" data-target="#createVariantModal"
                                                     >
@@ -446,20 +542,61 @@
                                         <table class="variants-table">
                                             <thead>
                                             <tr>
-                                                <th style="width: 50px"></th>
-                                                <th>Фото</th>
+                                                <th class="border-0"></th>
+                                                <th class="border-0"></th>
                                                 <template v-if="product.option_names && product.option_names.length">
-                                                    <th v-for="optionName in product.option_names">
-                                                        <button
-                                                            @click="setSelectedOptionName(optionName)"
-                                                            type="button"
-                                                            data-toggle="modal" data-target="#editOptionModal"
-                                                        >
-                                                            <span class="mr-1">{{ optionName.title }}</span>
-                                                            <i class="fas fa-palette" v-if="optionName.is_color"></i>
-                                                        </button>
+                                                    <th class="top-header" v-for="optionName in product.option_names"></th>
+                                                </template>
+                                                <template v-if="materials && materials.length">
+                                                    <template v-for="material in materials">
+                                                        <th :colspan="material.material_units.length" class="text-center">
+                                                            {{material.title}}
+                                                        </th>
+<!--                                                        <template v-if="material.material_units && material.material_units.length">-->
+<!--                                                            <th v-for="unit in material.material_units">-->
+<!--                                                            </th>-->
+<!--                                                        </template>-->
+                                                    </template>
+                                                </template>
+                                                <th class="border-0"></th>
+                                                <th class="border-0"></th>
+                                                <th class="border-0"></th>
+                                                <th class="border-0"></th>
+                                                <th class="border-0"></th>
+                                                <template v-if="prices && prices.length">
+                                                    <th class="border-0 " v-for="price in prices">
                                                     </th>
                                                 </template>
+                                                <th class="border-0"></th>
+                                            </tr>
+                                            <tr>
+                                                <th style="width: 50px"></th>
+
+                                                <th>Фото</th>
+
+<!--                                                <template v-if="product.option_names && product.option_names.length">-->
+<!--                                                    <th v-for="optionName in product.option_names">-->
+<!--                                                        <button-->
+<!--                                                            @click="setSelectedOptionName(optionName)"-->
+<!--                                                            type="button"-->
+<!--                                                            data-toggle="modal" data-target="#editOptionModal"-->
+<!--                                                        >-->
+<!--                                                            <span class="mr-1">{{ optionName.title }}</span>-->
+<!--                                                            <i class="fas fa-palette" v-if="optionName.is_color"></i>-->
+<!--                                                        </button>-->
+<!--                                                    </th>-->
+<!--                                                </template>-->
+
+                                                <template v-if="materials && materials.length">
+                                                    <template v-for="material in materials">
+                                                        <template v-if="material.material_units && material.material_units.length">
+                                                            <th v-for="unit in material.material_units">
+                                                                {{unit.title}}
+                                                            </th>
+                                                        </template>
+                                                    </template>
+                                                </template>
+
                                                 <th>Артикул</th>
                                                 <th>Цена продажи</th>
                                                 <th>Старая цена</th>
@@ -470,8 +607,7 @@
                                                         {{ price.title }}
                                                     </th>
                                                 </template>
-                                                <th style="width: 100px;">
-                                                </th>
+                                                <th style="width: 100px;"></th>
                                             </tr>
                                             </thead>
                                             <tbody v-if="product.variants && product.variants.length">
@@ -483,6 +619,8 @@
                                                                :data-variant-id="variant.id">
                                                     </div>
                                                 </td>
+
+
                                                 <td>
                                                     <div class="flex justify-center">
                                                         <div class="image-button">
@@ -508,23 +646,76 @@
                                                     </div>
                                                 </td>
 
-                                                <template v-for="name in product.option_names">
-                                                    <template v-for="value in variant.option_values">
+                                                <template v-if="materials && materials.length">
+                                                    <template v-for="material in materials" :key="material.id">
+                                                        <template v-if="material.material_units && material.material_units.length">
+                                                            <template v-for="unit in material.material_units" :key="unit.id">
 
-                                                        <td v-if="name.id == value.option_name_id">
-                                                            <div class="flex justify-center previous-column">
-                                                                <button
-                                                                    data-toggle="modal"
-                                                                    data-target="#changeVariantOptionsModal"
-                                                                    type="button"
-                                                                    @click="setSelectedVariant(variant)"
-                                                                >{{ value.title }}
-                                                                </button>
-                                                            </div>
-                                                        </td>
+<!--                                                                <template v-if="variant.material_unit_values && variant.material_unit_values.length">-->
+<!--                                                                    <template v-for="material_unit_value in variant.material_unit_values" :key="material_unit_value.id">-->
+<!--                                                                        <td v-if="material_unit_value.material_unit_id === unit.id">-->
+<!--                                                                            <div-->
+<!--                                                                                class="flex justify-center items-center"-->
+<!--                                                                                @click="handleMaterialUnitValueClick(material)"-->
+<!--                                                                                type="button"-->
+<!--                                                                                data-toggle="modal"-->
+<!--                                                                                data-target="#variantMaterialModal"-->
+<!--                                                                            >-->
+<!--                                                                                {{material_unit_value.value}}-->
+<!--                                                                            </div>-->
+<!--                                                                        </td>-->
+<!--                                                                    </template>-->
+<!--                                                                </template>-->
 
+                                                                <template v-if="variant.material_unit_values && variant.material_unit_values.length && variant.material_unit_values.find(value => value.material_unit_id === unit.id)">
+                                                                    <template v-for="material_unit_value in variant.material_unit_values" :key="material_unit_value.id">
+                                                                        <td v-if="material_unit_value.material_unit_id === unit.id">
+                                                                            <div
+                                                                                class="flex justify-center items-center"
+                                                                                @click="handleMaterialUnitValueClick(material, variant)"
+                                                                                type="button"
+                                                                                data-toggle="modal"
+                                                                                data-target="#variantMaterialModal"
+                                                                            >
+                                                                                {{material_unit_value.value}}
+                                                                            </div>
+                                                                        </td>
+                                                                    </template>
+                                                                </template>
+
+
+                                                                <td v-else>
+                                                                    <div class="flex justify-center items-center"
+                                                                         @click="handleMaterialUnitValueClick(material, variant)"
+                                                                         type="button"
+                                                                         data-toggle="modal" data-target="#variantMaterialModal"
+                                                                    >
+                                                                        -
+                                                                    </div>
+                                                                </td>
+
+                                                            </template>
+                                                        </template>
                                                     </template>
                                                 </template>
+
+<!--                                                <template v-for="name in product.option_names">-->
+<!--                                                    <template v-for="value in variant.option_values">-->
+
+<!--                                                        <td v-if="name.id == value.option_name_id">-->
+<!--                                                            <div class="flex justify-center previous-column">-->
+<!--                                                                <button-->
+<!--                                                                    data-toggle="modal"-->
+<!--                                                                    data-target="#changeVariantOptionsModal"-->
+<!--                                                                    type="button"-->
+<!--                                                                    @click="setSelectedVariant(variant)"-->
+<!--                                                                >{{ value.title }}-->
+<!--                                                                </button>-->
+<!--                                                            </div>-->
+<!--                                                        </td>-->
+
+<!--                                                    </template>-->
+<!--                                                </template>-->
 
                                                 <td>
                                                     <div class="flex justify-center previous-column">
@@ -697,10 +888,20 @@ import OptionsModal from "@/Pages/Product/Modal/OptionsModal.vue";
 import AccentProperties from "@/Components/AccentProperty/AccentProperties.vue";
 import CreateAccentPropertyModal from "@/Components/AccentProperty/CreateAccentPropertyModal.vue";
 import AppendAccentPropertiesModal from "@/Components/AccentProperty/AppendAccentPropertiesModal.vue";
+import ProductCategoryRow from "@/Pages/Product/ProductCategoryRow.vue";
+import Spinner from "@/Components/Spinner.vue";
+import FlashMessage from "@/Components/FlashMessage.vue";
+import MaterialVariantModal from "@/Pages/Product/Modal/MaterialVariantModal.vue";
+import {ModelSelect} from "vue-search-select";
+
+
 
 export default {
     name: "Product",
     components: {
+        MaterialVariantModal,
+        FlashMessage,
+        Spinner,
         AppendAccentPropertiesModal,
         CreateAccentPropertyModal,
         AccentProperties,
@@ -711,20 +912,33 @@ export default {
         Link,
         ProductCategories,
         DraggableProductImages,
-        ModalImages
+        ModalImages,
+        ProductCategoryRow,
+        ModelSelect
     },
 
     props: [
+        'materials',
+        'categories',
         'models',
         'productData',
         'categoriesData',
         'canProducts',
         'prices',
         'allOptionNames',
-        'accentPropertiesProps'
+        'accentPropertiesProps',
+        'material_sets'
     ],
+            // createVariantForm: this.material_sets,
     data() {
         return {
+            createVariantForm: this.materials.map(material => ({
+                material_id: material.id,
+                form: {text: null, value: null},
+            })),
+            selectedMaterial: null,
+            isLoading: false,
+            errors: null,
             accentPropertiesData: this.accentPropertiesProps,
             variantDropzone: null,
             selectedOptionName: null,
@@ -747,6 +961,10 @@ export default {
         }
     },
     methods: {
+        handleChangeVariantMaterialCallback(variant) {
+            let searchedVariant = this.product?.variants?.find(v => v.id === variant.id)
+            searchedVariant.material_unit_values = variant.material_unit_values
+        },
         handleFocus(e) {
             let target = e.target
             let rng, sel;
@@ -993,8 +1211,9 @@ export default {
             this.accentPropertiesData.splice(index, 1)
 
         },
-        setSelectedOptionName(optionName) {
-            this.selectedOptionName = optionName
+        handleMaterialUnitValueClick(material, variant) {
+            this.selectedVariant = variant
+            this.selectedMaterial = material
         },
         async updatePrice(event, price) {
             try {
@@ -1006,6 +1225,63 @@ export default {
                 console.log(e)
                 // let {errorsList} = handleError(e)
                 // alert(errorsList ?? e)
+            }
+        },
+        async handleSelectCategory(category) {
+            try {
+                this.isLoading = true
+                let data = {
+                    category_id: category.id
+                }
+                await axios.patch(`/admin/products/${this.product.id}/categories`, data)
+                location.reload()
+                this.isLoading = false
+            } catch (e) {
+                this.isLoading = false
+                if (e?.response?.status === 422) return this.errors = e.response.data.errors
+                alert(e?.message && e)
+            }
+        },
+        async clearCategory() {
+            try {
+                this.isLoading = true
+                await axios.delete(`/admin/products/${this.product.id}/categories`)
+                location.reload()
+                this.isLoading = false
+            } catch (e) {
+                this.isLoading = false
+                alert(e?.message ?? e)
+            }
+        },
+        async handlePublishProduct() {
+            try {
+                this.isLoading = true
+                await axios.get(`/admin/products/${this.product.id}/toggle-publish`)
+                this.product.is_published = !this.product.is_published
+                this.isLoading = false
+            } catch (e) {
+                this.isLoading = false
+                alert(e?.message ?? e)
+            }
+        },
+        options(material) {
+            if (material && this.material_sets && this.material_sets.length) {
+                let materialSet = this.material_sets.find(s => s.material_id === material.id)
+                let sets = materialSet['sets']
+                let options = [];
+                sets?.map(set => {
+                    let value = set.ids.join('-')
+                    options.push({text: set.title, value: value})
+                    // let plainTextValues = ''
+                    // let valuesIds = ''
+                    // console.log(set)
+                    // set?.map((setItem, idx) => {
+                    //     plainTextValues += setItem.value + ' '
+                    //     valuesIds = idx !== set.length - 1 ? valuesIds + setItem.id + '-' : valuesIds + setItem.id
+                    // })
+                    // options.push({text: plainTextValues, value: valuesIds})
+                })
+                return options
             }
         }
     },

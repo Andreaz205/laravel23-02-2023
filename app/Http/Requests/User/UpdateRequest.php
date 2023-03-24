@@ -26,7 +26,7 @@ class UpdateRequest extends FormRequest
         return [
             'is_subscribed_to_news' => 'boolean|nullable',
             'name' => 'string|required',
-            'email' => 'email|required|unique:users,email',
+            'email' => 'email|required|unique:users,email,'. request()->user->id,
             'phone' => 'string|nullable',
             'jural_address' => 'string|nullable',
             'additional_phone' => 'string|nullable',

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OptionName extends Model
@@ -27,5 +29,10 @@ class OptionName extends Model
     public function default_option_value()
     {
         return $this->hasOne(OptionValue::class, 'id', 'default_option_value_id');
+    }
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, CategoryOptionNames::class);
     }
 }

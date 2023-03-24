@@ -86,9 +86,21 @@ class  VariantService implements VariantServiceInterface
         $product = Product::findOrFail($variant->product_id);
         $variant->product = $product;
 
-        $productValues = $product->option_values;
+//        $productValues = $product->option_values;
+        $productValues = [];
+        $productVars = $product->variants;
+        foreach ($productVars as $productVar) {
+            $varVals = $productVar->option_values;
+            foreach ($varVals as $val) {
+                if (!in_array($val, $productValues)) {
+                    $productValues[] = $val;
+                }
+            }
+        }
+
         if (isset($product->option_names)) {
             $optionNames = $product->option_names;
+
 
             $optValues = [];
             if (isset($productValues)) {
