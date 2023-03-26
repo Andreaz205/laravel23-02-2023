@@ -6,6 +6,7 @@ use App\Http\Contracts\OptionServiceInterface;
 use App\Http\Contracts\OrderServiceInterface;
 use App\Http\Contracts\ProductServiceInterface;
 use App\Http\Contracts\VariantServiceInterface;
+use App\Http\Services\Material\MaterialService;
 use App\Http\Services\Option\OptionService;
 use App\Http\Services\Order\OrderService;
 use App\Http\Services\Product\ProductService;
@@ -28,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(VariantServiceInterface::class, VariantService::class);
         $this->app->bind(OrderServiceInterface::class, OrderService::class);
         $this->app->bind(OptionServiceInterface::class, OptionService::class);
+        $this->app->bind(MaterialService::class, fn () => new MaterialService());
     }
 
     /**

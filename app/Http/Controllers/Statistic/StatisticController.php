@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers\Statistic;
 
-use AkkiIo\LaravelGoogleAnalytics\Facades\LaravelGoogleAnalytics;
-use AkkiIo\LaravelGoogleAnalytics\Period;
 use App\Http\Controllers\Controller;
+use App\Http\Services\Analytics\AnalyticsService;
 use Inertia\Response;
 
 class StatisticController extends Controller
 {
-    public function index(): Response
+    public function index(AnalyticsService $analyticsService)
     {
-        $data = LaravelGoogleAnalytics::dateRanges(Period::days(1))
-            ->metrics('screenPageViews')->dimensions('country', 'landingPage', 'date')->get();
-        dd($data->metricAggregationsTable);
-        return inertia('Statistic/Index');
+        dd($analyticsService::getMetadata());
+        $weekPagesData = $analyticsService::weekPagesData();
+        $weekViewsData = $analyticsService::weekViewsData();
+
+        return inertia('Statistic/Index', [
+            'weekPagesData' => $weekPagesData,
+            'weekViewsData' => $weekViewsData,
+        ]);
     }
 }

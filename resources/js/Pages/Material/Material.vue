@@ -69,7 +69,7 @@
                 </div>
             </div>
         </div>
-        <div class="p-4">
+        <div class="p-4" v-if="material.with_colors">
             <Link :href="`/admin/materials/${this.material.id}/colors`">
                 <button class="btn btn-primary w-full py-5">
                         Указать цвета
@@ -128,7 +128,7 @@
                         <!--                                            &lt;!&ndash;                            <a @click="deleteManager(manager)" v-if="canManagers.delete && user.id !== manager.id">&ndash;&gt;-->
                         <!--                                            &lt;!&ndash;                                <i class="fas fa-times"></i>&ndash;&gt;-->
                         <!--                                            &lt;!&ndash;                            </a>&ndash;&gt;-->
-                        <!--                                            &lt;!&ndash;                            <div v-if="user.id === manager.id">&ndash;&gt;-->
+                        <!--                                            &lt;!&ndash;                            <div v-if="user.id == manager.id">&ndash;&gt;-->
                         <!--                                            &lt;!&ndash;                                Вы&ndash;&gt;-->
                         <!--                                            &lt;!&ndash;                            </div>&ndash;&gt;-->
                         <!--                                            <button class="btn btn-danger" @click="deleteUnit(unit)">-->
@@ -222,7 +222,7 @@ export default {
                 this.isLoading = false
             } catch (e) {
                 this.isLoading = false
-                if (e?.response?.status === 422) return this.errors = e.response.data.errors
+                if (e?.response?.status == 422) return this.errors = e.response.data.errors
                 alert(e?.message ?? e)
             }
         },
@@ -244,9 +244,9 @@ export default {
             let activeParentValue = null
             let foundFlag = false
             this.plainUnits?.map((unit, idx) => {
-                if (u.id === unit.id) {
+                if (u.id == unit.id) {
                     unit.values.map(val => {
-                        if (val.id === value.id) {
+                        if (val.id == value.id) {
                             val.active = true
                             activeParentValue = val
                         } else {
@@ -260,7 +260,7 @@ export default {
                     activeParentValue = previousUnit?.values?.find(val => val.active)
                     let activeFlag = true
                     unit?.values?.map((value, index) => {
-                        value.isVisible = value.parent_material_unit_value_id === activeParentValue?.id
+                        value.isVisible = value.parent_material_unit_value_id == activeParentValue?.id
                         if (activeFlag && value.isVisible) {
                             value.active = true
                             activeFlag = false
@@ -275,25 +275,25 @@ export default {
     mounted() {
         let activeParentValue = null
         this.plainUnits?.map((unit, idx) => {
-            if (idx === 0 && unit?.values && unit?.values[0]) {
+            if (idx == 0 && unit?.values && unit?.values[0]) {
                 activeParentValue = unit.values[0]
                 if (this.plainUnits.length >= idx + 1) {
                     let searchedChildUnit = this.plainUnits[idx + 1]
                     searchedChildUnit?.values.map(value => {
-                        value.isVisible = value.parent_material_unit_value_id === activeParentValue.id;
+                        value.isVisible = value.parent_material_unit_value_id == activeParentValue.id;
                     })
                 }
                 return unit.values[0].active = true
             }
             unit?.values?.map(value => {
-                if (value.parent_material_unit_value_id === activeParentValue.id) {
+                if (value.parent_material_unit_value_id == activeParentValue.id) {
                     activeParentValue = value
                     return value.active = true
                 }
             })
             if (this.plainUnits.length >= idx + 1) {
                 this.plainUnits[idx + 1]?.values?.map(value => {
-                    value.isVisible = value.parent_material_unit_value_id === activeParentValue.id;
+                    value.isVisible = value.parent_material_unit_value_id == activeParentValue.id;
                 })
             }
         })

@@ -78,10 +78,18 @@ class MaterialService
             $matSets = [];
             $materialUnits = $material->material_units;
 
+
             if (count($materialUnits)) {
-                if (count($materialUnits) === 1) {
+                if (count($materialUnits) == 1) {
                     $values = $materialUnits[0]->values;
-                    $result = $values->map(fn($value) => [0 => ['id' => $value->id, 'value' => $value->value], 'title' => $value->value, 'ids' => [$value->id]]);
+                    $result = $values->map(fn($value) => [
+                        0 => [
+                            'id' => $value->id, 'value' => $value->value
+                        ],
+                        'title' => $value->value,
+                        'ids' => [$value->id],
+                        'color' => $value->color
+                    ]);
                     $materialSet['sets'] = $result;
                 } else {
                     $materialValues = $this->allMaterialValues($material);
@@ -92,6 +100,7 @@ class MaterialService
                         $arrayWithTitleAndIds = $this->getSetTitleWithIds(array_reverse($set));
                         $set['title'] = $arrayWithTitleAndIds['title'];
                         $set['ids'] = $arrayWithTitleAndIds['ids'];
+                        $set['color'] = $value->color;
                         $matSets[] = $set;
                     }
                     $materialSet['sets'] = $matSets;
@@ -111,11 +120,11 @@ class MaterialService
                 'id' => $materialLastUnitValue->id, 'value' => $materialLastUnitValue->value
         ]];
         $currentValue = $materialLastUnitValue;
-        $parentValueKey = $allMaterialValues->search(fn ($value, $key) => $value->id === $currentValue->parent_material_unit_value_id);
+        $parentValueKey = $allMaterialValues->search(fn ($value, $key) => $value->id == $currentValue->parent_material_unit_value_id);
         while ($parentValueKey !== false) {
             $currentValue = $allMaterialValues[$parentValueKey];
             $set[] = ['id' => $currentValue->id, 'value' => $currentValue->value];
-            $parentValueKey = $allMaterialValues->search(fn ($value, $key) => $value->id === $currentValue->parent_material_unit_value_id);
+            $parentValueKey = $allMaterialValues->search(fn ($value, $key) => $value->id == $currentValue->parent_material_unit_value_id);
         };
         return $set;
     }

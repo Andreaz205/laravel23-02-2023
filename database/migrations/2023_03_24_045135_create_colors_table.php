@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('image_url');
             $table->string('image_path');
-            $table->foreignId('material_unit_value_id')->index()->constrained('material_unit_values')->onDelete('cascade');
+            $table->foreignId('last_material_unit_value_id')->index()->constrained('material_unit_values')->onDelete('cascade');
             $table->timestamps();
         });
     }

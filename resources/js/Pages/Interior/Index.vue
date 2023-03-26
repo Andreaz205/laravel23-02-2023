@@ -121,7 +121,23 @@
                             <Errors :errors="errors"/>
                         </div>
                     </div>
-                    <img :src="file?.url" alt="">
+                    <template v-if="file">
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                Укажите точку на фотографии указывающую на вариант
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 flex justify-center">
+                                <div class="max-w-[500px] relative user-select-none" @click="handleImageClick">
+                                    <img :src="dataUrl" alt="" class="w-full h-full pointer-events-none" >
+<!--                                Point-->
+                                    <div class="absolute pointer-events-none -top-[10px] -left-[10px] h-[20px] w-[20px] bg-red rounded-full" ref="pointRef"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
 <!--                    <div class="row">-->
 <!--                        <div class="col-9">-->
 <!--                            <div class="card">-->
@@ -295,7 +311,9 @@ export default {
     components: {Spinner, Errors, AuthenticatedLayout},
     data() {
         return {
+            point: {xAsPercents: 0, yAsPercents: 0},
             file: null,
+            dataUrl: null,
             selectedInterior: null,
             fetchedVariants: null,
             variantsPerPage: 25,
@@ -306,12 +324,32 @@ export default {
         }
     },
     methods: {
+        handleImageClick(event) {
+            let rect = event.target.getBoundingClientRect()
+            let width = rect.width
+            let height = rect.height
+            let offsetX = event.offsetX
+            let offsetY = event.offsetY
+            let offsetXAsPercents = Math.round(100 * (offsetX / width))
+            let offsetYAsPercents = Math.round(100 * (offsetY / height))
+            this.point = {xAsPercents: offsetXAsPercents, yAsPercents: offsetYAsPercents}
+        },
+        // setDataUrl(res) {
+        //     this.dataUrl = res
+        // },
         async handleUploadImage(file, interiorId) {
-            this.isLoading = true
-            this.selectedInterior = this.interiors?.find(interior => interior.id === interiorId)
+            // this.isLoading = true
+            // this.selectedInterior = this.interiors?.find(interior => interior.id === interiorId)
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            let vm = this
+            reader.onload = function(event) {
+                vm.dataUrl = event.target.result
+            };
             this.$refs["upload-image"].click()
-            let reader = new FileReader()
-            console.log(file)
+            this.file = file
+            // let reader = new FileReader()
+            // console.log(file)
             // reader.readAsDataURL(file)
             // reader.onload(() => {
             //     console.log(reader.result)
@@ -412,9 +450,15 @@ export default {
             })
         })
     },
+
     watch: {
         term () {
             this.fetchedVariants = null
+        },
+        point (val) {
+            const point = this.$refs.pointRef
+            point.style.top = `calc(${val.yAsPercents}% - 10px)`
+            point.style.left = `calc(${val.xAsPercents}% - 10px)`
         }
     }
 }

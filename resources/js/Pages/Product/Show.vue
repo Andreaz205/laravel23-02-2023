@@ -544,6 +544,7 @@
                                             <tr>
                                                 <th class="border-0"></th>
                                                 <th class="border-0"></th>
+                                                <th class="border-0"></th>
                                                 <template v-if="product.option_names && product.option_names.length">
                                                     <th class="top-header" v-for="optionName in product.option_names"></th>
                                                 </template>
@@ -573,6 +574,8 @@
                                                 <th style="width: 50px"></th>
 
                                                 <th>Фото</th>
+                                                <th>Цвет</th>
+<!--                                                <th>Цвет</th>-->
 
 <!--                                                <template v-if="product.option_names && product.option_names.length">-->
 <!--                                                    <th v-for="optionName in product.option_names">-->
@@ -643,6 +646,17 @@
                                                                      width="100" height="100">
                                                             </button>
                                                         </div>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    <div class="flex justify-center items-center">
+                                                        <template v-if="variant?.material_unit_values?.find(value => value.color)">
+                                                            <img :src="variant?.material_unit_values?.find(value => value.color).color.image_url" alt="">
+                                                        </template>
+                                                        <template>
+                                                            -
+                                                        </template>
                                                     </div>
                                                 </td>
 

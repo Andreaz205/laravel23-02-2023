@@ -32,4 +32,10 @@ export const localizeSection = (name) => {
     if (name === 'price') {
         return 'Цены'
     }
+    if (name === 'material') {
+        return 'Материал'
+    }
+    if (name === 'interior') {
+        return 'Интерьер'
+    }
 }

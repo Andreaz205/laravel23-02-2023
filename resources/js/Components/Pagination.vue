@@ -25,6 +25,11 @@ export default {
             pagination: this.items.links
         }
     },
+    watch: {
+        items(currValue, prevValue) {
+            this.pagination = currValue.links
+        }
+    },
     computed: {
         calcPagination () {
             return this.pagination?.slice(1, -1)

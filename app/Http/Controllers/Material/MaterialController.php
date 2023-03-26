@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Material;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Material\BindRequest;
+use App\Http\Requests\Material\SearchRequest;
 use App\Http\Requests\Material\StoreRequest;
 use App\Http\Requests\Material\StoreUnitRequest;
 use App\Http\Requests\Material\StoreValueRequest;
@@ -146,6 +147,7 @@ class MaterialController extends Controller
     public function storeUnit(StoreUnitRequest $request, Material $material)
     {
         $data = $request->validated();
+        if ($material->with_colors) throw ValidationException::withMessages(['Невозможно создать новый элемент так как к материалу уже указаны цвета']);
         if (isset($data['parent_material_unit_id'])) {
             $parentUnit = MaterialUnit::find($data['parent_material_unit_id']);
             if (isset($parentUnit->child_unit))
@@ -205,16 +207,16 @@ class MaterialController extends Controller
 
     }
 
-    public function search(Material $material, Request $request)
+    public function search(Material $material, SearchRequest $request, MaterialService $materialService)
     {
-
+        $term = $request->validated()['term'];
+        $sets = collect($materialService->getSets(collect([$material]))[0]['sets']);
+        $sets = $sets->filter(function  ($value, $key) use ($term) {
+            $title = mb_strtolower($value['title']);
+            return str_contains($title, $term);
+        });
+        return $materialService->paginate($sets, 10);
     }
-
-
-
-
-
-
 
     public function destroyUnit(MaterialUnit $unit)
     {
@@ -224,6 +226,11 @@ class MaterialController extends Controller
 
     public function destroyValue(MaterialUnitValue $value)
     {
+        // Валидация на наличие дочерних значений
+        if ($value->child_values()->exists())
+            return redirect()->back()->with('message', 'Невозможно удалить значение ' . $value->value . ', так как для него существуют дочерние!');
+//            throw ValidationException::withMessages(['Невозможно удалить значение ' . $value->value . ', так как для него существуют дочерние!']);
+
         $value->delete();
         return 1111;
     }

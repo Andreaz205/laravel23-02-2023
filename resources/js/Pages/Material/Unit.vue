@@ -46,6 +46,7 @@
     </div>
 
     <AuthenticatedLayout>
+        <FlashMessage />
         <div class="row">
             <div class="col-4" v-if="parent_unit && parent_unit">
                 <div class="card m-3">
@@ -61,7 +62,7 @@
                                         @click="selectedParentValue = value"
                                         :key="value.id"
                                         :class="['list-group-item cursor-pointer',
-                                         {'bg-gray-100': selectedParentValue?.id === value.id}
+                                         {'bg-gray-100': selectedParentValue?.id == value.id}
                                          ]"
                                     >
 <!--                                        @click="handleItemClick(value)"-->
@@ -117,7 +118,7 @@
                             </thead>
                             <tbody>
                             <template v-for="value in material_unit.values" :key="value.id">
-                                <tr v-if="value.parent_material_unit_value_id === selectedParentValue?.id || !value.parent_material_unit_value_id">
+                                <tr v-if="value.parent_material_unit_value_id == selectedParentValue?.id || !value.parent_material_unit_value_id">
                                     <td>{{ value.id }}</td>
                                     <td>
                                         {{ value.value }}
@@ -160,9 +161,10 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import Errors from '@/Components/Errors/Errors.vue'
 import {Link} from '@inertiajs/vue3'
 import Spinner from "@/Components/Spinner.vue";
+import FlashMessage from "@/Components/FlashMessage.vue";
 export default {
     name: "Unit",
-    components: {Spinner, AuthenticatedLayout, Link, Errors},
+    components: {FlashMessage, Spinner, AuthenticatedLayout, Link, Errors},
     props: ['material_unit', 'parent_values', 'parent_unit'],
     data () {
         return {
@@ -192,7 +194,7 @@ export default {
         async deleteValue(value) {
             try {
                 this.isLoading = true
-                await axios.delete(`/admin/materials/values/${value.id}`)
+                await this.$inertia.delete(`/admin/materials/values/${value.id}`)
                 let index = this.material_unit.values?.indexOf(value)
                 this.material_unit.values.splice(index, 1)
                 this.isLoading = false

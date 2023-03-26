@@ -54,7 +54,7 @@
                                             <div>
                                                 - {{material.title}}
                                             </div>
-                                            <div v-if="key === 2">...</div>
+                                            <div v-if="key == 2">...</div>
                                         </div>
 
 
