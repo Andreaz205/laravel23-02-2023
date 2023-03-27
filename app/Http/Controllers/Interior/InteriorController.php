@@ -61,6 +61,11 @@ class InteriorController extends Controller
         return $image;
     }
 
+    public function store(StoreImageRequest $request, Interior $interior, UploadImageService $uploadImageService)
+    {
+        $data = $request->validated();
+    }
+
     public function appendVariant(Interior $interior, Variant $variant)
     {
         $interior->update(['variant_id' => $variant->id]);

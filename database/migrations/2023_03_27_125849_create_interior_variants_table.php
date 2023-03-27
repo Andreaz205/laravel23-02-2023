@@ -15,8 +15,10 @@ return new class extends Migration
     {
         Schema::create('interior_variants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('interior_id')->index()->constrained('interiors');
-            $table->id();
+            $table->foreignId('interior_id')->index()->constrained('interiors')->onDelete('cascade');
+            $table->foreignId('variant_id')->index()->constrained('variants')->onDelete('cascade');
+            $table->float('left')->default(0);
+            $table->float('right')->default(0);
             $table->timestamps();
         });
     }
