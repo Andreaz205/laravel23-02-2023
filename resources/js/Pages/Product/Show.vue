@@ -174,7 +174,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-
+                        <Errors :errors="errors"/>
                         <div class="container-fluid" v-if="materials && materials.length">
                             <div class="row mt-3" v-for="material in materials">
 
@@ -196,6 +196,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть</button>
+                        <button class="btn btn-primary" @click="createVariant">Создать</button>
                     </div>
                 </div>
             </div>
@@ -464,7 +465,7 @@
 
                 <div class="row">
                     <div class="col-12">
-                        <form @submit="handleDeleteVariants" class="card">
+                        <div class="card">
                             <div class="card-header">
                                 <div class="text-center text-xl">Таблица вариантов</div>
                             </div>
@@ -507,15 +508,11 @@
 
                                             <div class="flex absolute right-2">
                                                 <div class="mx-4">
-                                                    <select
-                                                        style="position: fixed; width: 0; height: 0; top: 0; opacity: 0"
-                                                        name="variant_ids[]"
-                                                        id="delete-select" multiple>
-                                                    </select>
                                                     <button
                                                         v-if="canProducts.edit"
                                                         data-delete-variants-button
-                                                        type="submit" class="btn btn-danger bg-red"
+                                                        class="btn btn-danger bg-red"
+                                                        @click="handleDeleteVariants"
                                                     >
                                                         Удалить выбранное
                                                     </button>
@@ -550,9 +547,10 @@
                                                 </template>
                                                 <template v-if="materials && materials.length">
                                                     <template v-for="material in materials">
-                                                        <th :colspan="material.material_units.length" class="text-center">
+                                                        <th v-if="material.material_units.length !== 1" :colspan="material.material_units.length" class="text-center">
                                                             {{material.title}}
                                                         </th>
+                                                        <th v-else class="border-0"></th>
 <!--                                                        <template v-if="material.material_units && material.material_units.length">-->
 <!--                                                            <th v-for="unit in material.material_units">-->
 <!--                                                            </th>-->
@@ -571,8 +569,11 @@
                                                 <th class="border-0"></th>
                                             </tr>
                                             <tr>
-                                                <th style="width: 50px"></th>
-
+                                                <th style="width: 50px">
+                                                    <div class="flex justify-center items-center">
+                                                        <input type="checkbox" @change="handleDeleteAllVariantsCheckboxClick">
+                                                    </div>
+                                                </th>
                                                 <th>Фото</th>
                                                 <th>Цвет</th>
 <!--                                                <th>Цвет</th>-->
@@ -615,11 +616,11 @@
                                             </thead>
                                             <tbody v-if="product.variants && product.variants.length">
 
-                                            <tr v-for="variant in product.variants">
+                                            <tr v-for="variant in product.variants" :key="variant.id">
                                                 <td>
                                                     <div class="flex justify-center">
                                                         <input type="checkbox" class="checkbox"
-                                                               :data-variant-id="variant.id">
+                                                               v-model="variantsToDeleteIds" :value="variant.id">
                                                     </div>
                                                 </td>
 
@@ -652,7 +653,10 @@
                                                 <td>
                                                     <div class="flex justify-center items-center">
                                                         <template v-if="variant?.material_unit_values?.find(value => value.color)">
-                                                            <img :src="variant?.material_unit_values?.find(value => value.color).color.image_url" alt="">
+<!--                                                            <Link :href="`/admin/materials/`">-->
+<!--                                                                -->
+<!--                                                            </Link>-->
+                                                            <img :src="variant?.material_unit_values?.find(value => value.color).color.image_url" alt="" class="h-[50px] w-[50px] rounded-full">
                                                         </template>
                                                         <template>
                                                             -
@@ -878,7 +882,7 @@
                                 </div>
 
                             </div>
-                        </form>
+                        </div>
                     </div>
 
                 </div>
@@ -907,12 +911,14 @@ import Spinner from "@/Components/Spinner.vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
 import MaterialVariantModal from "@/Pages/Product/Modal/MaterialVariantModal.vue";
 import {ModelSelect} from "vue-search-select";
+import Errors from "@/Components/Errors/Errors.vue";
 
 
 
 export default {
     name: "Product",
     components: {
+        Errors,
         MaterialVariantModal,
         FlashMessage,
         Spinner,
@@ -946,6 +952,7 @@ export default {
             // createVariantForm: this.material_sets,
     data() {
         return {
+            variantsToDeleteIds: [],
             createVariantForm: this.materials.map(material => ({
                 material_id: material.id,
                 form: {text: null, value: null},
@@ -975,6 +982,11 @@ export default {
         }
     },
     methods: {
+        handleDeleteAllVariantsCheckboxClick(event) {
+            if (event.target.checked)
+                return this.variantsToDeleteIds = this.product.variants.map(variant => variant.id)
+            this.variantsToDeleteIds = []
+        },
         handleChangeVariantMaterialCallback(variant) {
             let searchedVariant = this.product?.variants?.find(v => v.id === variant.id)
             searchedVariant.material_unit_values = variant.material_unit_values
@@ -994,9 +1006,29 @@ export default {
                 rng.select();
             }
         },
-        handleCreatedVariant(variant) {
-            this.product.variants.push(variant)
+        async createVariant() {
+            try {
+                this.isLoading = true
+                let materials = []
+                this.createVariantForm.map(form => {
+                    if (!form.form.value) throw Error('Укажите все значения материалов для создания варианта')
+                    let ids = form.form.value.split('-')
+                    ids = ids.map(id => +id)
+                    materials.push({material_id: form.material_id, ids: ids})
+                })
+                let data = {
+                    materials
+                }
+                let response = await axios.post(`/admin/products/${this.product.id}/variants`, data)
+                this.product.variants.push(response.data)
+                this.isLoading = false
+            } catch (e) {
+                this.isLoading = false
+                if (e?.response?.status === 422) return this.errors = e.response.data.errors
+                alert(e?.message ?? e)
+            }
         },
+
         async updateField(event, variant) {
             try {
                 let fieldName = event.target.dataset.field
@@ -1004,8 +1036,8 @@ export default {
                     field: fieldName,
                     value: event.target.innerText,
                 }
-                let response = await axios.patch(`/admin/products/${this.product.id}/variants/${variant.id}`, data)
-                // console.log(11111)
+                await axios.patch(`/admin/products/${this.product.id}/variants/${variant.id}`, data)
+                variant[fieldName] = event.target.innerText
             } catch (e) {
                 event.target.innerText = variant[event.target.dataset.field] || '—'
             }
@@ -1024,77 +1056,20 @@ export default {
                 let data = {
                     images_ids: imagesIds
                 }
-                let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant.id}/photos/bind`, data)
-                this.product = response.data.data
+                await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant.id}/photos/bind`, data)
+                this.selectedVariant.images = []
+                imagesIds.map(imageId => {
+                    const searchedImage = this.product.images.find(image => image.id === imageId)
+                        if (searchedImage) this.selectedVariant.images.push(searchedImage)
+                    })
             } catch (e) {
                 alert(e)
             }
         },
         setSelectedVariant(variant) {
             this.selectedVariant = variant
-            this.product.option_names.map(name => name.edit_form_data_is_new = false)
         },
-        async deleteOption(optionNameId) {
-            try {
-                await axios.delete(`/admin/products/${this.product.id}/options/${optionNameId}`)
-                this.product.option_names = this.product.option_names.filter(name => name.id != optionNameId)
-                if (!this.product.option_names || (this.product.option_names && !this.product.option_names.length)) {
-                    this.creatingVariantFormData = null
-                    this.variantCreatingOptions = [{id: 1, name: null, value: null}]
-                }
 
-            } catch (e) {
-                alert(e)
-            }
-        },
-        // async createOptionFetch() {
-        //     try {
-        //         let data = this.createOptionFormData.map(item => ({
-        //             'name': item.name,
-        //             'default_value': item.defaultValue
-        //         }))
-        //         await axios.post(`/admin/products/${this.product.id}/options`, {options: data})
-        //         location.reload()
-        //     } catch (e) {
-        //         alert(e)
-        //     }
-        // },
-
-        async handleClickChangeVariantOptionValue(event, optionName) {
-            try {
-                let optionValueId = event.target.options[event.target.options.selectedIndex].value
-                if (optionValueId == 'new') {
-                    optionName.edit_form_data_is_new = true
-                } else {
-                    let data = {
-                        option_name_id: optionName.id,
-                        option_value_id: Number(optionValueId),
-                    }
-                    let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant?.id}/options/bind`, data)
-                    let updatedOptionValue = response.data
-                    let searchedValue = this.selectedVariant.option_values.find(value => value.option_name_id == optionName.id)
-                    this.selectedVariant.option_values.splice(this.selectedVariant.option_values.indexOf(searchedValue), 1)
-                    // this.selectedVariant.option_values = this.selectedVariant.option_values.filter(value => value.option_name_id != optionName.id)
-                    // let searchedValue
-                    this.selectedVariant.option_values.push(updatedOptionValue)
-                }
-
-            } catch (e) {
-                alert(e)
-            }
-        },
-        getSelectedVariantOptionNameValue(option_name) {
-            return this.selectedVariant.option_values.find(value => value.option_name_id == option_name.id)?.id
-        },
-        // deleteOptionInCreateForm(event, optionId) {
-        //     event.stopPropagation()
-        //     this.createOptionFormData = this.createOptionFormData.filter(option => option.id != optionId)
-        // },
-        // addOptionNameInForm() {
-        //     let lastId = this.createOptionFormData[this.createOptionFormData.length - 1].id
-        //     let newId = lastId + 1
-        //     this.createOptionFormData.push({id: newId})
-        // },
         async deleteProduct() {
             try {
                 await axios.delete(`/admin/products/${this.product.id}`)
@@ -1128,7 +1103,6 @@ export default {
                 let res = await axios.post(`/admin/products/${this.product.id}/images`, formData)
                 let newImage = res.data.data
                 this.product.images.push(newImage)
-                console.log(newImage)
             } catch (e) {
                 alert(e)
             }
@@ -1145,27 +1119,20 @@ export default {
             // this.product.images.push(newImage)
             // console.log(newImage)
         },
-        async handleDeleteVariants(event) {
+        async handleDeleteVariants() {
             try {
-                event.preventDefault()
-                //Проверка что форму засабмитила именно кнопка удлить выбранное
-                if (event.submitter.dataset.deleteVariantsButton == '' && this.product.variants && this.product.variants.length) {
-                    let variantsIdsToDelete = []
-                    let formElements = [...event.target.elements]
-                    formElements.map(el => {
-                        if (el.classList.contains('checkbox') && el.checked) variantsIdsToDelete.push(Number(el.dataset.variantId))
-                    })
-                    if (!variantsIdsToDelete || !variantsIdsToDelete.length) {
-                        return alert('Вы не выбрали варианты!')
-                    }
+                this.isLoading = true
 
-                    await axios.delete(`/admin/products/${this.product.id}/variants?images_ids=${variantsIdsToDelete}`)
-                    variantsIdsToDelete.map(variantToDelete => {
-                        this.product.variants = this.product.variants.filter(variant => variant.id != variantToDelete)
-                    })
-                }
+                let ids = this.variantsToDeleteIds
+                await axios.delete(`/admin/products/${this.product.id}/variants?variants_ids=${ids}`)
+                ids.map(variantToDelete => {
+                    this.product.variants = this.product.variants.filter(variant => variant.id != variantToDelete)
+                })
+
+                this.isLoading = false
             } catch (e) {
-
+                this.isLoading = false
+                alert(e?.response?.errors ?? e?.message ?? e)
             }
         },
         async onSubmitEditOptionsFormNewValue(event, optionName) {
@@ -1191,15 +1158,6 @@ export default {
             }
 
         },
-        async onChangeOptionColor() {
-            try {
-                let response = await axios.get(`/admin/products/${this.product.id}/options/${this.selectedOptionName?.id}/toggle-is-color`)
-                this.product.option_names.map(name => name.is_color = false)
-                this.selectedOptionName.is_color = response.data
-            } catch (e) {
-                alert(e)
-            }
-        },
         async saveOrder() {
             try {
                 let draggableComponent = this.$refs.draggable
@@ -1212,18 +1170,14 @@ export default {
         },
         handleCreateAccentProperty(property) {
             this.accentPropertiesData.push(property)
-
         },
         handleAccentPropertiesBound(accentProperties) {
             this.product.accent_properties = accentProperties;
         },
         handleDeleteAccentProperty(property) {
             let searchedProperty = this.accentPropertiesData.find(p => p.id === property.id)
-
             let index = this.accentPropertiesData.indexOf(searchedProperty)
-
             this.accentPropertiesData.splice(index, 1)
-
         },
         handleMaterialUnitValueClick(material, variant) {
             this.selectedVariant = variant
@@ -1236,9 +1190,6 @@ export default {
                 await axios.patch(`/admin/prices/${price.id}`, {price: value})
             } catch (e) {
                 event.target.innerText = price.price
-                console.log(e)
-                // let {errorsList} = handleError(e)
-                // alert(errorsList ?? e)
             }
         },
         async handleSelectCategory(category) {
@@ -1286,14 +1237,6 @@ export default {
                 sets?.map(set => {
                     let value = set.ids.join('-')
                     options.push({text: set.title, value: value})
-                    // let plainTextValues = ''
-                    // let valuesIds = ''
-                    // console.log(set)
-                    // set?.map((setItem, idx) => {
-                    //     plainTextValues += setItem.value + ' '
-                    //     valuesIds = idx !== set.length - 1 ? valuesIds + setItem.id + '-' : valuesIds + setItem.id
-                    // })
-                    // options.push({text: plainTextValues, value: valuesIds})
                 })
                 return options
             }

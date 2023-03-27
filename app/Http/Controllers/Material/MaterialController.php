@@ -29,7 +29,7 @@ class MaterialController extends Controller
         $this->middleware('can:material delete', ['only' => ['destroy']]);
     }
 
-    public function index(MaterialService $materialService)
+    public function index()
     {
         $categories = Category::whereNull('parent_category_id')->with(['materials'])->get();
         $materials = Material::with(['material_units' => fn ($query) => $query->with('child_unit')])->orderBy('created_at', 'ASC')->get();

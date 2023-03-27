@@ -137,7 +137,7 @@
                         <!--                                        </div>-->
                         <!--                                    </div>-->
                     </div>
-                    <div class="absolute top-1/2 -translate-y-1/2 right-0 translate-x-[120%] hover:text-gray-400 transition-all">
+                    <div class="absolute top-1/2 -translate-y-1/2 right-0 translate-x-[120%] hover:text-gray-400 transition-all" v-if="unit.id !== plainUnits[plainUnits.length - 1].id && material.with_colors">
                         <i class="fas fa-long-arrow-alt-right text-xl cursor-pointer"
                            type="button"
                            data-toggle="modal"

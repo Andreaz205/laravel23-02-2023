@@ -24,7 +24,7 @@ class DeleteVariantsRequest extends FormRequest
     public function rules()
     {
         return [
-            'images_ids' => 'required|string',
+            'variants_ids' => 'required|string',
         ];
     }
 }

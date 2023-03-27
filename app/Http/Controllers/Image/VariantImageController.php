@@ -40,7 +40,7 @@ class VariantImageController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return Response::json(['error' => $e->getMessage()], 500);
+            return Response::json(['errors' => [$e->getMessage()]], 422);
         }
 //        $refreshedProductImages = $product->images;
 //        $refreshedVariants = $product->variants->with('images');
@@ -50,7 +50,7 @@ class VariantImageController extends Controller
 //        return response()->json(['data' => $product]);
 //        return ImageResource::collection($refreshedProductImages);
 //        return Response::json(['status' => 'success']);
-        return new ProductResource($product);
+        return 1111;
     }
 
     public function storeImage(StoreImageRequest $request, Product $product, Variant $variant, UploadImageService $uploadImageService)

@@ -1,8 +1,10 @@
 <template>
 
-    <div class="modal fade" id="appendVariantModal" tabindex="-1" role="dialog"
+    <div class="modal fade " id="appendVariantModal" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
+         aria-hidden="true"
+         style="z-index: 50000"
+    >
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -42,7 +44,6 @@
                                 <label for="second-radio">50</label>
                                 <input type="radio" class="form-control cursor-pointer" v-model="variantsPerPage" :value="50" id="second-radio">
                             </div>
-
                         </div>
                     </div>
 
@@ -57,13 +58,11 @@
                                 {{variant.title}}
 
                                 <div>
-                                    <button class="btn btn-primary" @click="appendVariant(variant)">
+                                    <button class="btn btn-primary" @click="appendVariantForm(variant)">
                                         Добавить
                                     </button>
                                 </div>
                             </div>
-
-
                         </div>
                         <div class="col-12">
                             <nav aria-label="Page navigation example">
@@ -132,94 +131,67 @@
                                 <div class="max-w-[500px] relative user-select-none" @click="handleImageClick">
                                     <img :src="dataUrl" alt="" class="w-full h-full pointer-events-none" >
 <!--                                Point-->
-                                    <div class="absolute pointer-events-none -top-[10px] -left-[10px] h-[20px] w-[20px] bg-red rounded-full" ref="pointRef"></div>
+                                    <div
+                                        v-for="point in points"
+                                        :key="point.id"
+                                        class="absolute pointer-events-none -top-[10px] -left-[10px] h-[20px] w-[20px] bg-red rounded-full text-center"
+                                        :ref="'point-' + point.id"
+                                    >
+                                        <span class="text-black">
+                                            {{point.id}}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="row border-y-2" v-for="point in points" :key="point.id">
+                            <div class="col-12 flex justify-between items-center mt-3">
+                                <div>
+                                    {{point.id}}
+                                    <button v-if="selectedPointId !== point.id" class="btn btn-default" @click="this.selectedPointId = point.id">
+                                        Выбрать
+                                    </button>
+                                    <button class="btn btn-danger ml-2" @click="deletePoint(point)">
+                                        Удалить
+                                    </button>
+                                </div>
+
+                                <button v-if="!point.variant" type="button" class="btn btn-primary bg-blue"
+                                        data-toggle="modal" data-target="#appendVariantModal"
+                                        @click="selectedPointId = point.id"
+                                >
+                                    Добавить вариант
+                                </button>
+
+                                <div v-else class="flex">
+                                    <div class="w-[100px] h-[100px] bg-gray-50 rounded-xl overflow-hidden">
+                                        <img class="object-contain w-full h-full" :src="point.variant?.images[0]?.image_url ?? '/storage/images/no-image.jpg'" alt="">
+                                    </div>
+                                    <div>
+                                        {{ point.variant.title }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                           <div class="col-12">
+                               <button type="button" class="btn btn-primary bg-blue" @click="handleAddPoint">
+                                   Добавить точку
+                               </button>
+                           </div>
+                        </div>
                     </template>
-
-<!--                    <div class="row">-->
-<!--                        <div class="col-9">-->
-<!--                            <div class="card">-->
-<!--                                <div data-v-6ef2e16d="" class="card-tools">-->
-<!--                                    <div data-v-6ef2e16d="" class="input-group input-group-sm" style="width: 100%;">-->
-<!--                                        <input data-v-6ef2e16d="" type="text" name="table_search" class="form-control float-right" placeholder="Search" @keydown.enter="search" autocomplete="off" v-model="term">-->
-<!--                                        <div data-v-6ef2e16d="" class="input-group-append w-[50px]">-->
-<!--                                            <button data-v-6ef2e16d="" class="btn btn-default w-full" @click="search">-->
-<!--                                                <i data-v-6ef2e16d="" class="fas fa-search"></i>-->
-<!--                                            </button>-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="col-3 flex gap-2">-->
-<!--                            <span> На странице</span>-->
-<!--                            <div>-->
-<!--                                <label for="fist-radio">25</label>-->
-<!--                                <input type="radio" class="form-control cursor-pointer" v-model="variantsPerPage" :value="25" id="fist-radio">-->
-<!--                            </div>-->
-<!--                            <div>-->
-<!--                                <label for="second-radio">50</label>-->
-<!--                                <input type="radio" class="form-control cursor-pointer" v-model="variantsPerPage" :value="50" id="second-radio">-->
-<!--                            </div>-->
-
-<!--                        </div>-->
-<!--                    </div>-->
-
-<!--                    <div class="row" v-if="fetchedVariants && fetchedVariants.data && fetchedVariants.data.length">-->
-<!--                        <div class="col-12" v-for="variant in fetchedVariants.data">-->
-<!--                            <div class="flex gap-4 items-center">-->
-
-<!--                                <div class="w-[100px] h-[100px] bg-gray-50 rounded-xl overflow-hidden">-->
-<!--                                    <img class="object-contain w-full h-full" :src="variant?.images[0]?.image_url ?? '/storage/images/no-image.jpg'" alt="">-->
-<!--                                </div>-->
-
-<!--                                {{variant.title}}-->
-
-<!--                                <div>-->
-<!--                                    <button class="btn btn-primary" @click="appendVariant(variant)">-->
-<!--                                        Добавить-->
-<!--                                    </button>-->
-<!--                                </div>-->
-<!--                            </div>-->
-
-
-<!--                        </div>-->
-<!--                        <div class="col-12">-->
-<!--                            <nav aria-label="Page navigation example">-->
-<!--                                <ul class="pagination">-->
-<!--                                    &lt;!&ndash;                                    <li class="page-item">&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                        <a class="page-link" href="#" aria-label="Previous">&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                            <span aria-hidden="true">&laquo;</span>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                            <span class="sr-only">Previous</span>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                        </a>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                    </li>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                    <li class="page-item">&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                        <a class="page-link" href="#">1</a>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                    </li>&ndash;&gt;-->
-
-<!--                                    <li class="page-item"  v-for="(link, key) in fetchedVariants.links.slice(1, fetchedVariants.links.length - 1)" :key="key">-->
-<!--                                        <a class="page-link cursor-pointer" @click="searchWithPage(link.url)">{{link.label}}</a>-->
-<!--                                    </li>-->
-
-<!--                                    &lt;!&ndash;                                    <li class="page-item">&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                        <a class="page-link" href="#">{{fetchedVariants.last_page}}</a>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                    </li>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                    <li class="page-item">&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                        <a class="page-link" href="#" aria-label="Next">&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                            <span aria-hidden="true">&raquo;</span>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                            <span class="sr-only">Next</span>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                        </a>&ndash;&gt;-->
-<!--                                    &lt;!&ndash;                                    </li>&ndash;&gt;-->
-<!--                                </ul>-->
-<!--                            </nav>-->
-<!--                        </div>-->
-<!--                    </div>-->
 
                 </div>
                 <div class="modal-footer">
-                    <button ref="close" type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть</button>
+                    <button
+                        ref="close"
+                        type="button"
+                        class="btn btn-secondary bg-gray-500"
+                        data-dismiss="modal"
+                    >
+                        Закрыть
+                    </button>
                 </div>
             </div>
         </div>
@@ -278,9 +250,9 @@
                             </div>
 
                             <button
-                                v-else
                                 type="button" class="btn btn-primary bg-blue"
                                 data-toggle="modal" data-target="#appendVariantModal"
+                                v-else
                                 @click="selectedInterior = interior"
                             >
                                 Добавить
@@ -305,13 +277,27 @@ import Dropzone from "dropzone";
 import Errors from "@/Components/Errors/Errors.vue";
 import Spinner from "@/Components/Spinner.vue";
 
+const maxPointCount = 5
+
 export default {
     name: "Index",
     props: ['interiors'],
     components: {Spinner, Errors, AuthenticatedLayout},
     data() {
         return {
-            point: {xAsPercents: 0, yAsPercents: 0},
+            points:
+            [
+                {
+                    id: 0,
+                    point: {
+                        xAsPercents: 0,
+                        yAsPercents: 0
+                    },
+                    variant: null,
+
+                }
+            ],
+            selectedPointId: 0,
             file: null,
             dataUrl: null,
             selectedInterior: null,
@@ -324,6 +310,35 @@ export default {
         }
     },
     methods: {
+        deletePoint(point) {
+            if (this.points.length === 1) return alert('Нельзя удалить последнюю точку!')
+            if (this.selectedPointId === point.id) {
+                if (this.selectedPointId === 0) {
+                    this.selectedPointId = 1
+                } else {
+                    this.selectedPointId = 0
+                }
+            }
+            let index = this.points.indexOf(point)
+            this.points.splice(index, 1)
+            let id = 0
+            this.points.map(p => {
+                p.id = id++
+            })
+        },
+        handleAddPoint() {
+            if (this.points.length === maxPointCount) return
+            let newId = this.points[this.points.length - 1].id + 1
+            let newPoint = {
+                id: newId,
+                point: {
+                    xAsPercents: 0,
+                    yAsPercents: 0,
+                },
+                variant: null
+            }
+            this.points.push(newPoint)
+        },
         handleImageClick(event) {
             let rect = event.target.getBoundingClientRect()
             let width = rect.width
@@ -332,28 +347,20 @@ export default {
             let offsetY = event.offsetY
             let offsetXAsPercents = Math.round(100 * (offsetX / width))
             let offsetYAsPercents = Math.round(100 * (offsetY / height))
-            this.point = {xAsPercents: offsetXAsPercents, yAsPercents: offsetYAsPercents}
+            const point = this.points.find(p => p.id === this.selectedPointId)
+            point.point = {
+                xAsPercents: offsetXAsPercents,
+                yAsPercents: offsetYAsPercents
+            }
         },
-        // setDataUrl(res) {
-        //     this.dataUrl = res
-        // },
         async handleUploadImage(file, interiorId) {
-            // this.isLoading = true
-            // this.selectedInterior = this.interiors?.find(interior => interior.id === interiorId)
+            this.selectedInterior = this.interiors.find(interior => interior.id === interiorId)
             const reader = new FileReader()
             reader.readAsDataURL(file)
             let vm = this
-            reader.onload = function(event) {
-                vm.dataUrl = event.target.result
-            };
+            reader.onload = (event) => vm.dataUrl = event.target.result
             this.$refs["upload-image"].click()
             this.file = file
-            // let reader = new FileReader()
-            // console.log(file)
-            // reader.readAsDataURL(file)
-            // reader.onload(() => {
-            //     console.log(reader.result)
-            // })
         },
         async storeImage(file, interiorId) {
             try {
@@ -382,6 +389,15 @@ export default {
                 alert(e.message ?? e)
             }
         },
+        appendVariantForm(variant) {
+            let searchedPoint = this.points.find(p => p.id === this.selectedPointId)
+            searchedPoint.variant = variant
+        },
+
+
+
+
+
         async appendVariant(variant) {
             try {
                 this.isLoading = true
@@ -397,6 +413,13 @@ export default {
                 alert(e.message ?? e)
             }
         },
+
+
+
+
+
+
+
         async deleteVariant(interior) {
             try {
                 this.isLoading = true
@@ -436,6 +459,7 @@ export default {
             }
         },
     },
+
     mounted() {
         this.interiorsForDropzone.map(item => {
             let obj = new Dropzone(this.$refs[`dropzone-${item}`][0], {
@@ -446,7 +470,6 @@ export default {
             })
             obj.on("addedfile", (file) => {
                 this.handleUploadImage(file, item)
-                // this.storeImage(file, item)
             })
         })
     },
@@ -455,10 +478,19 @@ export default {
         term () {
             this.fetchedVariants = null
         },
-        point (val) {
-            const point = this.$refs.pointRef
-            point.style.top = `calc(${val.yAsPercents}% - 10px)`
-            point.style.left = `calc(${val.xAsPercents}% - 10px)`
+        points: {
+            handler: function (val)  {
+                console.log(val)
+                if (val && val[this.selectedPointId] && val[this.selectedPointId].point) {
+                    const point = this.$refs[`point-${this.selectedPointId}`][0]
+                    if (point) {
+                        point.style.top = `calc(${val[this.selectedPointId].point.yAsPercents}% - 10px)`
+                        point.style.left = `calc(${val[this.selectedPointId].point.xAsPercents}% - 10px)`
+                    }
+                }
+
+            },
+            deep: true,
         }
     }
 }

@@ -27,7 +27,7 @@ class ProductResource extends JsonResource
             'description' => $this->description,
             'parameters' => $this->parameters,
             'images' =>  ImageResource::collection($this->images),
-            'option_names' => OptionNamesResource::collection($this->option_names),
+
             'variants' => VariantResource::collection($this->variants),
         ];
     }

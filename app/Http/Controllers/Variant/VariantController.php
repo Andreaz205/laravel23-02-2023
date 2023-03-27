@@ -150,9 +150,71 @@ class VariantController extends Controller
 //        return new CreatedVariantResource($variant);
 //    }
 
-    public function store(Product $product, StoreRequest $request)
+    public function store(Product $product, StoreRequest $request, )
     {
         $data = $request->validated();
+        $form = collect($data['materials']);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Валидация по юнитам
+        $productMaterials = $product->materials()
+            ->with([
+                'main_material_unit',
+                'material_units' => fn ($query) => $query->with('values')
+            ])->get();
+
+        foreach ($form as $formItem) {
+            $materialId = $formItem['material_id'];
+            $key = $productMaterials->search(fn ($value, $key) => $value->id == $materialId);
+            if ($key === false)
+                throw ValidationException::withMessages(['Указанного material_id = ' . $formItem['material_id'] . " не существет"]);
+        }
+
+        foreach ($productMaterials as $productMaterial) {
+            $plainUnits = MaterialService::plainMaterialUnits($productMaterial->main_material_unit);
+            $materialForm = $form->first(fn ($item) => $item['material_id'] === $productMaterial->id);
+            $materialFormIds = $materialForm['ids'];
+            foreach ($plainUnits as $key => $plainUnit) {
+                $plainUnitValues = $plainUnit->values;
+                if ($plainUnitValues->search(fn ($value) => $value->id == $materialFormIds[$key]) === null)
+                    throw ValidationException::withMessages(['Неверно указаны значения, нарушение последовательности так как не указано значение для ' . $plainUnit->title]);
+            }
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        $valuesIds = [];
+        foreach ($form as $formItem) {
+            $ids = $formItem['ids'];
+            foreach($ids as $id) {
+                $valuesIds[] = $id;
+            }
+        }
+
+        $otherVariants = $product->variants()->with('material_unit_values')->get();
+        foreach ($otherVariants as $variant) {
+            $variantValuesIds = $variant->material_unit_values->map(fn ($value) => $value->id)->toArray();
+            $result = array_intersect($variantValuesIds, $valuesIds);
+            if (count($result) === count($valuesIds))
+                throw ValidationException::withMessages(['Невозможно создать вариант так, как вариант с такими значениями уже существует!']);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        try {
+            DB::beginTransaction();
+            $variant = Variant::query()->create([
+                'product_id' => $product->id
+            ]);
+            $prices = Price::all();
+            foreach ($prices as $price) {
+                $variant->prices()->create(['price_id' => $price->id]);
+            }
+            $variant->material_unit_values()->sync($valuesIds);
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return Response::json(['errors' => [$exception->getMessage()]], 422);
+        }
+        return $variant->load(['material_unit_values' => fn ($query) => $query->with('color')], 'prices');
     }
 
     public function updateField(Product $product, Variant $variant, UpdateVariantFieldRequest $request)
@@ -171,10 +233,10 @@ class VariantController extends Controller
     public function destroy(DeleteVariantsRequest $request, Product $product)
     {
         $data = $request->validated();
-        $stringIdsTroughComma = $data['images_ids'];
+        $stringIdsTroughComma = $data['variants_ids'];
         $result = explode(',', $stringIdsTroughComma);
         if (!isset($result)) {
-            return Response::json(['error' => 'No values exists in request!'], 400);
+            throw ValidationException::withMessages(['No values exists in request!']);
         }
         Variant::whereIn('id', $result)->delete();
         OptionValueVariants::whereIn('variant_id', $result)->delete();
@@ -249,6 +311,6 @@ class VariantController extends Controller
             DB::rollBack();
             return Response::json(['errors' => [$e->getMessage()]], 422);
         }
-        return $variant->load('material_unit_values', 'option_values', 'images', 'prices');
+        return $variant->load(['material_unit_values' => fn ($query) => $query->with('color')], 'images', 'prices');
     }
 }

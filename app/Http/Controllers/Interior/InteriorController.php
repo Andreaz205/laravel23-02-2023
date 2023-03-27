@@ -75,9 +75,9 @@ class InteriorController extends Controller
         return $variant;
     }
 
-    public function deleteImage(InteriorImage $image)
+    public function deleteImage(Interior $interior)
     {
-        $image->delete();
+        $interior->image()->delete();
         return 111;
     }
 }

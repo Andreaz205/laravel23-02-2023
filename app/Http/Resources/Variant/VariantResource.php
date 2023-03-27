@@ -23,7 +23,6 @@ class VariantResource extends JsonResource
             'old_price' => $this->old_price,
             'purchase_price' => $this->purchase_price,
             'quantity' => $this->quantity,
-            'option_values' => OptionValuesResource::collection($this->option_values),
             'images' => ImageResource::collection($this->images),
         ];
     }
