@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Variant extends Model
 {
+    use HasEagerLimit;
     use HasFactory;
     protected $guarded = false;
 

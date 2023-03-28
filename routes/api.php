@@ -54,4 +54,5 @@ Route::get('/vk/posts', [App\Http\Controllers\Vk\PostsController::class, 'posts'
 Route::get('/recaptcha', [App\Http\Controllers\Api\RecaptchaController::class, 'getSessionData']);
 Route::post('/recaptcha', [App\Http\Controllers\Api\RecaptchaController::class, 'storeToken']);
 
+Route::get('/main-kits', [App\Http\Controllers\Api\Kit\KitsController::class, 'mainPageData']);
 

@@ -212,10 +212,12 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::delete('/accent-properties/{accentProperty}', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'destroy']);
 
     Route::get('/interiors', [\App\Http\Controllers\Interior\InteriorController::class, 'index']);
-    Route::post('/interiors/{interior}/variant/{variant}', [\App\Http\Controllers\Interior\InteriorController::class, 'appendVariant']);
-    Route::delete('/interiors/{interior}/variant', [\App\Http\Controllers\Interior\InteriorController::class, 'deleteVariant']);
-    Route::post('/interiors/{interior}/image', [\App\Http\Controllers\Interior\InteriorController::class, 'storeImage']);
-    Route::delete('/interiors/{interior}/image', [\App\Http\Controllers\Interior\InteriorController::class, 'deleteImage']);
+    Route::post('/interiors/{interior}', [\App\Http\Controllers\Interior\InteriorController::class, 'store']);
+    Route::patch('/interiors/{interior}/update', [\App\Http\Controllers\Interior\InteriorController::class, 'update']);
+//    Route::post('/interiors/{interior}/variant/{variant}', [\App\Http\Controllers\Interior\InteriorController::class, 'appendVariant']);
+    Route::delete('/interiors/{interior}', [\App\Http\Controllers\Interior\InteriorController::class, 'destroy']);
+//    Route::post('/interiors/{interior}/image', [\App\Http\Controllers\Interior\InteriorController::class, 'storeImage']);
+//    Route::delete('/interiors/{interior}/image', [\App\Http\Controllers\Interior\InteriorController::class, 'deleteImage']);
 
 
     Route::get('/variants/search', [\App\Http\Controllers\Variant\VariantController::class, 'search']);

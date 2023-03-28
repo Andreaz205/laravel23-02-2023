@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Interior extends Model
@@ -17,8 +18,13 @@ class Interior extends Model
         return $this->hasOne(InteriorImage::class, 'interior_id', 'id');
     }
 
-    public function variant()
+//    public function variant()
+//    {
+//        return $this->belongsTo(Variant::class, 'variant_id', 'id');
+//    }
+
+    public function variants(): BelongsToMany
     {
-        return $this->belongsTo(Variant::class, 'variant_id', 'id');
+        return $this->belongsToMany(Variant::class, InteriorVariants::class)->withPivot('left', 'top');
     }
 }

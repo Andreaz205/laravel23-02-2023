@@ -4,7 +4,7 @@ namespace App\Http\Requests\Interior;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,6 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'image' => 'required|file|mimes:jpg,png,jpeg,gif|max:10240',
             'points' => 'required|array|max:5',
             'points.*.left' => 'required|numeric|min:0|max:100',
             'points.*.top' => 'required|numeric|min:0|max:100',
@@ -35,11 +34,6 @@ class StoreRequest extends FormRequest
     public function messages()
     {
         return [
-            'image.required' => 'Добавьте фото',
-            'image.file' => 'Фото должно быть файлом',
-            'image.mimes' => 'Доступные расширения jpg,png,webp,jpeg',
-            'image.max' => 'Максимальный размер 10240 кб',
-
             'points.required' => 'Укажите точки',
             'points.array' => 'Указнные точки должны быть в формате массива',
             'points.max' => 'Максимальное количество точек 5',

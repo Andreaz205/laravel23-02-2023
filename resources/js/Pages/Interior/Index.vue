@@ -67,6 +67,7 @@
                         <div class="col-12">
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination">
+
 <!--                                    <li class="page-item">-->
 <!--                                        <a class="page-link" href="#" aria-label="Previous">-->
 <!--                                            <span aria-hidden="true">&laquo;</span>-->
@@ -102,14 +103,14 @@
             </div>
         </div>
     </div>
-
+    <!--TODO: Создание -->
     <div class="modal fade" id="appendImageModal" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Редактировать свойства</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Добавить интерьер</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -127,9 +128,14 @@
                             </div>
                         </div>
                         <div class="row">
+<!--                            <div class="flex justify-end">-->
+<!--                                <button v-if="selectedInterior.image" class="btn btn-danger" @click="clearInterior">-->
+<!--                                    Очистить-->
+<!--                                </button>-->
+<!--                            </div>-->
                             <div class="col-12 flex justify-center">
-                                <div class="max-w-[500px] relative user-select-none" @click="handleImageClick">
-                                    <img :src="dataUrl" alt="" class="w-full h-full pointer-events-none" >
+                                <div class="max-w-[500px] relative user-select-none" @click="handleImageClick($event, 'create')">
+                                    <img :src="dataUrl ?? '/storage/images/no-image.jpg'" alt="" class="w-full h-full pointer-events-none" >
 <!--                                Point-->
                                     <div
                                         v-for="point in points"
@@ -151,14 +157,14 @@
                                     <button v-if="selectedPointId !== point.id" class="btn btn-default" @click="this.selectedPointId = point.id">
                                         Выбрать
                                     </button>
-                                    <button class="btn btn-danger ml-2" @click="deletePoint(point)">
+                                    <button class="btn btn-danger ml-2" @click="deletePoint(point, 'create')">
                                         Удалить
                                     </button>
                                 </div>
 
                                 <button v-if="!point.variant" type="button" class="btn btn-primary bg-blue"
                                         data-toggle="modal" data-target="#appendVariantModal"
-                                        @click="selectedPointId = point.id"
+                                        @click="handleAppendVariant(point, 'create')"
                                 >
                                     Добавить вариант
                                 </button>
@@ -175,7 +181,7 @@
                         </div>
                         <div class="row mt-3">
                            <div class="col-12">
-                               <button type="button" class="btn btn-primary bg-blue" @click="handleAddPoint">
+                               <button type="button" class="btn btn-primary bg-blue" @click="handleAddPoint('create')">
                                    Добавить точку
                                </button>
                            </div>
@@ -185,12 +191,129 @@
                 </div>
                 <div class="modal-footer">
                     <button
-                        ref="close"
+                        ref="pointsClose"
                         type="button"
                         class="btn btn-secondary bg-gray-500"
                         data-dismiss="modal"
                     >
                         Закрыть
+                    </button>
+                    <button
+                        class="btn btn-primary"
+                        @click="storeInterior"
+                    >
+                        Сохранить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--TODO: Редактирование -->
+    <div class="modal fade" id="editInteriorModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Редактировать интерьер</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <Errors :errors="errors"/>
+                        </div>
+                    </div>
+                    <template v-if="selectedInterior">
+                        <div class="flex justify-end">
+                            <button class="btn btn-danger" @click="clearInterior">
+                                Очистить
+                            </button>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                Укажите точку на фотографии указывающую на вариант
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!--                            <div class="flex justify-end">-->
+                            <!--                                <button v-if="selectedInterior.image" class="btn btn-danger" @click="clearInterior">-->
+                            <!--                                    Очистить-->
+                            <!--                                </button>-->
+                            <!--                            </div>-->
+                            <div class="col-12 flex justify-center">
+                                <div class="max-w-[500px] relative user-select-none" @click="handleImageClick($event, 'edit')">
+                                    <img :src="selectedInterior?.image?.image_url ?? '/storage/images/no-image.jpg'" alt="" class="w-full h-full pointer-events-none" >
+                                    <!--                                Point-->
+                                    <div
+                                        v-for="point in editPoints"
+                                        :key="point.id"
+                                        class="absolute pointer-events-none -top-[10px] -left-[10px] h-[20px] w-[20px] bg-red rounded-full text-center"
+                                        :ref="'edit-point-' + point.id"
+                                    >
+                                        <span class="text-black">
+                                            {{point.id}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row border-y-2" v-for="point in editPoints" :key="point.id">
+                            <div class="col-12 flex justify-between items-center mt-3">
+                                <div>
+                                    {{point.id}}
+                                    <button v-if="selectedPointId !== point.id" class="btn btn-default" @click="this.selectedPointId = point.id">
+                                        Выбрать
+                                    </button>
+                                    <button class="btn btn-danger ml-2" @click="deletePoint(point, 'edit')">
+                                        Удалить
+                                    </button>
+                                </div>
+
+                                <button v-if="!point.variant" type="button" class="btn btn-primary bg-blue"
+                                        data-toggle="modal" data-target="#appendVariantModal"
+                                        @click="handleAppendVariant(point, 'edit')"
+                                >
+                                    Добавить вариант
+                                </button>
+
+                                <div v-else class="flex">
+                                    <div class="w-[100px] h-[100px] bg-gray-50 rounded-xl overflow-hidden">
+                                        <img class="object-contain w-full h-full" :src="point.variant?.images[0]?.image_url ?? '/storage/images/no-image.jpg'" alt="">
+                                    </div>
+                                    <div>
+                                        {{ point.variant.title }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-primary bg-blue" @click="handleAddPoint">
+                                    Добавить точку
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                </div>
+                <div class="modal-footer">
+                    <button
+                        ref="pointsClose"
+                        type="button"
+                        class="btn btn-secondary bg-gray-500"
+                        data-dismiss="modal"
+                    >
+                        Закрыть
+                    </button>
+                    <button
+                        class="btn btn-primary"
+                        @click="updateInterior"
+                    >
+                        Сохранить
                     </button>
                 </div>
             </div>
@@ -198,6 +321,7 @@
     </div>
     <Spinner v-if="isLoading"/>
     <AuthenticatedLayout>
+        <FlashMessage />
 
         <div class="card">
 
@@ -226,6 +350,7 @@
 
                         <div class="col-6">
                             <div :ref="`dropzone-${interior.id}`"
+                                 @click="handleDropzoneClick"
                                  :class="['w-[200px] h-[150px] bg-gray rounded-xl flex justify-center items-center p-4 cursor-pointer', interior.image && 'hidden']">
                                 Нажмите либо
                                 поместите изображение
@@ -233,21 +358,29 @@
 
                             <div v-if="interior.image" class="w-[200px] h-[150px] relative overflow-hidden rounded-xl bg-gray-50">
                                 <img :src="interior.image.image_url" alt="" class="h-full w-full object-contain">
-                                <button class="btn btn-danger absolute top-0 right-0" @click="deleteImage(interior)">
-                                    <i class="fas fa-trash"></i>
+                                <button
+                                    class="btn btn-warning bg-yellow absolute top-0 right-0"
+                                    type="button"
+                                    data-toggle="modal" data-target="#editInteriorModal"
+                                    @click="edit(interior)"
+                                >
+                                    <i class="fas fa-edit"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="col-4 flex items-center">
-                            <div v-if="interior.variant" class="flex items-center gap-2">
-                                <div class="w-[100px] h-[100px] bg-gray-50 overflow-hidden mr-2">
-                                    <img :src="interior.variant.images[0]?.image_url" alt="" class="w-full h-full object-contain">
+                            <template v-if="interior.variants">
+                                <div v-for="variant in interior.variants" class="flex items-center gap-2">
+                                    <div class="w-[100px] h-[100px] bg-gray-50 overflow-hidden mr-2">
+                                        <img :src="variant.images[0]?.image_url" alt="" class="w-full h-full object-contain">
+                                    </div>
+                                    <div>{{ variant.title }}</div>
+<!--                                    <button @click="deleteVariant(interior)" class="btn btn-danger">-->
+<!--                                        <i class="fas fa-times"></i>-->
+<!--                                    </button>-->
                                 </div>
-                                <div>{{ interior.variant.title }}</div>
-                                <button @click="deleteVariant(interior)" class="btn btn-danger">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
+                            </template>
+
 
                             <button
                                 type="button" class="btn btn-primary bg-blue"
@@ -276,15 +409,18 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import Dropzone from "dropzone";
 import Errors from "@/Components/Errors/Errors.vue";
 import Spinner from "@/Components/Spinner.vue";
+import FlashMessage from "@/Components/FlashMessage.vue";
 
 const maxPointCount = 5
 
 export default {
     name: "Index",
     props: ['interiors'],
-    components: {Spinner, Errors, AuthenticatedLayout},
+    components: {FlashMessage, Spinner, Errors, AuthenticatedLayout},
     data() {
         return {
+            editPoints: [],
+            type: 'create',
             points:
             [
                 {
@@ -294,7 +430,6 @@ export default {
                         yAsPercents: 0
                     },
                     variant: null,
-
                 }
             ],
             selectedPointId: 0,
@@ -310,8 +445,54 @@ export default {
         }
     },
     methods: {
-        deletePoint(point) {
-            if (this.points.length === 1) return alert('Нельзя удалить последнюю точку!')
+        handleDropzoneClick() {
+
+        },
+        checkVariantsRepeats(points) {
+            points.map(point => {
+                if (!point?.variant?.id) throw Error(`Не для всех точек указаны варианты (${point.id})`)
+            })
+
+            for (let i = 0; i < points.length; i++) {
+                let currentVariantId = points[i].variant.id
+
+                for (let k = 0; k < points.length; k++) {
+                    if (k === i) continue;
+                    if (points[k].variant.id === currentVariantId) {
+                        let variant = points[k].variant.title
+                        throw Error('Варианты не должны повторяться -' + variant)
+                    }
+                }
+            }
+            // points.map((point, idx) => {
+            //     if (!point?.variant.id) console.log(111)
+            //         // throw Error('Не указан вариант для точки ' + point.id)
+            //     let variantId = point.variant.id
+            //     let pointsWithoutCurrent = points.slice(idx, 1)
+            //     console.log(pointsWithoutCurrent)
+            //     pointsWithoutCurrent.map(pointWithoutCurrent => {
+            //         if (pointWithoutCurrent.variant.id === variantId)
+            //             console.log('error')
+            //             // throw Error('Варианты не должны повторяться!')
+            //     })
+            // })
+        },
+        edit(interior) {
+            this.file = null
+            this.selectedInterior = interior
+            let points = []
+            let id = 0
+            this.selectedInterior.variants.map(variant => {
+                let coords = {xAsPercents: +variant.pivot.left, yAsPercents: +variant.pivot.top}
+                let point = {id: id++, variant: variant, point: coords}
+                points.push(point)
+            })
+            this.selectedPointId = null
+            this.editPoints = points
+        },
+        deletePoint(point, type = 'create') {
+            let currentPoints = type === 'create' ? this.points : this.editPoints
+            if (currentPoints.length === 1) return alert('Нельзя удалить последнюю точку!')
             if (this.selectedPointId === point.id) {
                 if (this.selectedPointId === 0) {
                     this.selectedPointId = 1
@@ -319,16 +500,20 @@ export default {
                     this.selectedPointId = 0
                 }
             }
-            let index = this.points.indexOf(point)
-            this.points.splice(index, 1)
+            let index = currentPoints.indexOf(point)
+            currentPoints.splice(index, 1)
             let id = 0
-            this.points.map(p => {
+            currentPoints.map(p => {
                 p.id = id++
             })
         },
-        handleAddPoint() {
-            if (this.points.length === maxPointCount) return
-            let newId = this.points[this.points.length - 1].id + 1
+        handleAddPoint(type = 'create') {
+            let currentPoints = type === 'create' ? this.points : this.editPoints
+            if (currentPoints.length === maxPointCount) return
+
+            let newId = currentPoints.length
+                ? currentPoints[currentPoints.length - 1].id + 1
+                : 0
             let newPoint = {
                 id: newId,
                 point: {
@@ -337,9 +522,10 @@ export default {
                 },
                 variant: null
             }
-            this.points.push(newPoint)
+            currentPoints.push(newPoint)
         },
-        handleImageClick(event) {
+        handleImageClick(event, type = 'create') {
+
             let rect = event.target.getBoundingClientRect()
             let width = rect.width
             let height = rect.height
@@ -347,11 +533,23 @@ export default {
             let offsetY = event.offsetY
             let offsetXAsPercents = Math.round(100 * (offsetX / width))
             let offsetYAsPercents = Math.round(100 * (offsetY / height))
-            const point = this.points.find(p => p.id === this.selectedPointId)
-            point.point = {
-                xAsPercents: offsetXAsPercents,
-                yAsPercents: offsetYAsPercents
+            let point
+            if (type === 'create') {
+                 point = this.points.find(p => p.id === this.selectedPointId)
+            } else {
+                point = this.editPoints.find(p => p.id === this.selectedPointId)
             }
+            if (point) {
+                point.point = {
+                    xAsPercents: offsetXAsPercents,
+                    yAsPercents: offsetYAsPercents
+                }
+            }
+        },
+        appendVariantForm(variant) {
+            let currentPoints = this.type === 'create' ? this.points : this.editPoints
+            let searchedPoint = currentPoints.find(p => p.id === this.selectedPointId)
+            searchedPoint.variant = variant
         },
         async handleUploadImage(file, interiorId) {
             this.selectedInterior = this.interiors.find(interior => interior.id === interiorId)
@@ -361,76 +559,65 @@ export default {
             reader.onload = (event) => vm.dataUrl = event.target.result
             this.$refs["upload-image"].click()
             this.file = file
+            this.selectedPointId = 0
         },
-        async storeImage(file, interiorId) {
+        async storeInterior() {
+           try {
+               this.isLoading = true
+               let points = []
+               this.points.map(point => points.push(point))
+               let formData = new FormData
+               formData.append('image', this.file)
+               points.map((point, idx) => {
+                   formData.append(`points[${idx}][left]`, point?.point?.xAsPercents)
+                   formData.append(`points[${idx}][top]`, point?.point?.yAsPercents)
+                   formData.append(`points[${idx}][variant_id]`, point?.variant?.id)
+               })
+               await axios.post(`/admin/interiors/${this.selectedInterior.id}`, formData)
+               location.reload()
+               this.isLoading = false
+               this.$refs.pointsClose.click()
+           } catch (e) {
+               this.isLoading = false
+               if (e?.response?.status === 422) return this.errors = e.response.data.errors
+               alert(e?.message ?? e)
+           }
+        },
+        async updateInterior() {
             try {
                 this.isLoading = true
-                let formData = new FormData()
-                formData.append('image', file)
-                let response = await axios.post(`/admin/interiors/${interiorId}/image`, formData)
-                let searchedInterior = this.interiors.find(interior => interior.id === interiorId)
-                searchedInterior.image = response.data
-                this.$refs["upload-image"].click()
+                let points = []
+                this.editPoints.map(point => points.push({
+                    left: point?.point?.xAsPercents,
+                    top: point?.point?.yAsPercents,
+                    variant_id: point?.variant?.id,
+                }))
+                this.checkVariantsRepeats(this.editPoints)
+                await axios.patch(`/admin/interiors/${this.selectedInterior.id}/update`, {points})
+                location.reload()
                 this.isLoading = false
+                this.$refs.pointsClose.click()
             } catch (e) {
                 this.isLoading = false
                 if (e?.response?.status === 422) return this.errors = e.response.data.errors
-                alert(e.message ?? e)
+                alert(e?.message ?? e)
             }
         },
-        async deleteImage(interior) {
-            try {
-                this.isLoading = true
-                await axios.delete(`/admin/interiors/${interior.id}/image`)
-                interior.image = null
-                this.isLoading = false
-            } catch (e) {
-                this.isLoading = false
-                alert(e.message ?? e)
-            }
-        },
-        appendVariantForm(variant) {
-            let searchedPoint = this.points.find(p => p.id === this.selectedPointId)
-            searchedPoint.variant = variant
+        async clearInterior() {
+          try {
+              this.isLoading = true
+              await axios.delete(`/admin/interiors/${this.selectedInterior.id}`)
+              location.reload()
+              this.isLoading = false
+          } catch (e) {
+              this.isLoading = false
+              alert(e?.message ?? e)
+          }
         },
 
-
-
-
-
-        async appendVariant(variant) {
-            try {
-                this.isLoading = true
-                let response = await axios.post(`/admin/interiors/${this.selectedInterior.id}/variant/${variant.id}`)
-                let searchedInterior = this.interiors.find(i => i.id === this.selectedInterior.id)
-                searchedInterior.variant = response.data
-                this.term = null
-                this.$refs.close.click()
-                this.isLoading = false
-            } catch (e) {
-                this.isLoading = false
-                if (e?.response?.status) return this.errors = e.response.data.errors
-                alert(e.message ?? e)
-            }
-        },
-
-
-
-
-
-
-
-        async deleteVariant(interior) {
-            try {
-                this.isLoading = true
-                await axios.delete(`/admin/interiors/${interior.id}/variant`)
-                interior.variant = null
-                this.isLoading = false
-            } catch (e) {
-                this.isLoading = false
-                if (e?.response?.status) return this.errors = e.response.data.errors
-                alert(e.message ?? e)
-            }
+        handleAppendVariant(point, type = 'create') {
+            this.type = type
+            this.selectedPointId = point.id
         },
         async search() {
             try {
@@ -460,6 +647,7 @@ export default {
         },
     },
 
+
     mounted() {
         this.interiorsForDropzone.map(item => {
             let obj = new Dropzone(this.$refs[`dropzone-${item}`][0], {
@@ -480,18 +668,34 @@ export default {
         },
         points: {
             handler: function (val)  {
-                console.log(val)
-                if (val && val[this.selectedPointId] && val[this.selectedPointId].point) {
-                    const point = this.$refs[`point-${this.selectedPointId}`][0]
-                    if (point) {
-                        point.style.top = `calc(${val[this.selectedPointId].point.yAsPercents}% - 10px)`
-                        point.style.left = `calc(${val[this.selectedPointId].point.xAsPercents}% - 10px)`
+
+                if (this.selectedPointId !== null) {
+                    if (val && val[this.selectedPointId] && val[this.selectedPointId].point) {
+                        const point = this.$refs[`point-${this.selectedPointId}`] ? this.$refs[`point-${this.selectedPointId}`][0] : null
+                        if (point) {
+                            point.style.top = `calc(${val[this.selectedPointId].point.yAsPercents}% - 10px)`
+                            point.style.left = `calc(${val[this.selectedPointId].point.xAsPercents}% - 10px)`
+                        }
                     }
                 }
-
             },
             deep: true,
+        },
+        editPoints: {
+            handler: function (val) {
+                setTimeout(() => {
+                    val.map(point => {
+                        let pointRef = this.$refs[`edit-point-${point.id}`] ? this.$refs[`edit-point-${point.id}`][0] : null
+                        if (pointRef) {
+                            pointRef.style.top = `calc(${point.point.yAsPercents}% - 10px)`
+                            pointRef.style.left = `calc(${point.point.xAsPercents}% - 10px)`
+                        }
+                    })
+                })
+            },
+            deep: true
         }
+
     }
 }
 </script>
