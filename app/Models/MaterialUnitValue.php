@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class MaterialUnitValue extends Model
 {
+    use HasEagerLimit;
     use HasFactory;
     protected $guarded = false;
 

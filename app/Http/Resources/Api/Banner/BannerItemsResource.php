@@ -16,6 +16,7 @@ class BannerItemsResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'link' => $this->link,
             'image_url' => $this->image_url,
             'video_url' => $this->video_url,
         ];

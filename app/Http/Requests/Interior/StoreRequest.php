@@ -28,7 +28,8 @@ class StoreRequest extends FormRequest
             'points' => 'required|array|max:5',
             'points.*.left' => 'required|numeric|min:0|max:100',
             'points.*.top' => 'required|numeric|min:0|max:100',
-            'points.*.variant_id' => 'required|integer|exists:variants,id'
+            'points.*.variant_id' => 'required|integer|exists:variants,id',
+           'points.*.description' => 'nullable|string|max:255'
         ];
     }
 
@@ -57,6 +58,9 @@ class StoreRequest extends FormRequest
             'points.*.variant_id.required' => 'Не указан вариант',
             'points.*.variant_id.integer' => 'Указанный id для варианта должне быть числом',
             'points.*.variant_id.exists' => 'Указанного варианта не существует!',
+
+            'points.*.description.string' => 'Описание должно быть строкой',
+            'points.*.description.max' => 'Длина описания не должна превышать 255 символов!'
         ];
     }
 }

@@ -37,7 +37,8 @@ class AnalyticsService
                 new Metric(
                     [
                         'name' => 'screenPageViews',
-                    ]),
+                    ]
+                ),
 //                new Metric([
 //                    "name" => "eventCount"
 //                ]),

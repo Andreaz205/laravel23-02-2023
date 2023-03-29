@@ -89,6 +89,7 @@
                             <th>ID</th>
                             <th>Название</th>
                             <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -107,6 +108,14 @@
                             >
                                 Добавить товары
                             </button>
+                        </td>
+                        <td>
+                            <Link :href="`/admin/kits/${kit.id}/edit`">
+                                <button class="btn btn-warning">
+                                    Редактировать
+                                </button>
+                            </Link>
+
                         </td>
                     </tr>
                     <!--                                        </Link>-->

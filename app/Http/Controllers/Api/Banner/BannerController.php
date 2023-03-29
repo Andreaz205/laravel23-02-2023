@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class BannerController extends Controller
 {
-    public function data()
+    public function mainPageData()
     {
         $bannerItems = BannerImages::orderBy('position', 'asc')->get();
         return BannerItemsResource::collection($bannerItems);

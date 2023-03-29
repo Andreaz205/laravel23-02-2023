@@ -178,6 +178,12 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 text-center">
+                                Описание
+                            </div>
+                            <div class="col-12">
+                                <textarea class="form-control" v-model="point.description"></textarea>
+                            </div>
                         </div>
                         <div class="row mt-3">
                            <div class="col-12">
@@ -288,6 +294,12 @@
                                         {{ point.variant.title }}
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-12 text-center">
+                                Описание
+                            </div>
+                            <div class="col-12">
+                                <textarea class="form-control" v-model="point.description"></textarea>
                             </div>
                         </div>
                         <div class="row mt-3">
@@ -430,6 +442,7 @@ export default {
                         yAsPercents: 0
                     },
                     variant: null,
+                    description: '',
                 }
             ],
             selectedPointId: 0,
@@ -484,7 +497,7 @@ export default {
             let id = 0
             this.selectedInterior.variants.map(variant => {
                 let coords = {xAsPercents: +variant.pivot.left, yAsPercents: +variant.pivot.top}
-                let point = {id: id++, variant: variant, point: coords}
+                let point = {id: id++, variant: variant, point: coords, description: variant.pivot.description}
                 points.push(point)
             })
             this.selectedPointId = null
@@ -572,6 +585,7 @@ export default {
                    formData.append(`points[${idx}][left]`, point?.point?.xAsPercents)
                    formData.append(`points[${idx}][top]`, point?.point?.yAsPercents)
                    formData.append(`points[${idx}][variant_id]`, point?.variant?.id)
+                   formData.append(`points[${idx}][description]`, point?.description)
                })
                await axios.post(`/admin/interiors/${this.selectedInterior.id}`, formData)
                location.reload()
@@ -588,6 +602,7 @@ export default {
                 this.isLoading = true
                 let points = []
                 this.editPoints.map(point => points.push({
+                    description: point?.description,
                     left: point?.point?.xAsPercents,
                     top: point?.point?.yAsPercents,
                     variant_id: point?.variant?.id,

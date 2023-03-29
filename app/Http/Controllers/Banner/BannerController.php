@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Banner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Banner\AttachLinkRequest;
 use App\Http\Requests\Banner\OrderBannerItemsRequest;
 use App\Http\Requests\Banner\StoreBannerItemsRequest;
 use App\Models\BannerImages;
@@ -47,7 +48,7 @@ class BannerController extends Controller
                 $newBannerItem = BannerImages::create([
                     'image_url' => url('/storage/images/' . $name),
                     'file_path' => $filePath,
-                    'position' => $maxPosition + 1
+                    'position' => $maxPosition + 1,
                 ]);
             } else {
                 $newBannerItem = BannerImages::create([
@@ -79,13 +80,27 @@ class BannerController extends Controller
         return $bannerItems;
     }
 
+    public function attachLink(AttachLinkRequest $request, BannerImages $item)
+    {
+        $data = $request->validated();
+        $item->update(['link' => $data['link']]);
+        return 111;
+    }
+
+    public function removeLink(BannerImages $item)
+    {
+        $item->update(['link' => null]);
+        return 111;
+    }
+
+
     public function destroy(BannerImages $item)
     {
         $item->delete();
         return Response::json(['status' => 'Deleted successfully!']);
     }
 
-    protected function  findById($id, $items)
+    function findById($id, $items)
     {
         foreach ($items as $item) {
             if ($item->id === $id) return $item;

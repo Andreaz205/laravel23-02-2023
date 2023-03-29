@@ -45,7 +45,7 @@ Route::post('/orders', [\App\Http\Controllers\Api\Order\OrderController::class, 
 Route::post('/variants/{variant}/reviews', [\App\Http\Controllers\Api\Review\ReviewController::class, 'storeReview']);
 Route::post('/variants/{variant}/reviews/images', [\App\Http\Controllers\Api\Review\ReviewController::class, 'storeReviewImages']);
 
-Route::get('/banner/data', [\App\Http\Controllers\Api\Banner\BannerController::class, 'data']);
+Route::get('/main-banner', [\App\Http\Controllers\Api\Banner\BannerController::class, 'mainPageData']);
 
 Route::get('/hits', [\App\Http\Controllers\Api\Hit\HitsController::class, 'data']);
 
@@ -54,5 +54,7 @@ Route::get('/vk/posts', [App\Http\Controllers\Vk\PostsController::class, 'posts'
 Route::get('/recaptcha', [App\Http\Controllers\Api\RecaptchaController::class, 'getSessionData']);
 Route::post('/recaptcha', [App\Http\Controllers\Api\RecaptchaController::class, 'storeToken']);
 
+// Main Page
 Route::get('/main-kits', [App\Http\Controllers\Api\Kit\KitsController::class, 'mainPageData']);
+Route::get('/main-interiors', [\App\Http\Controllers\Api\Interior\InteriorController::class, 'mainPageData']);
 

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('variant_id')->index()->constrained('variants')->onDelete('cascade');
             $table->float('left')->default(0);
             $table->float('top')->default(0);
+            $table->string('description', '255')->nullable();
             $table->timestamps();
         });
     }

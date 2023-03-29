@@ -94,7 +94,7 @@ class InteriorController extends Controller
                 $variantId = $point['variant_id'];
                 $left = $point['top'];
                 $top = $point['left'];
-                $result[$variantId] = ['left' => $left, 'top' => $top];
+                $result[$variantId] = ['left' => $left, 'top' => $top, 'description' => $point['description'] ?? null];
             }
             $interior->variants()->sync($result);
 
@@ -123,7 +123,7 @@ class InteriorController extends Controller
                 $variantId = $point['variant_id'];
                 $left = $point['top'];
                 $top = $point['left'];
-                $result[$variantId] = ['left' => $left, 'top' => $top];
+                $result[$variantId] = ['left' => $left, 'top' => $top, 'description' => $point['description'] ?? null];
             }
             $interior->variants()->sync($result);
 

@@ -42,6 +42,24 @@ class KitsController extends Controller
         return new KitResource($newKit);
     }
 
+    public function edit(Kit $kit)
+    {
+        $products = $kit->products()->with(['variants' => function ($query) {
+            $query->with(['material_unit_values', 'images' => fn ($query) => $query->limit(1)]);
+        }])->get();
+        $products->each(fn ($product) => $product->variants->each(fn($variant) => $variant->title = $variant->getTitleAttribute()));
+        return inertia('Kit/Edit', [
+            'products' => $products,
+            'kit' => $kit,
+            'can-products' => [
+                'list' => Auth('admin')->user()?->can('product list'),
+                'create' => Auth('admin')->user()?->can('product create'),
+                'edit' => Auth('admin')->user()?->can('product edit'),
+                'delete' => Auth('admin')->user()?->can('product delete'),
+            ]
+        ]);
+    }
+
     public function products(Kit $kit)
     {
         $products = Product::all();

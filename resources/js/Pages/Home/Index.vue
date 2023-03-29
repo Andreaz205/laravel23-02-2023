@@ -90,9 +90,8 @@ export default {
             this.email = e.target.value
         }
     },
-    mounted() {
-        console.log(this.$props.contacts)
-    }
+
+
 
 }
 </script>

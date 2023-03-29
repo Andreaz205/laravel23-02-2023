@@ -25,6 +25,6 @@ class Interior extends Model
 
     public function variants(): BelongsToMany
     {
-        return $this->belongsToMany(Variant::class, InteriorVariants::class)->withPivot('left', 'top');
+        return $this->belongsToMany(Variant::class, InteriorVariants::class)->withPivot('left', 'top', 'description');
     }
 }

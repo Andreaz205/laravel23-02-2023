@@ -12,7 +12,7 @@ class KitsController extends Controller
     {
         $kits = Kit::with(['products' => fn ($query) => $query->with(
                 ['variants' => fn ($query) => $query->limit(1)
-                    ->with(['material_unit_values' => fn ($query) => $query->with('color')])
+                    ->with(['material_unit_values'])
                 ]
             )])
             ->get();
@@ -23,12 +23,6 @@ class KitsController extends Controller
                 $variant =  $product->variants[0];
                 $title = $variant->title;
                 $variant->title = $title;
-                foreach ($variant->material_unit_values as $value) {
-                    if (isset($value->color)) {
-                        $variant->color = $value->color;
-                        break;
-                    };
-                }
             });
         });
         return $kits;

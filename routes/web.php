@@ -175,6 +175,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::delete('/roles/{role}', [\App\Http\Controllers\Role\RoleController::class, 'destroy']);
 
     Route::post('/banner-items', [\App\Http\Controllers\Banner\BannerController::class, 'store']);
+    Route::post('/banner-items/{item}/link', [\App\Http\Controllers\Banner\BannerController::class, 'attachLink']);
+    Route::delete('/banner-items/{item}/link', [\App\Http\Controllers\Banner\BannerController::class, 'removeLink']);
     Route::post('/banner-items/order', [\App\Http\Controllers\Banner\BannerController::class, 'order']);
     Route::delete('/banner-items/{item}', [\App\Http\Controllers\Banner\BannerController::class, 'destroy']);
 
@@ -183,6 +185,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::get('/kits', [\App\Http\Controllers\Kit\KitsController::class, 'index']);
     Route::post('/kits', [\App\Http\Controllers\Kit\KitsController::class, 'store']);
+    Route::get('/kits/{kit}/edit', [\App\Http\Controllers\Kit\KitsController::class, 'edit']);
     Route::get('/kits/{kit}/products', [\App\Http\Controllers\Kit\KitsController::class, 'products']);
     Route::get('/kits/{kit}/products/{product}/toggle', [\App\Http\Controllers\Kit\KitsController::class, 'toggle']);
 
