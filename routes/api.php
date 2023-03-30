@@ -18,6 +18,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::group(['prefix' => '/delivery/cdek'], function () {
+    Route::get('regions', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'getRegions']);
+});
+
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/cart', [\App\Http\Controllers\Api\Cart\CartController::class, 'getCartVariants']);
     Route::patch('/cart/toggle-variant/{variant}', [\App\Http\Controllers\Api\Cart\CartController::class, 'toggle']);

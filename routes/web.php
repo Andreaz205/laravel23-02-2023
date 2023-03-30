@@ -241,6 +241,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/materials/{material}/search', [\App\Http\Controllers\Material\MaterialController::class, 'search']);
     Route::post('/materials/{material}/colors/add', [\App\Http\Controllers\Material\MaterialColorController::class, 'addColor']);
     Route::patch('/materials/{material}/toggle-color', [\App\Http\Controllers\Material\MaterialColorController::class, 'toggleColor']);
+
 });
+Route::get('/payment-index', [\App\Http\Controllers\Payment\PaymentController::class, 'index']);
+Route::post('/payment', [\App\Http\Controllers\Payment\PaymentController::class, 'store']);
+Route::match(['GET', 'POST'], '/payment/callback', [\App\Http\Controllers\Payment\PaymentController::class, 'callback']);
 
 require __DIR__.'/auth.php';

@@ -9,9 +9,11 @@ use App\Http\Contracts\VariantServiceInterface;
 use App\Http\Services\Material\MaterialService;
 use App\Http\Services\Option\OptionService;
 use App\Http\Services\Order\OrderService;
+use App\Http\Services\Payment\YooKassaService;
 use App\Http\Services\Product\ProductService;
 use App\Http\Services\Variant\VariantService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
@@ -29,7 +31,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(VariantServiceInterface::class, VariantService::class);
         $this->app->bind(OrderServiceInterface::class, OrderService::class);
         $this->app->bind(OptionServiceInterface::class, OptionService::class);
-        $this->app->bind(MaterialService::class, fn () => new MaterialService());
+        $this->app->bind(MaterialService::class, fn () => new MaterialService);
+        $this->app->bind(YooKassaService::class, fn () => new YooKassaService);
     }
 
     /**
@@ -39,6 +42,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if(env('FORCE_HTTPS',false)) {
+//            URL::forceScheme('https');
+        }
 //        Inertia::share('user', Auth('admin')->user());
     }
 }

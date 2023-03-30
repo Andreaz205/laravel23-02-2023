@@ -35,5 +35,14 @@ return [
         'client_secret' => env('VK_CLIENT_SECRET'),
         'redirect' => env('VK_REDIRECT_URL'),
     ],
+    'yookassa' => [
+        'shop_id' => env('YOOKASSA_SHOP_ID', null),
+        'secret_key' => env('YOOKASSA_SECRET_KEY', null),
+        'return_url' => env('YOOKASSA_RETURN_URL', null),
+    ],
+    'cdek' => [
+        'account' => env('SDK_ACCOUNT', null),
+        'password' => env('SDK_PASSWORD', null),
+    ]
 
 ];

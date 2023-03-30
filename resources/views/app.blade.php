@@ -9,13 +9,13 @@
         <!-- Google Font: Source Sans Pro -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
         <!-- Font Awesome -->
-        <link rel="stylesheet" href="{{ asset('adminLte/plugins/fontawesome-free/css/all.min.css') }}">
+        <link rel="stylesheet" href="/adminLte/plugins/fontawesome-free/css/all.min.css">
         <!-- Theme style -->
 
-        <link rel="stylesheet" href="{{ asset('adminLte/dist/css/adminlte.min.css') }}">
+        <link rel="stylesheet" href="/adminLte/dist/css/adminlte.min.css">
 
         <!-- overlayScrollbars -->
-        <link rel="stylesheet" href="{{ asset('adminLte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }} ">
+        <link rel="stylesheet" href="/adminLte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css ">
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap">
@@ -30,21 +30,21 @@
         @inertia
 
         <!-- jQuery -->
-        <script src="{{asset('adminLte/plugins/jquery/jquery.min.js')}}"></script>
+        <script src="/adminLte/plugins/jquery/jquery.min.js"></script>
 {{--        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>--}}
         <!-- jQuery UI 1.11.4 -->
-        <script src="{{asset('adminLte/plugins/jquery-ui/jquery-ui.min.js')}}"></script>
+        <script src="/adminLte/plugins/jquery-ui/jquery-ui.min.js"></script>
         <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
         <script>
             $.widget.bridge('uibutton', $.ui.button)
         </script>
 
         <!-- Bootstrap 4 -->
-        <script src="{{asset('adminLte/plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+        <script src="/adminLte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
         <!-- overlayScrollbars -->
-        <script src="{{asset('adminLte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js')}}"></script>
+        <script src="/adminLte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
         <!-- AdminLTE App -->
-        <script src="{{asset('adminLte/dist/js/adminlte.js')}}"></script>
+        <script src="/adminLte/dist/js/adminlte.js"></script>
 
         @yield('bodybottom')
     </body>
