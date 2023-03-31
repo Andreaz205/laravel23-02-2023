@@ -29,14 +29,19 @@ class AnalyticsService
                 ]),
             ],
             'dimensions' => [
+//                new Dimension([
+//                        'name' => 'pageTitle'
+//                    ]
+//                )],
                 new Dimension([
-                        'name' => 'pageTitle'
+                        'name' => 'eventName'
                     ]
                 )],
             'metrics' => [
                 new Metric(
                     [
-                        'name' => 'screenPageViews',
+//                        'name' => 'screenPageViews',
+                        'name' => 'eventCount',
                     ]
                 ),
 //                new Metric([

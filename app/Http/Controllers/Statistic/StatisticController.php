@@ -9,13 +9,14 @@ class StatisticController extends Controller
 {
     public function index(AnalyticsService $analyticsService)
     {
-        dd($analyticsService::getMetadata());
-        $weekPagesData = $analyticsService::weekPagesData();
-        $weekViewsData = $analyticsService::weekViewsData();
+//        dd($analyticsService::getMetadata());
+//        $weekPagesData = $analyticsService::weekPagesData();
+//        dd($weekPagesData);
+//        $weekViewsData = $analyticsService::weekViewsData();
 
-        return inertia('Statistic/Index', [
-            'weekPagesData' => $weekPagesData,
-            'weekViewsData' => $weekViewsData,
-        ]);
+//        return inertia('Statistic/Index', [
+//            'weekPagesData' => $weekPagesData,
+//            'weekViewsData' => $weekViewsData,
+//        ]);
     }
 }

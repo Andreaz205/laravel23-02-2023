@@ -112,7 +112,7 @@
                         <td>
                             <Link :href="`/admin/kits/${kit.id}/edit`">
                                 <button class="btn btn-warning">
-                                    Редактировать
+                                    На главной
                                 </button>
                             </Link>
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Product extends Model
@@ -17,6 +18,11 @@ class Product extends Model
 //    {
 //        return $this->hasMany(Variant::class, 'product_id', 'id');
 //    }
+    public function kit_variant(): HasOne
+    {
+        return $this->hasOne(ProductKitVariants::class, 'id', 'kit_variant_id');
+    }
+
     public function materials(): BelongsToMany
     {
         return $this->belongsToMany(Material::class, CategoryMaterials::class, 'category_id', 'material_id', 'category_id');

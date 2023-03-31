@@ -8,8 +8,11 @@ use App\Http\Resources\Kit\KitResource;
 use App\Models\Kit;
 use App\Models\KitProducts;
 use App\Models\Product;
+use App\Models\Variant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
 
 class KitsController extends Controller
 {
@@ -45,8 +48,10 @@ class KitsController extends Controller
     public function edit(Kit $kit)
     {
         $products = $kit->products()->with(['variants' => function ($query) {
+            dd($query);
             $query->with(['material_unit_values', 'images' => fn ($query) => $query->limit(1)]);
-        }])->get();
+        }])->orderByDesc('created_at')->get();
+
         $products->each(fn ($product) => $product->variants->each(fn($variant) => $variant->title = $variant->getTitleAttribute()));
         return inertia('Kit/Edit', [
             'products' => $products,
@@ -80,7 +85,16 @@ class KitsController extends Controller
     {
         $candidate = KitProducts::where('product_id', $product->id)->where('kit_id', $kit->id)->first();
         if (isset($candidate)) {
-            $candidate->delete();
+            try {
+                DB::beginTransaction();
+                $product->update(['kit_variant_id' => null]);
+                $candidate->delete();
+                DB::commit();
+            } catch (\Exception $exception) {
+                DB::rollBack();
+                return Response::json(['message' => $exception->getMessage()], 500);
+            }
+
             return Response::json(['status' => 'Deleted successfully!']);
         }
         KitProducts::create([
@@ -88,5 +102,16 @@ class KitsController extends Controller
             'product_id' => $product->id
         ]);
         return Response::json(['status' => 'Created successfully!']);
+    }
+
+    public function bindVariant(Kit $kit, Variant $variant)
+    {
+        $products = $kit->products;
+        dd($products);
+        $variantProduct = $variant->product;
+        if (!$products->contains($variantProduct))
+            throw ValidationException::withMessages(['Для указанного вами набора указанный вами id варианта некорректен!']);
+
+        return $variantProduct->update(['kit_variant_id' => $variant->id]);
     }
 }

@@ -187,6 +187,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/kits', [\App\Http\Controllers\Kit\KitsController::class, 'store']);
     Route::get('/kits/{kit}/edit', [\App\Http\Controllers\Kit\KitsController::class, 'edit']);
     Route::get('/kits/{kit}/products', [\App\Http\Controllers\Kit\KitsController::class, 'products']);
+    Route::get('/kits/{kit}/products/bind-variants/{variant}', [\App\Http\Controllers\Kit\KitsController::class, 'bindVariant']);
     Route::get('/kits/{kit}/products/{product}/toggle', [\App\Http\Controllers\Kit\KitsController::class, 'toggle']);
 
     Route::get('/statistics', [\App\Http\Controllers\Statistic\StatisticController::class, 'index']);

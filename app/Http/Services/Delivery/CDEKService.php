@@ -13,6 +13,16 @@ class CDEKService
 
     public function fetchRegions()
     {
-        return $this->cdekClient->fetchRegions();
+        return $this->cdekClient->fetchRussianRegions();
+    }
+
+    public function fetchLocalities()
+    {
+        return $this->cdekClient->fetchRussianLocalities();
+    }
+
+    public function calculateByAvailableTariffs($body)
+    {
+        return $this->cdekClient->calculateByAvailableTariffs($body);
     }
 }

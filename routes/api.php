@@ -20,6 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => '/delivery/cdek'], function () {
     Route::get('regions', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'getRegions']);
+    Route::get('cities', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'getLocalities']);
+    Route::post('calculate-by-available-tariffs', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'calculateByAvailableTariffs']);
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
