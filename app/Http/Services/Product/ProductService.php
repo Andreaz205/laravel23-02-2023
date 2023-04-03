@@ -4,6 +4,7 @@ namespace App\Http\Services\Product;
 
 use App\Http\Contracts\ProductServiceInterface;
 use App\Models\Category;
+use App\Models\Product;
 
 class ProductService implements ProductServiceInterface
 {
@@ -66,6 +67,16 @@ class ProductService implements ProductServiceInterface
         return $categories;
     }
 
+    public function getReviewsData(?Product $product)
+    {
+        $reviews = $product->reviews;
+        if (count($reviews)) {
+            $marks = $reviews->map(fn ($item) => $item->mark)->toArray();
+            $average = array_sum($marks) / count($reviews);
+           return ['count' => count($reviews), 'mark' => $average];
+        }
+        return null;
+    }
 
 //    public function appendVariantsCount($products)
 //    {

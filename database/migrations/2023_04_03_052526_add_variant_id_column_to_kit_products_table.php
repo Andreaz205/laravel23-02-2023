@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('kit_product_variants', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('kit_product_pivot_id')->index()->constrained('kit_products')->onDelete('cascade');
-            $table->foreignId('variant_id')->index()->constrained('variants')->onDelete('cascade');
-            $table->timestamps();
+        Schema::table('kit_products', function (Blueprint $table) {
+            $table->foreignId('variant_id')->nullable()->constrained('variants')->onDelete('set null');
         });
     }
 
@@ -28,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kit_product_variants');
+        Schema::table('kit_products', function (Blueprint $table) {
+            $table->dropColumn('variant_id');
+        });
     }
 };

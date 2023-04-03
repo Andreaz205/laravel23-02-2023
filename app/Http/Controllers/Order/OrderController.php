@@ -60,7 +60,7 @@ class OrderController extends Controller
         $variants = [];
         $orderVariantsNotes = OrderVariants::where('order_id', $order->id)->get(['variant_id', 'quantity']);
         foreach ($orderVariantsNotes as $orderVariantsNote) {
-            $variant = Variant::findOrFail($orderVariantsNote->variant_id);
+            $variant = Variant::with('product')->findOrFail($orderVariantsNote->variant_id);
             $variant->ordered_quantity = $orderVariantsNote->quantity;
             $variant->images =  $variant->images->last();
             $variant->title = $variant->getTitleAttribute();

@@ -14,13 +14,9 @@ class Product extends Model
     use HasEagerLimit;
     protected $guarded = false;
 
-//    public function variants_count()
-//    {
-//        return $this->hasMany(Variant::class, 'product_id', 'id');
-//    }
-    public function kit_variant(): HasOne
+    public function reviews()
     {
-        return $this->hasOne(ProductKitVariants::class, 'id', 'kit_variant_id');
+        return $this->hasMany(Review::class, 'product_id', 'id');
     }
 
     public function materials(): BelongsToMany

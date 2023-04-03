@@ -9,4 +9,5 @@ class KitProducts extends Model
 {
     use HasFactory;
     protected $guarded = false;
+    protected $withPivot = ['variant_id'];
 }

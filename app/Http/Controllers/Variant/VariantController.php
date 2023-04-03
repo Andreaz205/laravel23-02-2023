@@ -41,115 +41,6 @@ class VariantController extends Controller
         $this->middleware('can:product delete', ['only' => ['destroy']]);
     }
 
-//    public function store(Product $product, Request $request)
-//    {
-//        $validator = Validator::make($request->all(), [
-//            'newOptions' => 'array',
-//            'newOptions.*.name' => 'required|string',
-//            'newOptions.*.value' => 'required|string',
-//            'newValues' => 'array',
-//            'newValues.*.value' => 'required|string',
-//            'newValues.*.name_id' => 'required|integer|exists:option_names,id',
-//            'values' => 'array',
-//            'values.*' => 'integer|required',
-//        ]);
-//
-//        if ($validator->fails()) {
-//            return Response::json(['error' => $validator->messages()], 422);
-//        }
-//        // 'newValues' => ['value' => 'someValue', 'name_id' => id ]
-//        $data = $validator->validated();
-//        $newValues = $data['newValues'] ?? null;
-//        $values = $data['values'] ?? null;
-//        $newOptions = $data['newOptions'] ?? null;
-//
-//        try {
-//            $error = $this->variantService
-//                ->validateVariantWhenCreate($values, $newValues, $newOptions, $product);
-//            if (isset ($error)) {
-//                if ($error === 'empty_options')
-//                    return Response::json(['error' => 'Невозможно создать вариант без свойств!'], 422);
-//                if ($error === 'new_value_already_exists')
-//                    return Response::json(['error' => 'Невозможно добавить значение для свойства, т.к. оно уже существет!'], 422);
-//                if ($error === 'variant_with_options_already_exists')
-//                    return Response::json(['error' => 'Вариант с указанными свойствами уже существет!'], 422);
-//            }
-//
-//
-//            DB::beginTransaction();
-//            $variant = Variant::create([
-//                'product_id' => $product->id
-//            ]);
-//
-//
-//            $productOptionNames = $product->option_names;
-//            if (isset($newOptions) && (count($newOptions) > 0) && count($productOptionNames) < 1) {
-//                $errorData = array(['Чтобы добавить вариант необходмо создать свойства!']);
-//                return Response::json(['errors' => $errorData], 422);
-////                foreach ($newOptions as $newOption) {
-////
-////                    $newOptionValue = OptionValue::create([
-////                        'title' => $newOption['value'],
-////                        'product_id' => $product->id,
-////                    ]);
-////                    $newOptionName = OptionName::create([
-////                        'title' => $newOption['name'],
-////                        'product_id' => $product->id,
-////                        'default_option_value_id' => $newOptionValue->id
-////                    ]);
-////                    $newOptionValue->update([
-////                        'option_name_id' =>  $newOptionName->id,
-////                    ]);
-////                    OptionValueVariants::create([
-////                        'variant_id' => $variant->id,
-////                        'option_value_id' => $newOptionValue->id,
-////                    ]);
-////                }
-//            }
-//
-//            else if (isset($newValues) and isset($values)) {
-//                foreach($newValues as $newValue) {
-//                    $optionName = OptionName::find($newValue['name_id']);
-//                    if ($newValue['value'])  {
-//                        $candidate = $optionName->option_values()->where('title', $newValue['value'])->first();
-//                        if (isset($candidate)) throw ValidationException::withMessages(['У свйства ' . $optionName->title . ' уже существует свойство с названием ' . $newValue['value']]);
-//                    }
-//                    $createdValue = OptionValue::create([
-//                        'title' => $newValue['value'],
-//                        'option_name_id' => $newValue['name_id']
-//                    ]);
-//                    OptionValueVariants::firstOrCreate([
-//                        'variant_id' => $variant->id,
-//                        'option_value_id' => $createdValue->id
-//                    ]);
-//                }
-//                foreach($values as $value) {
-//                    OptionValueVariants::firstOrCreate([
-//                        'variant_id' => $variant->id,
-//                        'option_value_id' => $value
-//                    ]);
-//                }
-//            }
-//
-//            $prices = Price::all();
-//            if (count($prices) > 0) {
-//                foreach ($prices as $price) {
-//                    PriceVariants::create([
-//                        'variant_id' => $variant->id,
-//                        'price_id' => $price->id,
-//                        'price' => 0
-//                    ]);
-//                }
-//            }
-//
-//            DB::commit();
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            return response()->json(['message' => $exception->getMessage()], 500);
-//        }
-//        return new CreatedVariantResource($variant);
-//    }
-
     public function store(Product $product, StoreRequest $request, )
     {
         $data = $request->validated();
@@ -200,6 +91,7 @@ class VariantController extends Controller
 
         try {
             DB::beginTransaction();
+
             $variant = Variant::query()->create([
                 'product_id' => $product->id
             ]);
@@ -240,7 +132,6 @@ class VariantController extends Controller
         }
         Variant::whereIn('id', $result)->delete();
         OptionValueVariants::whereIn('variant_id', $result)->delete();
-
         return Response::json(['status' => 'Deleted successfully!']);
     }
 
@@ -272,7 +163,6 @@ class VariantController extends Controller
     {
 
         $data = $request->validated();
-
         // Валидация
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -283,11 +173,35 @@ class VariantController extends Controller
         $value = MaterialUnitValue::find($lastId);
         $allValues = $materialService->allMaterialValues($material);
         $set = array_reverse($materialService->getSetByLastValue($value, $allValues));
+
         foreach ($set as $setItem) {
             if (!in_array($setItem['id'], $materialValuesIds)) {
                 $errorMaterialValue = MaterialUnitValue::find($setItem['id']);
                 throw ValidationException::withMessages(['Ошибка валидации! В запросе указано значение ' . $errorMaterialValue->value . ' которого не существет в базе наборов!']);
-            };
+            }
+        }
+
+        $unitIds = $material->material_units()->pluck('id')->toArray();
+        $valuesToDetach = $variant->material_unit_values()->whereIn('material_unit_id', $unitIds)->pluck('material_unit_values.id')->toArray();
+
+
+        // Проверка чтобы не повторялись свойства для вариантов
+        $variantValuesIds = $variant->material_unit_values()->pluck('material_unit_values.id')->toArray();
+        foreach ($valuesToDetach as $valueIdToDetach) {
+            $variantValuesIds = array_filter($variantValuesIds, fn ($item) => $item !== $valueIdToDetach);
+        }
+        $resultIds = [...$variantValuesIds, ...$materialValuesIds];
+
+        $otherProductVariants = Variant::where('product_id', $variant->product_id)->whereNot('id', $variant->id)->with('material_unit_values')->get();
+        foreach ($otherProductVariants as $otherProductVariant) {
+            $valuesIds = $otherProductVariant->material_unit_values->map(fn($item) => $item->id);
+            $found = true;
+            foreach ($valuesIds as $valId) {
+                if (!in_array($valId, $resultIds)){
+                    $found = false;
+                }
+            }
+            if ($found) throw ValidationException::withMessages(['Такой вариант уже сущуствует!']);
         }
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -295,8 +209,6 @@ class VariantController extends Controller
 
         try {
            DB::beginTransaction();
-            $unitIds = $material->material_units()->pluck('id')->toArray();
-            $valuesToDetach = $variant->material_unit_values()->whereIn('material_unit_id', $unitIds)->pluck('material_unit_values.id')->toArray();
             MaterialUnitValueVariants::whereIn('material_unit_value_id', $valuesToDetach)->whereVariantId($variant->id)->delete();
             $result = [];
             foreach ($materialValuesIds as $id) {

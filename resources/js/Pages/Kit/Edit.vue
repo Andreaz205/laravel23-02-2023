@@ -29,7 +29,7 @@
                                             <img :src="variant.images[0]?.image_url ?? '/storage/images/no-image.jpg'" class="w-[100px] h-[100px]" alt="" />
                                             <span class="ml-2">{{variant.title}}</span>
                                         </div>
-                                        <template v-if="product?.kit_variant?.id === variant.id">
+                                        <template v-if="product?.variant?.id === variant.id">
                                             <button class="btn btn-default">
                                                 Указан
                                             </button>
@@ -70,7 +70,7 @@ export default {
                 this.isLoading = true
                 await axios.get(`/admin/kits/${this.kit.id}/products/bind-variants/${variant.id}`)
                 let searchedProduct = this.products.find(product => product.id === variant.product_id)
-                searchedProduct.kit_variant = variant
+                searchedProduct.variant = variant
                 this.isLoading = false
             } catch (e) {
                 this.isLoading = false

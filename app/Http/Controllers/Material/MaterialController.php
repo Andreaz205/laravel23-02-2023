@@ -14,6 +14,8 @@ use App\Models\Category;
 use App\Models\Material;
 use App\Models\MaterialUnit;
 use App\Models\MaterialUnitValue;
+use App\Models\Product;
+use App\Models\Variant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
@@ -213,8 +215,10 @@ class MaterialController extends Controller
         $sets = collect($materialService->getSets(collect([$material]))[0]['sets']);
         $sets = $sets->filter(function  ($value, $key) use ($term) {
             $title = mb_strtolower($value['title']);
-            return str_contains($title, $term);
+            $lowerTerm = mb_strtolower($term);
+            return str_contains($title, $lowerTerm);
         });
+
         return $materialService->paginate($sets, 10);
     }
 
@@ -226,10 +230,14 @@ class MaterialController extends Controller
 
     public function destroyValue(MaterialUnitValue $value)
     {
+        $existsVariantWithThisValue = Variant::query()->whereRelation('material_unit_values', 'material_unit_values.id', '=', $value->id)->with('material_unit_values')->first();
+        if ($existsVariantWithThisValue) {
+            $title = $existsVariantWithThisValue->getTitleAttribute();
+            return redirect()->back()->with('message', 'Невозможно удалить значение ' . $value->value . ', так как для него существуют варианты. Например ' . $title . '!');
+        }
         // Валидация на наличие дочерних значений
         if ($value->child_values()->exists())
             return redirect()->back()->with('message', 'Невозможно удалить значение ' . $value->value . ', так как для него существуют дочерние!');
-//            throw ValidationException::withMessages(['Невозможно удалить значение ' . $value->value . ', так как для него существуют дочерние!']);
 
         $value->delete();
         return 1111;
@@ -237,7 +245,9 @@ class MaterialController extends Controller
 
     public function destroy(Material $material)
     {
-        $material->delete();
+        $candidate = Product::query()->whereRelation('materials', 'material_id', '=', $material->id)->first();
+//        dd($candidate);
+//        $material->delete();
         return redirect('/admin/materials')
             ->with('message', 'Материал ' . $material->title . ' удалено успешно!');
     }

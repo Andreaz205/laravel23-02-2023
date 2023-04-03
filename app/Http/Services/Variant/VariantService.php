@@ -3,6 +3,8 @@
 namespace App\Http\Services\Variant;
 
 use App\Http\Contracts\VariantServiceInterface;
+use App\Http\Services\Material\MaterialService;
+use App\Models\MaterialUnitValueVariants;
 use App\Models\OptionValueVariants;
 use App\Models\Product;
 use App\Models\Variant;
@@ -83,46 +85,53 @@ class  VariantService implements VariantServiceInterface
 
     public function aggregateVariantByNameValues(&$variant)
     {
-        $product = Product::findOrFail($variant->product_id);
+        $product = Product::with(['variants' => fn ($query) => $query->with('material_unit_values'), 'materials' => fn ($query) => $query->with('main_material_unit', 'material_units')])->findOrFail($variant->product_id);
         $variant->product = $product;
 
 //        $productValues = $product->option_values;
-        $productValues = [];
+        $productValues = collect([]);
         $productVars = $product->variants;
         foreach ($productVars as $productVar) {
-            $varVals = $productVar->option_values;
+            $varVals = $productVar->material_unit_values;
             foreach ($varVals as $val) {
-                if (!in_array($val, $productValues)) {
-                    $productValues[] = $val;
+                if ($productValues->search(fn($value) => $value->id === $val->id) === false) {
+                    $productValues->push($val);
                 }
             }
         }
 
-        if (isset($product->option_names)) {
-            $optionNames = $product->option_names;
+        $materialUnits = [];
+        foreach ($product->materials as $material) {
+            $units = MaterialService::plainMaterialUnits($material->main_material_unit);
+            foreach ($units as $unit) {
+                $materialUnits[] = $unit;
+            }
+        }
 
-
-            $optValues = [];
+        if (isset($materialUnits)) {
+            $matValues = [];
             if (isset($productValues)) {
-                foreach ($optionNames as $name) {
+                foreach ($materialUnits as $unit) {
                     foreach ($productValues as $value) {
-
-                        if ($name->id == $value->option_name_id) {
-                            $optValues[] = $value;
+                        if ($unit->id == $value->material_unit_id) {
+                            $matValues[] = $value;
                         }
                     }
-                    $name->values = $optValues;
-                    $optValues = [];
+                    $unit->values = $matValues;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    $matValues = [];
                 }
-                $variant->optionNames = $optionNames;
+
+
+                $variant->material_units = $materialUnits;
                 //Это сложная херня находит опции значения которые есть у варианта с учетом дефолтных значений
-                $existsVariantValues = $variant->optionValues;
+                $existsVariantValues = $variant->material_unit_values;
+
 
                 $variantValues = [];
-                foreach ($optionNames as $optionName) {
+                foreach ($materialUnits as $materialUnit) {
                     $flag = false;
                     $searchedValue = null;
-                    foreach ($optionName->values as $nameValue) {
+                    foreach ($materialUnit->values as $nameValue) {
                         foreach ($existsVariantValues as $existsVariantValue) {
                             if (+$existsVariantValue->id == +$nameValue->id) {
                                 $flag = true;
@@ -133,15 +142,15 @@ class  VariantService implements VariantServiceInterface
                     }
                     if ($flag) {
                         array_push($variantValues, $searchedValue);
-                        $optionName->activeValueId = $searchedValue->id;
-                    } else {
-                        $searchedValue = $optionName->default_option_value;
-                        array_push($variantValues, $searchedValue);
-                        $optionName->activeValueId = $searchedValue->id;
+                        $materialUnit->activeValueId = $searchedValue->id;
                     }
                 }
-                $variant->variantValues = $variantValues;
+//                $variant->variantValues = $variantValues;
+//
+//                $variantValues = $variant->material_unit_values;
+//                $variant->variantValues = $variantValues;
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
                 //Обозначаю активные элементы
                 foreach($productValues as $productValue) {
@@ -152,24 +161,31 @@ class  VariantService implements VariantServiceInterface
                     }
                 }
                 $activeIds = [];
-                //фильтрация
-                foreach ($optionNames as $key=>$optionName) {
 
-                    if ($key ==0) {
-                        array_push($activeIds, $optionName->activeValueId);
+                //фильтрация
+                foreach ($materialUnits as $key=>$materialUnit) {
+//                    $curVarUnitKey = array_search(fn ($item) => $item->id === $materialUnit->id, $variant->material_units);
+//                    $vals = $variant->material_units[$curVarUnitKey]->values;
+//                    $activeId = null;
+//                    foreach ($vals as $val) {
+////                        if ()
+//                    }
+
+                    if ($key == 0) {
+                        array_push($activeIds, $materialUnit->activeValueId);
                         continue;
                     }
 
-                    $searchedVariantIds = $this->intersectVariants($activeIds);
-                    $optionName->searchedVariantIds = $searchedVariantIds;
+                    $searchedVariantIds = $this->intersectVariants($activeIds, $product->id);
+                    $materialUnit->searchedVariantIds = $searchedVariantIds;
 
                     //Определяем все варианты на текущей итерации у которых до текущей итерации опции совпадают
                     $vals = [];
                     foreach($searchedVariantIds as $searchedVariantId) {
 
-                        $variantValuesNotes = OptionValueVariants::where('variant_id', $searchedVariantId)->get();
+                        $variantValuesNotes = MaterialUnitValueVariants::where('variant_id', $searchedVariantId)->get();
                         foreach($variantValuesNotes as $variantValuesNote) {
-                            array_push($vals, $variantValuesNote->option_value_id);
+                            array_push($vals, $variantValuesNote->material_unit_value_id);
                         }
                         $result = [];
                         foreach($vals as $key=>$val) {
@@ -181,83 +197,72 @@ class  VariantService implements VariantServiceInterface
 
                     $availableValues = [];
                     foreach ($vals as $val) {
-                        foreach($optionName->values as $opVal) {
-                            if ($opVal->id == $val) {
-                                if (!in_array($opVal, $availableValues)) {
-                                    array_push($availableValues, $opVal);
+                        foreach($materialUnit->values as $mtVal) {
+                            if ($mtVal->id == $val) {
+                                if (!in_array($mtVal, $availableValues)) {
+                                    array_push($availableValues, $mtVal);
                                 }
                             }
                         }
                     }
-                    $optionName->values = $availableValues;
+                    $materialUnit->values = $availableValues;
 
                     //Попробую здесь построить ссылку важный момент здесь selected ids это предыдущие только
                     $selectedIds = [];
                     foreach($variantValues as $variantValue) {
-                        if ($optionName->id == $variantValue->option_name_id) {
+                        if ($materialUnit->id == $variantValue->material_unit_id) {
                             break;
                         } else {
                             array_push($selectedIds, $variantValue->id);
                         }
-
                     }
 
-                    $optionName->selectedIds = $selectedIds;
+                    $materialUnit->selectedIds = $selectedIds;
 
-                    foreach($optionName->values as $value) {
+                    foreach($materialUnit->values as $value) {
                         $searchedIds = [...$selectedIds, $value->id];
                         //Над этим я пыхтел 2 недели!!! Относиться осторожно!!!
-                        $bingoVariantArray = $this->intersectVariants($searchedIds);
+                        $bingoVariantArray = $this->intersectVariants($searchedIds, $product->id);
                         $bingoVariant = null;
                         foreach($bingoVariantArray as $key=>$var) {
                             $bingoVariant = $var;
                             break;
                         }
-
                         if (isset($bingoVariant)) {
                             $value->linkedVariantId = $bingoVariant;
                         }
-
                         $value->searchedIds = $searchedIds;
                     }
-
-                    array_push($activeIds, $optionName->activeValueId);
+                    array_push($activeIds, $materialUnit->activeValueId);
                 }
-
                 // Построение ссылки на вариант для первой опции
-                $firstOptionName = $variant->optionNames[0];
+                $firstOptionName = $variant->material_units[0];
                 foreach ($firstOptionName->values as $nameValue) {
-                    $searchedVariantNote = OptionValueVariants::where('option_value_id', $nameValue->id)->first();
+                    $searchedVariantNote = MaterialUnitValueVariants::where('material_unit_value_id', $nameValue->id)->first();
                     $searchedVariant = Variant::where('id', $searchedVariantNote->variant_id)->first();
                     $nameValue->linkedVariantId = $searchedVariant->id;
                 }
             }
-
         }
         return $variant;
     }
 
-    public function intersectVariants(array $valuesIds) {
+    public function intersectVariants(array $valuesIds, $productId) {
         $resultIds = [];
         foreach($valuesIds as $key=>$value) {
             array_push($resultIds, +$value);
         }
-
         $candidates = [];
-
-        $notes = OptionValueVariants::all();
-        foreach($resultIds as $optionValue) {
-            $$optionValue = [];
+        $notes = MaterialUnitValueVariants::query()->whereRelation('variant', 'product_id', $productId)->get();
+        foreach($resultIds as $materialValue) {
+            $$materialValue = [];
             foreach($notes as $note) {
-                if ($note->option_value_id == $optionValue) {
-                    array_push($$optionValue, $note->variant_id);
+                if ($note->material_unit_value_id == $materialValue) {
+                    array_push($$materialValue, $note->variant_id);
                 }
             }
-            array_push($candidates, $$optionValue);
+            array_push($candidates, $$materialValue);
         }
-
-        $result = array_intersect(...$candidates);
-
-        return  $result;
+        return array_intersect(...$candidates);
     }
 }

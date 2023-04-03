@@ -161,6 +161,7 @@ export default {
                 let newReview = response?.data
                 let searchedReview = this.reviews.data.find(rev => rev.id === newReview.id)
                 searchedReview.published = 1
+                searchedReview.is_viewed = true
             } catch (e) {
                 alert(e)
             }

@@ -64,3 +64,4 @@ Route::post('/recaptcha', [App\Http\Controllers\Api\RecaptchaController::class, 
 Route::get('/main-kits', [App\Http\Controllers\Api\Kit\KitsController::class, 'mainPageData']);
 Route::get('/main-interiors', [\App\Http\Controllers\Api\Interior\InteriorController::class, 'mainPageData']);
 
+Route::get('/test-variant/{variant}', [\App\Http\Controllers\TestController::class, 'testVariant']);

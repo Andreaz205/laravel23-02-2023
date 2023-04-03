@@ -47,10 +47,16 @@ class KitsController extends Controller
 
     public function edit(Kit $kit)
     {
-        $products = $kit->products()->with(['variants' => function ($query) {
-            dd($query);
+        $products = $kit->products()->withPivot('variant_id')->with(['variants' => function ($query) {
             $query->with(['material_unit_values', 'images' => fn ($query) => $query->limit(1)]);
         }])->orderByDesc('created_at')->get();
+        foreach ($products as $product) {
+            $searchedVariant = Variant::with('material_unit_values')->where('id',$product->pivot->variant_id)->first();
+            if (isset($searchedVariant)) {
+                $searchedVariant->title = $searchedVariant->getTitleAttribute();
+            }
+            $product->variant = $searchedVariant;
+        }
 
         $products->each(fn ($product) => $product->variants->each(fn($variant) => $variant->title = $variant->getTitleAttribute()));
         return inertia('Kit/Edit', [
@@ -87,7 +93,6 @@ class KitsController extends Controller
         if (isset($candidate)) {
             try {
                 DB::beginTransaction();
-                $product->update(['kit_variant_id' => null]);
                 $candidate->delete();
                 DB::commit();
             } catch (\Exception $exception) {
@@ -106,12 +111,15 @@ class KitsController extends Controller
 
     public function bindVariant(Kit $kit, Variant $variant)
     {
-        $products = $kit->products;
-        dd($products);
         $variantProduct = $variant->product;
+        $products = $kit->products;
+
         if (!$products->contains($variantProduct))
             throw ValidationException::withMessages(['Для указанного вами набора указанный вами id варианта некорректен!']);
 
-        return $variantProduct->update(['kit_variant_id' => $variant->id]);
+        $pivot = KitProducts::where('product_id', $variant->product_id)->where('kit_id', $kit->id)->first();
+        $pivot->variant_id = $variant->id;
+        $pivot->save();
+        return 11111;
     }
 }

@@ -31,7 +31,6 @@ class OrderController extends Controller
             'variants' => 'required|array',
             'variants.*.id' => 'required|integer',
             'variants.*.quantity' => 'required|integer',
-            'variants.*.price' => 'required|integer',
         ]);
         if ($validator->fails()) {
             return response($validator->messages(), 422);
@@ -48,10 +47,6 @@ class OrderController extends Controller
 //                return response()->json(['message' => 'quantity']);
 //            }
 //        }
-        $status = $this->orderService->checkPrice($orderedVariantsArray);
-        if ($status === 'fail') {
-            return response()->json(['message' => 'Incorrect price'], 400);
-        }
         try {
             DB::beginTransaction();
             $newOrder = Order::create($data);

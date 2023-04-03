@@ -57,7 +57,7 @@ class ReviewController extends Controller
 //        $imagesForDelete = null;
 //        if (isset($data['images_for_delete'])) $imagesForDelete = $data['images_for_delete'];
 //        if (isset($data['images_for_delete'])) unset($data['images_for_delete']);
-        $review->update(['published' => 1]);
+        $review->update(['published' => 1, 'is_viewed' => true]);
         return $review;
     }
 

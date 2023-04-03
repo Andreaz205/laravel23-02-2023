@@ -10,6 +10,8 @@ use App\Models\ReviewImage;
 use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
 class ReviewController extends Controller
@@ -23,9 +25,7 @@ class ReviewController extends Controller
 
         foreach($images as $image) {
             $name = md5(Carbon::now() . '_' . $image->getClientOriginalName()) . '.' . $image->getClientOriginalExtension();
-
             $filePath = Storage::disk('public')->putFileAs('images', $image, $name);
-
             $reviewImage = ReviewImage::create([
                 'image_path' => $filePath,
                 'image_url' => url('/storage/' . $filePath),
@@ -46,15 +46,24 @@ class ReviewController extends Controller
         $number = $data['number'];
         $data['variant_id'] = $variant->id;
         unset($data['images'], $data['number']);
-        $review = Review::create($data);
-        $review->created_at = $review->created_at->toDateTimeString();
-        if (isset($imageIds)) {
-            foreach ($imageIds as $imageId) {
-                $reviewImage = ReviewImage::findOrFail($imageId);
-                $reviewImage->update([
-                    'review_id' => $review->id
-                ]);
+        try {
+            DB::beginTransaction();
+
+            $review = Review::create([...$data, 'product_id' => $variant->product_id]);
+            $review->created_at = $review->created_at->toDateTimeString();
+            if (isset($imageIds)) {
+                foreach ($imageIds as $imageId) {
+                    $reviewImage = ReviewImage::findOrFail($imageId);
+                    $reviewImage->update([
+                        'review_id' => $review->id
+                    ]);
+                }
             }
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return Response::json(['message' => $exception->getMessage()], 500);
         }
 
         //  Профилаткитка и очистка
