@@ -24,6 +24,7 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
+            'weight' => 'integer|nullable',
             'width' => 'integer|nullable',
             'height' => 'integer|nullable',
             'length' => 'integer|nullable',

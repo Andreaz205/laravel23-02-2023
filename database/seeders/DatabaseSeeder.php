@@ -14,10 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(BasicAdminPermissionSeeder::class);
-        $this->call(DiscountsAvailabilitySeeder::class);
-        $this->call(BonusesSeeder::class);
-        $this->call(InteriorSeeder::class);
+//        $this->call(BasicAdminPermissionSeeder::class);
+//        $this->call(DiscountsAvailabilitySeeder::class);
+//        $this->call(BonusesSeeder::class);
+//        $this->call(InteriorSeeder::class);
+        $this->call(MainPageSaleSeeder::class);
 
         // \App\Models\User::factory(10)->create();
 

@@ -41,7 +41,7 @@ class VariantController extends Controller
         $this->middleware('can:product delete', ['only' => ['destroy']]);
     }
 
-    public function store(Product $product, StoreRequest $request, )
+    public function store(Product $product, StoreRequest $request)
     {
         $data = $request->validated();
         $form = collect($data['materials']);
@@ -92,7 +92,7 @@ class VariantController extends Controller
         try {
             DB::beginTransaction();
 
-            $variant = Variant::query()->create([
+            $variant = Variant::create([
                 'product_id' => $product->id
             ]);
             $prices = Price::all();
@@ -106,7 +106,8 @@ class VariantController extends Controller
             DB::rollBack();
             return Response::json(['errors' => [$exception->getMessage()]], 422);
         }
-        return $variant->load(['material_unit_values' => fn ($query) => $query->with('color')], 'prices');
+        $response = Variant::with(['material_unit_values' => fn ($query) => $query->with('color'), 'prices', 'images'])->where('id', $variant->id)->first();
+        return $response;
     }
 
     public function updateField(Product $product, Variant $variant, UpdateVariantFieldRequest $request)

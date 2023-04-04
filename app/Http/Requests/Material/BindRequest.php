@@ -25,7 +25,7 @@ class BindRequest extends FormRequest
     {
         return [
             'materials' => 'nullable|array',
-            'materials.*' => 'required|integer|exists:categories,id',
+            'materials.*' => 'required|integer|exists:materials,id',
         ];
     }
 

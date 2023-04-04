@@ -37,7 +37,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Product::with('images')->withCount('variants')->paginate(20);
+        $products = Product::with('images')->withCount('variants')->orderByDesc('created_at')->paginate(20);
         foreach ($products as $product) {
             $product->min_max_price = $product->getMinMaxPriceAttribute();
             $product->quantity = $product->getQuantityAttribute();
@@ -168,14 +168,14 @@ class ProductController extends Controller
                         'product_id' => $product->id,
                     ]);
                 }
+                unset($data['parameters']);
+                $product->update($data);
                 DB::commit();
             } catch (\Exception $error) {
                 DB::rollBack();
                 return Response::json(['error' => $error->getMessage()], 500);
             }
         }
-        unset($data['parameters']);
-        $product->update($data);
         return Response::json(['status' => 'success']);
     }
 

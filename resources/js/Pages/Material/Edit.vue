@@ -14,7 +14,9 @@
                     <Errors :errors="errors"/>
                     <template v-if="materials && materials.length">
                         <div v-for="material in materials" class="row">
+
                             <label class="col-4">{{material.title}}</label>
+
                             <div class="col-8">
                                 <input type="checkbox" class="form-control" v-model="materialsForBind" :value="material.id">
                             </div>

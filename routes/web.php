@@ -155,15 +155,15 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/users/{user}', [\App\Http\Controllers\User\UserController::class, 'show']);
     Route::patch('/users/{user}/kind', [\App\Http\Controllers\User\UserController::class, 'changeKind']);
 
-    Route::get('/sales', [\App\Http\Controllers\Sale\SaleController::class, 'index']);
-    Route::post('/sales', [\App\Http\Controllers\Sale\SaleController::class, 'store']);
-    Route::get('/sales/{sale}', [\App\Http\Controllers\Sale\SaleController::class, 'show']);
-    Route::get('/sales/{sale}/sale-products', [\App\Http\Controllers\Sale\SaleController::class, 'saleProducts']);
-    Route::post('/sales/{sale}/public', [\App\Http\Controllers\Sale\SaleController::class, 'publish']);
-    Route::post('/sales/{sale}/image', [\App\Http\Controllers\Sale\SaleController::class, 'setImage']);
-    Route::delete('/sales/{sale}/image', [\App\Http\Controllers\Sale\SaleController::class, 'deleteImage']);
-    Route::get('/sales/{sale}/toggle-exists-product/{product}', [\App\Http\Controllers\Sale\SaleController::class, 'toggleProductExists']);
-    Route::delete('/sales/{sale}', [\App\Http\Controllers\Sale\SaleController::class, 'destroy']);
+//    Route::get('/sales', [\App\Http\Controllers\Sale\SaleController::class, 'index']);
+//    Route::post('/sales', [\App\Http\Controllers\Sale\SaleController::class, 'store']);
+//    Route::get('/sales/{sale}', [\App\Http\Controllers\Sale\SaleController::class, 'show']);
+//    Route::get('/sales/{sale}/sale-products', [\App\Http\Controllers\Sale\SaleController::class, 'saleProducts']);
+//    Route::post('/sales/{sale}/public', [\App\Http\Controllers\Sale\SaleController::class, 'publish']);
+//    Route::post('/sales/{sale}/image', [\App\Http\Controllers\Sale\SaleController::class, 'setImage']);
+//    Route::delete('/sales/{sale}/image', [\App\Http\Controllers\Sale\SaleController::class, 'deleteImage']);
+//    Route::get('/sales/{sale}/toggle-exists-product/{product}', [\App\Http\Controllers\Sale\SaleController::class, 'toggleProductExists']);
+//    Route::delete('/sales/{sale}', [\App\Http\Controllers\Sale\SaleController::class, 'destroy']);
 
     Route::get('/groups', [\App\Http\Controllers\Group\GroupController::class, 'index']);
     Route::get('/groups/{group}', [\App\Http\Controllers\Group\GroupController::class, 'show']);
@@ -242,6 +242,11 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/materials/{material}/search', [\App\Http\Controllers\Material\MaterialController::class, 'search']);
     Route::post('/materials/{material}/colors/add', [\App\Http\Controllers\Material\MaterialColorController::class, 'addColor']);
     Route::patch('/materials/{material}/toggle-color', [\App\Http\Controllers\Material\MaterialColorController::class, 'toggleColor']);
+
+
+    Route::get('/main-page-sales', [\App\Http\Controllers\Sale\MainPageSalesController::class, 'index']);
+    Route::post('/main-page-sales/{sale}/image', [\App\Http\Controllers\Sale\MainPageSalesController::class, 'loadImage']);
+    Route::post('/main-page-sales/update', [\App\Http\Controllers\Sale\MainPageSalesController::class, 'update']);
 
 });
 Route::get('/payment-index', [\App\Http\Controllers\Payment\PaymentController::class, 'index']);

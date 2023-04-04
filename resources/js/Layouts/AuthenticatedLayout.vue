@@ -203,7 +203,7 @@ export default {
                             </li>
 
                             <li class="nav-item">
-                                <Link href="/admin/sales" class="nav-link">
+                                <Link href="/admin/main-page-sales" class="nav-link">
                                     <i class="nav-icon fas fa-dollar-sign"></i>
                                     <p>Акции</p>
                                 </Link>

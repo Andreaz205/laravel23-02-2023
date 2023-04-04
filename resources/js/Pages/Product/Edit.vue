@@ -21,6 +21,13 @@
                     </div>
                 </div>
 
+                <div class="col-12 mt-4">
+                    <div class="row">
+                        <label class="col-4">Вес</label>
+                        <input type="text" v-model="weight" class="form-control col-8">
+                    </div>
+                </div>
+
                 <div class="row mt-2">
                     <div class="col-12">
                         <div class="form-group">
@@ -99,6 +106,7 @@ export default {
     props: ['productData'],
     data () {
         return {
+            weight: this.productData.weight,
             product: this.productData,
             parameters: this.productData.parameters,
             width: this.productData.width,
@@ -128,6 +136,7 @@ export default {
         async onSubmit () {
              try {
                  let data = {
+                     weight: this.weight,
                      width: this.width,
                      height: this.height,
                      length: this.length,

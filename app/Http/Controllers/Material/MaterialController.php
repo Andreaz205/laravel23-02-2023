@@ -245,9 +245,9 @@ class MaterialController extends Controller
 
     public function destroy(Material $material)
     {
-        $candidate = Product::query()->whereRelation('materials', 'material_id', '=', $material->id)->first();
-//        dd($candidate);
-//        $material->delete();
+//        $candidate = Product::query()->whereRelation('materials', 'material_id', '=', $material->id)->first();
+//        if ($candidate) throw ValidationException::withMessages(['Невозможно удалить так как есть товар - ' . $candidate->title . ', у которого указан данный материал. '])
+        $material->delete();
         return redirect('/admin/materials')
             ->with('message', 'Материал ' . $material->title . ' удалено успешно!');
     }

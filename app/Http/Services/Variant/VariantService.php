@@ -86,6 +86,7 @@ class  VariantService implements VariantServiceInterface
     public function aggregateVariantByNameValues(&$variant)
     {
         $product = Product::with(['variants' => fn ($query) => $query->with('material_unit_values'), 'materials' => fn ($query) => $query->with('main_material_unit', 'material_units')])->findOrFail($variant->product_id);
+        $notes = MaterialUnitValueVariants::query()->whereRelation('variant', 'product_id','=', $product->id)->get();
         $variant->product = $product;
 
 //        $productValues = $product->option_values;
@@ -141,7 +142,7 @@ class  VariantService implements VariantServiceInterface
                         }
                     }
                     if ($flag) {
-                        array_push($variantValues, $searchedValue);
+                        $variantValues[] = $searchedValue;
                         $materialUnit->activeValueId = $searchedValue->id;
                     }
                 }
@@ -176,14 +177,14 @@ class  VariantService implements VariantServiceInterface
                         continue;
                     }
 
-                    $searchedVariantIds = $this->intersectVariants($activeIds, $product->id);
+                    $searchedVariantIds = $this->intersectVariants($activeIds, $notes);
                     $materialUnit->searchedVariantIds = $searchedVariantIds;
 
                     //Определяем все варианты на текущей итерации у которых до текущей итерации опции совпадают
                     $vals = [];
                     foreach($searchedVariantIds as $searchedVariantId) {
 
-                        $variantValuesNotes = MaterialUnitValueVariants::where('variant_id', $searchedVariantId)->get();
+                        $variantValuesNotes = $notes->filter(fn ($item) => $item->variant_id === $searchedVariantId);
                         foreach($variantValuesNotes as $variantValuesNote) {
                             array_push($vals, $variantValuesNote->material_unit_value_id);
                         }
@@ -222,7 +223,7 @@ class  VariantService implements VariantServiceInterface
                     foreach($materialUnit->values as $value) {
                         $searchedIds = [...$selectedIds, $value->id];
                         //Над этим я пыхтел 2 недели!!! Относиться осторожно!!!
-                        $bingoVariantArray = $this->intersectVariants($searchedIds, $product->id);
+                        $bingoVariantArray = $this->intersectVariants($searchedIds, $notes);
                         $bingoVariant = null;
                         foreach($bingoVariantArray as $key=>$var) {
                             $bingoVariant = $var;
@@ -238,8 +239,8 @@ class  VariantService implements VariantServiceInterface
                 // Построение ссылки на вариант для первой опции
                 $firstOptionName = $variant->material_units[0];
                 foreach ($firstOptionName->values as $nameValue) {
-                    $searchedVariantNote = MaterialUnitValueVariants::where('material_unit_value_id', $nameValue->id)->first();
-                    $searchedVariant = Variant::where('id', $searchedVariantNote->variant_id)->first();
+                    $searchedVariantNote = $notes->filter(fn($item) => $item->material_unit_value_id === $nameValue['id'])->first();
+                    $searchedVariant = $productVars->filter(fn ($item) => $item->id === $searchedVariantNote->variant_id)->first();
                     $nameValue->linkedVariantId = $searchedVariant->id;
                 }
             }
@@ -247,16 +248,16 @@ class  VariantService implements VariantServiceInterface
         return $variant;
     }
 
-    public function intersectVariants(array $valuesIds, $productId) {
+    public function intersectVariants(array $valuesIds, $pivot_notes) {
         $resultIds = [];
         foreach($valuesIds as $key=>$value) {
             array_push($resultIds, +$value);
         }
         $candidates = [];
-        $notes = MaterialUnitValueVariants::query()->whereRelation('variant', 'product_id', $productId)->get();
+
         foreach($resultIds as $materialValue) {
             $$materialValue = [];
-            foreach($notes as $note) {
+            foreach($pivot_notes as $note) {
                 if ($note->material_unit_value_id == $materialValue) {
                     array_push($$materialValue, $note->variant_id);
                 }

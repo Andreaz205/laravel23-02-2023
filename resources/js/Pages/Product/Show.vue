@@ -912,6 +912,7 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import MaterialVariantModal from "@/Pages/Product/Modal/MaterialVariantModal.vue";
 import {ModelSelect} from "vue-search-select";
 import Errors from "@/Components/Errors/Errors.vue";
+import {reactive} from "vue";
 
 
 
@@ -969,7 +970,7 @@ export default {
             optionNames: null,
             isDeleteOptionOpen: null,
             isCreateOptionOpen: null,
-            product: this.$props.productData,
+            product: JSON.parse(JSON.stringify(this.$props.productData)),
             images: this.$props.productData.images,
             dropzone: null,
             createOptionFormData: [
@@ -1020,6 +1021,7 @@ export default {
                     materials
                 }
                 let response = await axios.post(`/admin/products/${this.product.id}/variants`, data)
+
                 this.product.variants.push(response.data)
                 this.isLoading = false
             } catch (e) {
@@ -1114,6 +1116,7 @@ export default {
             let newImage = res.data.data
             this.product.images.push(newImage)
             let searchedVariant = this.product.variants.find(v => v.id === this.selectedVariant.id)
+            console.log(searchedVariant)
             searchedVariant?.images?.push(newImage)
             // let newImage = res.data.data
             // this.product.images.push(newImage)
@@ -1232,7 +1235,9 @@ export default {
         options(material) {
             if (material && this.material_sets && this.material_sets.length) {
                 let materialSet = this.material_sets.find(s => s.material_id === material.id)
-                let sets = materialSet['sets']
+                let sets
+                if (materialSet && materialSet['sets']) sets = materialSet['sets']
+                else sets = null
                 let options = [];
                 sets?.map(set => {
                     let value = set.ids.join('-')

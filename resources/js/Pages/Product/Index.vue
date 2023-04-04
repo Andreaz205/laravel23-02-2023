@@ -67,11 +67,6 @@
                                         Цены
                                     </Link>
                                 </button>
-                                <button class="btn btn-default ml-4">
-                                    <Link href="/admin/options">
-                                        Свойства
-                                    </Link>
-                                </button>
                                 <div class="card-tools">
                                     <div class="input-group input-group-sm" style="width: 150px;">
                                         <input type="text" name="table_search" class="form-control float-right" placeholder="Search" v-model="searchTerm">

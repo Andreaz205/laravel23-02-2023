@@ -71,7 +71,8 @@ export default {
             try {
                 this.isLoading = true
                 console.log(this.item)
-                let valuesIds = this.item.value.split('-')
+                let valuesIds = this.item?.value?.split('-')
+                if (!valuesIds) valuesIds = this.item.split('-')
                 valuesIds = valuesIds.map(id => +id)
                 let data = {
                     material_id: this.material.id,
