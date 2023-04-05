@@ -69,6 +69,7 @@
                 </div>
             </div>
         </div>
+        <Errors :errors="errors"/>
         <div class="p-4" v-if="material.with_colors">
             <Link :href="`/admin/materials/${this.material.id}/colors`">
                 <button class="btn btn-primary w-full py-5">
@@ -216,6 +217,7 @@ export default {
                 this.isLoading = false
             } catch (e) {
                 this.isLoading = false
+                if (e?.response?.status === 422) return this.errors = e.response.data.errors
                 alert(e?.message ?? e)
             }
         },

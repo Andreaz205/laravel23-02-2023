@@ -14,6 +14,7 @@ use App\Models\Category;
 use App\Models\Material;
 use App\Models\MaterialUnit;
 use App\Models\MaterialUnitValue;
+use App\Models\MaterialUnitValueVariants;
 use App\Models\Product;
 use App\Models\Variant;
 use Illuminate\Support\Facades\DB;
@@ -177,7 +178,8 @@ class MaterialController extends Controller
         if (!isset($unit->parent_material_unit_id)) {
             $values = $unit->values;
             $repeatCandidate = $values->search(fn ($value, $key) => $value->value === $data['value']);
-            if ($repeatCandidate) throw ValidationException::withMessages(['У данного элемента ' . $unit->title . ' уже существует такое значение!']);
+            if ($repeatCandidate)
+                throw ValidationException::withMessages(['У данного элемента ' . $unit->title . ' уже существует такое значение!']);
             return $unit->values()->create(['value' => $data['value']]);
         }
         // Валидация для значений родительского элемента
@@ -224,7 +226,14 @@ class MaterialController extends Controller
 
     public function destroyUnit(MaterialUnit $unit)
     {
+        $value = $unit->values()->first();
+
+        $candidateVariant = MaterialUnitValueVariants::where('material_unit_value_id', $value->id)->first();
+        if (isset($candidateVariant))
+            throw ValidationException::withMessages(['Невозможно удлаить значение так как к нему прявязаны варианты, удалите варианты!']);
+
         $unit->delete();
+
         return 1111;
     }
 
@@ -239,17 +248,20 @@ class MaterialController extends Controller
         if ($value->child_values()->exists())
             return redirect()->back()->with('message', 'Невозможно удалить значение ' . $value->value . ', так как для него существуют дочерние!');
 
+        $candidateVariant = MaterialUnitValueVariants::where('material_unit_value_id', $value->id)->first();
+        if (isset($candidateVariant))
+            throw ValidationException::withMessages(['Невозможно удлаить значение так как к нему прявязаны варианты, удалите варианты!']);
         $value->delete();
         return 1111;
     }
 
     public function destroy(Material $material)
     {
-//        $candidate = Product::query()->whereRelation('materials', 'material_id', '=', $material->id)->first();
-//        if ($candidate) throw ValidationException::withMessages(['Невозможно удалить так как есть товар - ' . $candidate->title . ', у которого указан данный материал. '])
+        $candidate = Product::query()->whereRelation('materials', 'material_id', '=', $material->id)->first();
+        if ($candidate)
+            throw ValidationException::withMessages(['Невозможно удалить так как есть товар - ' . $candidate->title . ', у которого указан данный материал. ']);
         $material->delete();
         return redirect('/admin/materials')
             ->with('message', 'Материал ' . $material->title . ' удалено успешно!');
     }
-
 }

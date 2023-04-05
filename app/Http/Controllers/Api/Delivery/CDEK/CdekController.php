@@ -29,4 +29,5 @@ class CdekController extends Controller
         return $this->service->calculateByAvailableTariffs($request->all());
     }
 
+
 }

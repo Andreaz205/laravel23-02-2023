@@ -13,7 +13,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body ">
                     <div class="row">
                         <div class="col-12">
                             <Errors :errors="errors"/>
@@ -216,7 +216,7 @@
     </div>
 
     <!--TODO: Редактирование -->
-    <div class="modal fade" id="editInteriorModal" tabindex="-1" role="dialog"
+    <div class="modal max-h-[80%] fade overflow-y-auto" id="editInteriorModal" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
@@ -227,7 +227,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body ">
                     <div class="row">
                         <div class="col-12">
                             <Errors :errors="errors"/>

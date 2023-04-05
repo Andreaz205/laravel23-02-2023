@@ -205,7 +205,7 @@ export default {
                             <li class="nav-item">
                                 <Link href="/admin/main-page-sales" class="nav-link">
                                     <i class="nav-icon fas fa-dollar-sign"></i>
-                                    <p>Акции</p>
+                                    <p>Баннеры со скидками</p>
                                 </Link>
                                 <!--                            <a href="/admin/sales" class="nav-link">-->
                                 <!--                            </a>-->
@@ -248,14 +248,14 @@ export default {
                                 <!--                            </a>-->
                             </li>
 
-                            <li class="nav-item">
-                                <Link href="/admin/rooms" class="nav-link">
-                                <!--                            <a href="/admin/rooms" class="nav-link">-->
-                                    <i class="nav-icon fas fa-vihara"></i>
-                                    <p>Комнаты</p>
-                                </Link>
-                                <!--                            </a>-->
-                            </li>
+<!--                            <li class="nav-item">-->
+<!--                                <Link href="/admin/rooms" class="nav-link">-->
+<!--                                &lt;!&ndash;                            <a href="/admin/rooms" class="nav-link">&ndash;&gt;-->
+<!--                                    <i class="nav-icon fas fa-vihara"></i>-->
+<!--                                    <p>Комнаты</p>-->
+<!--                                </Link>-->
+<!--                                &lt;!&ndash;                            </a>&ndash;&gt;-->
+<!--                            </li>-->
 
                             <li class="nav-item">
                                 <Link href="/admin/abilities" class="nav-link">

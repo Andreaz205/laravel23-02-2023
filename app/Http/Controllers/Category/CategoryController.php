@@ -77,15 +77,14 @@ class CategoryController extends Controller
     public function appendCategory(Product $product, BindRequest $request)
     {
         $data = $request->validated();
-        $categoryId = $data['category_id'];
         $variants = $product->variants;
-        $category = Category::find($categoryId);
-        $categoryOptionNames = $category->option_names;
+        if (count($variants) && isset($product->category_id))
+            throw ValidationException::withMessages(['Чтобы изменить категорию необходимо удалить варианты товара!']);
+        $categoryId = $data['category_id'];
+//        $category = Category::find($categoryId);
         try {
             DB::beginTransaction();
-//            foreach ($variants as $variant) {
-//                $variant->option_values()->where('option_name_id');
-//            }
+
             $product->update(['category_id' => $categoryId]);
             DB::commit();
         } catch (\Exception $e) {

@@ -24,6 +24,14 @@ Route::group(['prefix' => '/delivery/cdek'], function () {
     Route::post('calculate-by-available-tariffs', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'calculateByAvailableTariffs']);
 });
 
+Route::group(['prefix' => '/delivery/business-lines'], function () {
+    Route::get('cities', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'cities']);
+    Route::get('cities-by-term', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'getCitiesByTerm']);
+    Route::post('calculate', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'calculate']);
+//    Route::get('cities', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'getLocalities']);
+//    Route::post('calculate-by-available-tariffs', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'calculateByAvailableTariffs']);
+});
+
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/cart', [\App\Http\Controllers\Api\Cart\CartController::class, 'getCartVariants']);
     Route::patch('/cart/toggle-variant/{variant}', [\App\Http\Controllers\Api\Cart\CartController::class, 'toggle']);

@@ -43,6 +43,10 @@ return [
     'cdek' => [
         'account' => env('SDK_ACCOUNT', null),
         'password' => env('SDK_PASSWORD', null),
-    ]
-
+    ],
+    'business_lines' => [
+        'appkey' => '410F6D1E-0903-4664-8EE2-FC005AD4C834',
+        'login' => 'somonrahmatov828@gmail.com',
+        'password' => 'winstoN2211',
+    ],
 ];

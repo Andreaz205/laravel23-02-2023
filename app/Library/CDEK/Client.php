@@ -18,13 +18,13 @@ class Client
                 $response = $client->post('https://api.cdek.ru/v2/oauth/token?grant_type=client_credentials&client_id=' . config('services.cdek.account') . '&client_secret=' . config('services.cdek.password'));
                 DB::beginTransaction();
 
-                DB::commit();
                 $token = json_decode($response->getBody()->getContents())->access_token;
                 ServiceTokens::whereServiceName('cdek')->delete();
                 ServiceTokens::create([
                     'service_name' => 'cdek',
                     'token' => $token,
                 ]);
+                DB::commit();
             } catch (\Exception $exception) {
                 DB::rollBack();
                 return Response::json(['message' => $exception->getMessage()], 500);

@@ -1,6 +1,7 @@
 <template>
     <Spinner v-if="isLoading"/>
     <AuthenticatedLayout>
+        <Errors :errors="errors" />
         <FlashMessage />
         <!--TODO: Модальное окно для редактирования материала варианта-->
         <MaterialVariantModal :material="selectedMaterial" :material_sets="material_sets" :selected_variant="selectedVariant" @changeVariantMaterial="handleChangeVariantMaterialCallback"/>
@@ -61,60 +62,60 @@
 <!--        />-->
 
         <!--    TODO: Модальное окно для редактирования свойств варианта НУЖНО РЕДАКТИРОВАТЬ-->
-        <div class="modal fade" id="changeVariantOptionsModal" tabindex="-1" role="dialog"
-             aria-labelledby="exampleModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Редактировать свойства</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
+<!--        <div class="modal fade" id="changeVariantOptionsModal" tabindex="-1" role="dialog"-->
+<!--             aria-labelledby="exampleModalLabel"-->
+<!--             aria-hidden="true">-->
+<!--            <div class="modal-dialog modal-xl" role="document">-->
+<!--                <div class="modal-content">-->
+<!--                    <div class="modal-header">-->
+<!--                        <h5 class="modal-title" id="exampleModalLabel">Редактировать свойства</h5>-->
+<!--                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                            <span aria-hidden="true">&times;</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                    <div class="modal-body">-->
 
-                        <template v-if="selectedVariant">
-                            <div class="container-fluid" v-for="option_name in product.option_names">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label>{{ option_name.title }}</label>
-                                            <select class="custom-select"
-                                                    @change="handleClickChangeVariantOptionValue($event, option_name)"
-                                                    :value="getSelectedVariantOptionNameValue(option_name)">
-                                                <option value="new">Добавить новое значение</option>
-                                                <option v-for="(value, key) in option_name.option_values"
-                                                        :key="value.id" :value="value.id">
-                                                    {{ value.title }}
-                                                </option>
-                                            </select>
-                                            <form v-if="option_name.edit_form_data_is_new"
-                                                  @submit="onSubmitEditOptionsFormNewValue($event, option_name)">
-                                                <div class="form-group">
-                                                    <label>Введите значение</label>
-                                                    <input class="form-control" type="text"
-                                                           placeholder="Введите значение">
-                                                </div>
-                                                <div class="form-group">
-                                                    <button class="btn btn-primary bg-blue" type="submit">Сохранить
-                                                    </button>
-                                                </div>
-                                            </form>
+<!--                        <template v-if="selectedVariant">-->
+<!--                            <div class="container-fluid" v-for="option_name in product.option_names">-->
+<!--                                <div class="row">-->
+<!--                                    <div class="col-12">-->
+<!--                                        <div class="form-group">-->
+<!--                                            <label>{{ option_name.title }}</label>-->
+<!--                                            <select class="custom-select"-->
+<!--                                                    @change="handleClickChangeVariantOptionValue($event, option_name)"-->
+<!--                                                    :value="getSelectedVariantOptionNameValue(option_name)">-->
+<!--                                                <option value="new">Добавить новое значение</option>-->
+<!--                                                <option v-for="(value, key) in option_name.option_values"-->
+<!--                                                        :key="value.id" :value="value.id">-->
+<!--                                                    {{ value.title }}-->
+<!--                                                </option>-->
+<!--                                            </select>-->
+<!--                                            <form v-if="option_name.edit_form_data_is_new"-->
+<!--                                                  @submit="onSubmitEditOptionsFormNewValue($event, option_name)">-->
+<!--                                                <div class="form-group">-->
+<!--                                                    <label>Введите значение</label>-->
+<!--                                                    <input class="form-control" type="text"-->
+<!--                                                           placeholder="Введите значение">-->
+<!--                                                </div>-->
+<!--                                                <div class="form-group">-->
+<!--                                                    <button class="btn btn-primary bg-blue" type="submit">Сохранить-->
+<!--                                                    </button>-->
+<!--                                                </div>-->
+<!--                                            </form>-->
 
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </template>-->
+<!--                    </div>-->
+<!--                    <div class="modal-footer">-->
+<!--                        <button type="button" class="btn btn-secondary bg-gray-500" data-dismiss="modal">Закрыть-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <!--    TODO: Модальное окно для указанаия категории-->
         <div class="modal fade" id="selectCategoryButton" tabindex="-1" role="dialog"
