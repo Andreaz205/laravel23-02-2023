@@ -31,7 +31,6 @@ class BusinessLinesController extends Controller
     public function calculate(Request $request)
     {
         $params = $request->all();
-
         return $this->businessLinesService->calculate($params);
     }
 

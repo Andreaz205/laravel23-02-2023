@@ -91,14 +91,7 @@ class Client
             'sessionID' => $sessionId,
             'appkey' => config('services.business_lines.appkey'),
             ...$params,
-            'cargo' => [
-                'quantity' => 1,
-                'length' => 1.1,
-                'width' => 0.87,
-                'height' => 0.77,
-                'totalVolume' => 1.1 * 0.87 * 0.77,
-                'totalWeight' => 49,
-            ]
+
         ];
 
         try {

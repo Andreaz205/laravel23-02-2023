@@ -143,8 +143,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
 
     Route::get('/user-settings', [\App\Http\Controllers\User\UserSettingsController::class, 'index']);
-    Route::post('/user-settings/fields', [\App\Http\Controllers\User\UserFiledController::class, 'store']);
-    Route::delete('/user-settings/fields/{field}', [\App\Http\Controllers\User\UserFiledController::class, 'destroy']);
+    Route::post('/user-settings/fields', [\App\Http\Controllers\User\UserFieldController::class, 'store']);
+    Route::delete('/user-settings/fields/{field}', [\App\Http\Controllers\User\UserFieldController::class, 'destroy']);
 
     Route::get('/users', [\App\Http\Controllers\User\UserController::class, 'index']);
     Route::get('/users/create', [\App\Http\Controllers\User\UserController::class, 'create']);

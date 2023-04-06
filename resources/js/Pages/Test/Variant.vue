@@ -1,5 +1,8 @@
 <template>
     <Spinner v-if="isLoading"/>
+    <div class="text-xl my-2">
+        {{data.product.title}}
+    </div>
     <div v-for="unit in data.material_units">
         <span class="text-xl">
             {{ unit.title }}
@@ -28,11 +31,17 @@
             <div v-for="tariff in cdekTariffs">
                 {{tariff.tariff_name}} - {{tariff.delivery_sum}}
             </div>
+            <strong>Без учёта стоимости обрешётки и доставки со склада до адреса</strong>
         </div>
+
+
     </div>
 
     <!--TODO:Деловые линии-->
-    <BusinessLinesCalculator :debounce="debounce"/>
+    <BusinessLinesCalculator :debounce="debounce" :variant-data="data"/>
+
+    <!--TODO:Яндекс доставка-->
+    <YandexDeliveryCalculator :debounce="debounce" :variant-data="data"/>
 
 </template>
 
@@ -42,13 +51,14 @@ import {Link} from "@inertiajs/vue3"
 import {ModelSelect} from 'vue-search-select'
 import BusinessLinesCalculator from "@/Pages/Test/BusinessLinesCalculator.vue";
 import Spinner from "@/Components/Spinner.vue";
+import YandexDeliveryCalculator from "@/Pages/Test/YandexDeliveryCalculator.vue";
 
 const cheliybinskCodeCDEK = 259
 
 export default {
     name: "Variant",
     props: ['data'],
-    components: {Spinner, BusinessLinesCalculator, Link, ModelSelect},
+    components: {YandexDeliveryCalculator, Spinner, BusinessLinesCalculator, Link, ModelSelect},
     data() {
         return {
             isLoading: false,
@@ -92,6 +102,7 @@ export default {
                 alert(e?.message ?? e)
             }
         },
+
         async handleChangeSelect(term) {
             let response = await axios.get('/api/delivery/cdek/cities')
             let result = response.data.filter(city => city.city.toLowerCase().includes(term[1].toLowerCase()))
@@ -104,6 +115,7 @@ export default {
                 }
             }
         },
+
         debounce(fn, term, delay)
             {
                 if (!this.timer) {

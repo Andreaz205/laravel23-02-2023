@@ -47,8 +47,11 @@ class UserController extends Controller
     public function create()
     {
         $groups = Group::all();
+        $fields = UserField::all();
+
         return inertia('User/Create', [
             'groups' => $groups,
+            'fields' => $fields,
             'can-users' => [
                 'list' => Auth('admin')->user()?->can('user list'),
                 'create' => Auth('admin')->user()?->can('user create'),
@@ -93,6 +96,7 @@ class UserController extends Controller
     public function storeSingleUser(StoreSingleUserRequest $request)
     {
         $data = $request->validated();
+        dd($data);
         $password = $data['password'];
         $hashedPassword = Hash::make($password);
         $data['password'] = $hashedPassword;

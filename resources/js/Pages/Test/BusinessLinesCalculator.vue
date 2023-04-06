@@ -16,10 +16,11 @@
 
         <div v-if="deliveryData" class="flex gap-x-2">
             <div>
-                Стоимость - <strong>{{deliveryData.price}}</strong> p
+                Стоимость - <strong>{{ deliveryData.price }}</strong> p
             </div>
             <div>
-                Дата доставки до терминала города доставки - {{deliveryData.orderDates.arrivalToOspReceiver}}
+                Дата доставки до терминала города доставки - {{ deliveryData.orderDates.arrivalToOspReceiver }}
+                <strong>Без учёта стоимости обрешётки и доставки со склада до адреса</strong>
             </div>
         </div>
 
@@ -32,10 +33,11 @@ import {ModelSelect} from 'vue-search-select'
 import Spinner from "@/Components/Spinner.vue";
 
 const chelyabinskTerminalCode = 305
+
 export default {
     name: "BusinessLinesCalculator",
     components: {Spinner, ModelSelect},
-    props: ['debounce'],
+    props: ['debounce', 'variantData'],
     data() {
         return {
             isLoading: false,
@@ -60,6 +62,7 @@ export default {
                 if (!this.item.value) return
                 this.isLoading = true
                 let data = {
+
                     delivery: {
                         deliveryType: {
                             type: 'auto'
@@ -73,7 +76,21 @@ export default {
                             variant: 'terminal',
                             terminalID: chelyabinskTerminalCode,
                         },
-                    }
+                        // packages: [
+                        //     {
+                        //         uid: "0x838fc70baeb49b564426b4b1d216c15",
+                        //     }
+                        // ],
+                    },
+
+                    cargo: {
+                        quantity: 1,
+                        length: 1.1,
+                        width: 0.87,
+                        height: 0.77,
+                        totalVolume: 1.1 * 0.87 * 0.77,
+                        totalWeight: 49,
+                    },
                 }
                 let response = await axios.post(`/api/delivery/business-lines/calculate`, data)
                 this.deliveryData = response.data.data

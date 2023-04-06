@@ -1,5 +1,7 @@
 <template>
+    {{fieldsData}}
     <div class="card card-primary">
+
         <!-- /.card-header -->
         <!-- form start -->
         <form>
@@ -24,6 +26,7 @@
                     <input type="text" class="form-control" v-model="phone" placeholder="Введите телефон">
                 </div>
 
+
                 <div class="form-group row" v-if="groups && groups.length">
                     <label>Выберите группу клиента</label>
                     <select class="form-control" v-model="group_id">
@@ -36,6 +39,8 @@
                     <input type="checkbox" class="form-check-input" id="news_subscribe" v-model="is_subscribed_to_news">
                     <label class="form-check-label" for="news_subscribe">Подписать на новости</label>
                 </div>
+
+                <UserFields form-type="create" :fields="fields" user-kind="single" :handle-change-fields="handleChangeFields"/>
             </div>
             <!-- /.card-body -->
 
@@ -48,12 +53,15 @@
 
 <script>
 import {router} from "@inertiajs/vue3";
+import UserFields from "@/Pages/User/UserFields.vue";
 
 export default {
     name: "CreateSingleUserForm",
-    props: ['groups'],
+    components: {UserFields},
+    props: ['groups', 'fields'],
     data () {
         return {
+            fieldsData: JSON.parse(JSON.stringify(this.fields?.filter(field => field.user_kind === 'single'))),
             name: null,
             phone: null,
             email: null,
@@ -66,6 +74,13 @@ export default {
         async submitForm(event) {
             event.preventDefault()
             try {
+                let fields = this.fieldsData?.map(field => {
+                    if (field.is_required && field.value === undefined || field.is_required && field.value === '') return alert(`Нобхордимо заполнить дополнительное поле ${field.title}`)
+                    return {
+                        id: field.id,
+                        value: field.value
+                    }
+                })
                 let data = {
                     group_id: this.group_id === 'none' ? null : this.group_id,
                     name: this.name,
@@ -73,12 +88,17 @@ export default {
                     email: this.email,
                     password: this.password,
                     is_subscribed_to_news: this.is_subscribed_to_news,
+                    fields: fields
                 }
+
                 let response = await axios.post('/admin/users/single', data)
-                router.visit('/admin/users')
+                // router.visit('/admin/users')
             } catch (e) {
                 alert(e.message ?? e)
             }
+        },
+        handleChangeFields(fields) {
+            this.fieldsData = fields
         }
     }
 }

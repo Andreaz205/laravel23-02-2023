@@ -69,6 +69,8 @@
                         <input type="text" class="form-control" v-model="unloading_address" placeholder="Введите адрес разгрузки">
                     </div>
 
+
+
                     <div class="form-group row" v-if="groups && groups.length">
                         <label>Выберите группу клиента</label>
                         <select class="form-control" v-model="group_id">
@@ -81,6 +83,8 @@
                         <input type="checkbox" class="form-check-input" id="news_subscribe-organization" v-model="is_subscribed_to_news">
                         <label class="form-check-label" for="news_subscribe-organization">Подписать на новости</label>
                     </div>
+
+                    <UserFields form-type="create" :fields="fields" user-kind="organization" :handle-change-fields="handleChangeFields"/>
                 </div>
                 <!-- /.card-body -->
 
@@ -93,12 +97,15 @@
 
 <script>
 import {router} from "@inertiajs/vue3";
+import UserFields from "@/Pages/User/UserFields.vue";
 
 export default {
     name: "CreateOrganizationForm",
-    props: ['groups'],
+    components: {UserFields},
+    props: ['groups', 'fields'],
     data() {
         return {
+            fieldsData: JSON.parse(JSON.stringify(this.fields?.filter(field => field.user_kind !== 'organization'))),
             email: null,
             name: null,
             password: null,
@@ -137,11 +144,15 @@ export default {
                     unloading_address: this.unloading_address,
                     is_subscribed_to_news: this.is_subscribed_to_news,
                 }
-                let response = await axios.post('/admin/users/organizations', data)
-                router.visit('/admin/users')
+                console.log(data)
+                // let response = await axios.post('/admin/users/organizations', data)
+                // router.visit('/admin/users')
             } catch (e) {
                 alert(e.message ?? e)
             }
+        },
+        handleChangeFields(fields) {
+            this.fieldsData = fields
         }
     }
 }

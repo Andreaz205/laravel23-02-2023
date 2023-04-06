@@ -49,4 +49,10 @@ return [
         'login' => 'somonrahmatov828@gmail.com',
         'password' => 'winstoN2211',
     ],
+    'yandex-delivery' => [
+        'token' => env('YANDEX_DELIVERY_TOKEN', null),
+    ],
+    'yandex-maps' => [
+        'geocoder_token' => env('YANDEX_GEOCODER_KEY', null)
+    ]
 ];

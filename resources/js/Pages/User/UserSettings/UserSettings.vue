@@ -93,7 +93,14 @@
     <AuthenticatedLayout>
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header text-center text-lg relative">
+                <div class="absolute top-1/2 left-1 -translate-y-1/2">
+                    <button class="btn btn-default">
+                        <Link href="/admin/users">
+                            Назад
+                        </Link>
+                    </button>
+                </div>
                 Дополнительные поля клиентов
             </div>
 
@@ -103,7 +110,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Название</th>
-                            <th>Тип</th>
+                            <th>Тип пользователя</th>
+                            <th>Тип поля</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -112,7 +120,8 @@
                         <tr class="cursor-pointer" v-for="field in fields">
                             <td>{{ field.id }}</td>
                             <td>{{ field.title }}</td>
-                            <td>{{ field.type === 'string' ? 'Строковое' : field.type === 'text' ? 'Несколько строк' ? field.type === 'date' : 'Дата' : 'Логическое Да/Нет(Checkbox)'}}</td>
+                            <td>{{ field.user_kind === 'single' ? 'Физическое лицо': 'Организация' }}</td>
+                            <td>{{ field.type === 'string' ? 'Строковое' : field.type === 'text' ? 'Несколько строк' :  field.type === 'date' ? 'Дата' : 'Логическое Да/Нет(Checkbox)'}}</td>
                             <td>
                                 <button @click="deleteField(field)" class="btn btn-danger">
                                     Удалить
@@ -140,12 +149,13 @@
 </template>
 
 <script>
+import {Link} from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import Spinner from "@/Components/Spinner.vue";
 import Errors from "@/Components/Errors/Errors.vue";
 export default {
     name: "UserSettings",
-    components: {Errors, Spinner, AuthenticatedLayout},
+    components: {Errors, Spinner, AuthenticatedLayout, Link},
     props: [
         'fieldsProps'
     ],

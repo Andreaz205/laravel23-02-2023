@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 
-class UserFiledController extends Controller
+class UserFieldController extends Controller
 {
     public function store(StoreFieldRequest $request)
     {

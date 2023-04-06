@@ -16,10 +16,10 @@
             <div class="card-body">
                 <div class="tab-content" id="custom-tabs-two-tabContent">
                     <div class="tab-pane fade show active" id="single" role="tabpanel" aria-labelledby="single-tab">
-                        <CreateSingleUserForm :groups="this.groups"/>
+                        <CreateSingleUserForm :groups="this.groups" :fields="fields"/>
                     </div>
                     <div class="tab-pane fade" id="organization" role="tabpanel" aria-labelledby="organization-tab">
-                        <CreateOrganizationForm :groups="this.groups" />
+                        <CreateOrganizationForm :groups="this.groups" :fields="fields"/>
                     </div>
                 </div>
             </div>
@@ -36,8 +36,7 @@ import {Link} from "@inertiajs/vue3";
 export default {
     name: "Create",
     components: {CreateOrganizationForm, CreateSingleUserForm, AuthenticatedLayout, Link},
-    props: ['groups']
-
+    props: ['groups', 'fields']
 }
 </script>
 
