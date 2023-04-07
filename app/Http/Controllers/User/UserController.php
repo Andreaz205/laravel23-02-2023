@@ -9,6 +9,7 @@ use App\Http\Requests\User\StoreSingleUserRequest;
 use App\Http\Requests\User\UpdateRequest;
 use App\Http\Resources\User\UserResource;
 use App\Models\Group;
+use App\Models\Order;
 use App\Models\User;
 use App\Models\UserField;
 use App\Models\UserFieldUsers;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -32,7 +34,7 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = User::with('group')->paginate($this->perPage);
+        $users = User::with('group')->orderByDesc('created_at')->paginate($this->perPage);
         return inertia('User/Index', [
             'usersData' => $users,
             'can-users' => [
@@ -64,6 +66,21 @@ class UserController extends Controller
     public function storeOrganisation(StoreOrganizationRequest $request)
     {
         $data = $request->validated();
+
+        $dataFields = $data['fields'] ?? null;
+        if (isset($data['fields'])) unset($data['fields']);
+        $dataFieldsCollection = collect($dataFields);
+        $allOrganizationUserFields = UserField::where('user_kind', 'organization')->get();
+        $requiredFields = $allOrganizationUserFields->filter(fn ($item) => $item->is_required === true && $item->user_kind === 'organization');
+
+        foreach ($requiredFields as $requiredField) {
+            $key = $dataFieldsCollection->search(fn ($item) => $item['id'] === $requiredField->id);
+            if (!isset($dataFieldsCollection[$key]['value']))
+                throw ValidationException::withMessages(['Не заполнены обязательные дополнительные поля ' . $requiredField->title]);
+            if ($key === false)
+                throw ValidationException::withMessages(['Не заполнены обязательные дополнительные поля ' . $requiredField->title]);
+        }
+
         $password = $data['password'];
         $hashedPassword = Hash::make($password);
         $data['password'] = $hashedPassword;
@@ -72,19 +89,32 @@ class UserController extends Controller
 //            $defaultGroup = Group::query()->where('is_default', true)->first();
 //            if (isset($defaultGroup)) $data['group_id'] = $defaultGroup->id;
 //        }
+
+
         try {
             DB::beginTransaction();
             $user = User::create($data);
-            $fields = UserField::all();
-            $map = [];
-            foreach ($fields as $field) {
-                $map[] = [
-                    'user_field_id' => $field->id,
-                    'user_id' => $user->id,
+            $fields = [];
+
+            foreach ($allOrganizationUserFields as $organizationUserField) {
+                $key = $dataFieldsCollection->search(fn ($item) => $item['id'] === $organizationUserField->id);
+                if ($key !== false) {
+
+                    $fields[] = [
+                        'user_field_id' => $dataFieldsCollection[$key]['id'],
+                        'user_id' => $user['id'],
+                        'value' => $dataFieldsCollection[$key]['value'] ?? null,
+                    ];
+                    continue;
+                }
+                $fields[] = [
+                    'user_field_id' => $organizationUserField->id,
+                    'user_id' => $user['id'],
                     'value' => '',
                 ];
             }
-            User::insert($map);
+
+            UserFieldUsers::insert($fields);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -93,31 +123,59 @@ class UserController extends Controller
         return redirect('/admin/users/'. $user->id)->with('message', 'Пользователь успешно создан');
     }
 
+
     public function storeSingleUser(StoreSingleUserRequest $request)
     {
         $data = $request->validated();
-        dd($data);
+
+        $dataFields = $data['fields'] ?? null;
+        if (isset($data['fields'])) unset($data['fields']);
+        $dataFieldsCollection = collect($dataFields);
+        $allSingleUserFields = UserField::where('user_kind', 'single')->get();
+        $requiredFields = $allSingleUserFields->filter(fn ($item) => $item->is_required === true && $item->user_kind === 'single');
+
+        foreach ($requiredFields as $requiredField) {
+            $key = $dataFieldsCollection->search(fn ($item) => $item['id'] === $requiredField->id);
+            if (!isset($dataFieldsCollection[$key]['value']))
+                throw ValidationException::withMessages(['Не заполнены обязательные дополнительные поля ' . $requiredField->title]);
+            if ($key === false)
+                throw ValidationException::withMessages(['Не заполнены обязательные дополнительные поля ' . $requiredField->title]);
+        }
+
         $password = $data['password'];
         $hashedPassword = Hash::make($password);
         $data['password'] = $hashedPassword;
         $data['kind'] = 'single';
+
 //        if (!isset($data['group_id'])) {
 //            $defaultGroup = Group::query()->where('is_default', true)->first();
 //            if (isset($defaultGroup)) $data['group_id'] = $defaultGroup->id;
 //        }
+
         try {
             DB::beginTransaction();
             $user = User::create($data);
-            $fields = UserField::all();
-            $map = [];
-            foreach ($fields as $field) {
-                $map[] = [
-                    'user_field_id' => $field->id,
-                    'user_id' => $user->id,
+            $fields = [];
+
+            foreach ($allSingleUserFields as $singleUserField) {
+                $key = $dataFieldsCollection->search(fn ($item) => $item['id'] === $singleUserField->id);
+                if ($key !== false) {
+
+                    $fields[] = [
+                        'user_field_id' => $dataFieldsCollection[$key]['id'],
+                        'user_id' => $user['id'],
+                        'value' => $dataFieldsCollection[$key]['value'] ?? null,
+                    ];
+                    continue;
+                }
+                $fields[] = [
+                    'user_field_id' => $singleUserField->id,
+                    'user_id' => $user['id'],
                     'value' => '',
                 ];
             }
-            User::insert($map);
+
+            UserFieldUsers::insert($fields);
             DB::commit();
         } catch (\Exception $error) {
             DB::rollBack();
@@ -144,6 +202,8 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $orders = $user->orders()->with('variants')->get();
+
         $groups = Group::all();
         $fields = UserField::where('user_kind', $user->kind)->get();
         $user->fields = $user->fields()->get()->map(function ($field) use($fields, $user) {
@@ -156,7 +216,9 @@ class UserController extends Controller
             }
             return null;
         })->filter()->all();
+
         return inertia('User/Show', [
+            'orders' => $orders,
             'userData' => $user,
             'groupsData' => $groups,
             'fields' => $fields,
@@ -172,13 +234,14 @@ class UserController extends Controller
     public function update(User $user, UpdateRequest $request)
     {
         $data = $request->validated();
+
         if (isset($data['fields'])) {
             foreach ($data['fields'] as $field) {
                 $searchedField = UserFieldUsers::find($field['user_field_id']);
                 $searchedField->update(['value' => $field['value']]);
             }
         }
-
+        unset($data['fields']);
         $user->update($data);
         return new UserResource($user);
     }

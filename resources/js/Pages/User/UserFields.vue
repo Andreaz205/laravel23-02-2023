@@ -6,25 +6,25 @@
         <div v-for="field in formData" class="row my-2">
 
             <template v-if="field.type === 'string'">
-                <label>{{field.title}}</label>
+                <label>{{field.title}}</label> <span v-if="field.is_required" class="text-red">*</span>
                 <input type="text" class="form-control" v-model="field.value">
                 <small>{{field.description}}</small>
             </template>
 
             <template v-if="field.type === 'text'">
-                <label>{{field.title}}</label>
+                <label>{{field.title}}</label> <span v-if="field.is_required" class="text-red">*</span>
                 <textarea  class="form-control" v-model="field.value" />
                 <small>{{field.description}}</small>
             </template>
 
             <template v-if="field.type === 'date'">
-                <label>{{field.title}}</label>
+                <label>{{field.title}}</label> <span v-if="field.is_required" class="text-red">*</span>
                     <VueDatePicker v-model="field.value" placeholder="Укажите дату ..." text-input />
                 <small>{{field.description}}</small>
             </template>
 
             <div class="flex gap-x-2 items-center my-3" v-if="field.type === 'bool'">
-                <label>{{field.title}}</label>
+                <label>{{field.title}}</label> <span v-if="field.is_required" class="text-red">*</span>
                 <input type="checkbox" class="form-control" v-model="field.value">
                 <small>{{field.description}}</small>
             </div>
@@ -35,13 +35,13 @@
 
 <script>
 import VueDatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 export default {
     name: "UserFields",
     props: ['fields', 'formType', 'userKind', 'handleChangeFields'],
     components: {VueDatePicker},
     data () {
         return {
-            // availableFields: this.fields.filter(field => field.user_kind !== this.userKind),
             formData: JSON.parse(JSON.stringify(this.fields?.filter(field => field.user_kind === this.userKind)))
         }
     },

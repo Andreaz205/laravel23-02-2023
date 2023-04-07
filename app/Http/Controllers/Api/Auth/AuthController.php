@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Group;
 use App\Models\User;
+use App\Models\UserField;
+use App\Models\UserFieldUsers;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
@@ -35,7 +39,7 @@ class AuthController extends Controller
         if (Auth::guard('web')->attempt(['email' => $data['email'], 'password' => $data['password']])) {
             return Auth('web')->user()->createToken('auth')->plainTextToken;
         } else {
-            return Response::json(['error' => 'Incorrect email or password!'], 422);
+            return Response::json(['error' => 'Неправильный логин или пароль!'], 422);
         }
     }
 
@@ -57,14 +61,31 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'max:100', 'confirmed'],
             'name' => ['required', 'string', 'max:100'],
         ]);
-        $user = User::create($data);
-        if (isset($user)) {
-          return $user->createToken('auth')->plainTextToken;
-        } else {
-            return response()->json([
-                'error' => 'User creating failed!'
-            ]);
+
+        try {
+            DB::beginTransaction();
+
+            $user = User::create($data);
+            $newToken = $user->createToken('auth')->plainTextToken;
+            $defaultGroup = Group::query()->where('is_default', true)->first();
+            if (isset($defaultGroup)) $user->update (['group_id' => $defaultGroup->id]);
+
+            $userFields = UserField::whereUserKind('single')->get();
+            $map = [];
+            foreach ($userFields as $userField) {
+                $map[] = [
+                    'user_id' => $user->id,
+                    'user_field_id' => $userField->id,
+                    'value' => null,
+                ];
+            }
+            UserFieldUsers::query()->insert($map);
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return Response::json(['message' => $exception->getMessage()], 500);
         }
+        return $newToken;
     }
 
     /**

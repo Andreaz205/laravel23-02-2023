@@ -40,7 +40,7 @@ class UpdateRequest extends FormRequest
             'group_id' => 'nullable|integer|exists:groups,id',
             'fields' => 'nullable|array',
             'fields.*.user_field_id' => 'required|integer|exists:user_field_users,id',
-            'fields.*.value' => 'nullable|string',
+            'fields.*.value' => 'nullable',
         ];
     }
 }

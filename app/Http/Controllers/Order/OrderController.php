@@ -36,15 +36,14 @@ class OrderController extends Controller
 
     public function data()
     {
-
         $orders = Order::orderBy('created_at', 'desc')->with('fields')->paginate(25);
         foreach ($orders as $order) {
             $sum = 0;
             $variants = $order->variants;
             foreach ($variants as $variant) {
-                $notes = OrderVariants::where('order_id', $order->id)->where('variant_id', $variant->id)->get();
+                $notes = OrderVariants::where('order_id', $order->id)->where('order_variant_copy_id', $variant->id)->get();
                 foreach ($notes as $note) {
-                    if ($note->variant_id === $variant->id && $note->order_id === $order->id) {
+                    if ($note->order_variant_copy_id === $variant->id && $note->order_id === $order->id) {
                         $sum += $note->quantity * $variant->price;
                     }
                 }
@@ -57,20 +56,29 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $variants = [];
-        $orderVariantsNotes = OrderVariants::where('order_id', $order->id)->get(['variant_id', 'quantity']);
-        foreach ($orderVariantsNotes as $orderVariantsNote) {
-            $variant = Variant::with('product')->findOrFail($orderVariantsNote->variant_id);
-            $variant->ordered_quantity = $orderVariantsNote->quantity;
-            $variant->images =  $variant->images->last();
-            $variant->title = $variant->getTitleAttribute();
-            $variants[] = $variant;
+        $variantsCopies = $order->variants()->get();
+        foreach ($variantsCopies as $variantsCopy) {
+
+            $variantsCopy->ordered_quantity = $variantsCopy->pivot->quantity;
         }
+
+//        $orderVariantsNotes = OrderVariants::where('order_id', $order->id)->get(['order_variant_copy_id', 'quantity']);
+//        foreach ($orderVariantsNotes as $orderVariantsNote) {
+//            $variant = Variant::with('product')->findOrFail($orderVariantsNote->order_variant_copy_id);
+//            $variant->ordered_quantity = $orderVariantsNote->quantity;
+//            $variant->images =  $variant->images->last();
+//            $variant->title = $variant->getTitleAttribute();
+//            $variants[] = $variant;
+//        }
+
         $order->history;
+        $order->user = $order->user()->get();
+
         $admins = Admin::all();
+
         return inertia('Order/Show', [
             'orderData' => $order,
-            'variantsData' => $variants,
+            'variantsData' => $variantsCopies,
             'adminsData' => $admins,
             'can-orders' => [
                 'list' => Auth('admin')->user()?->can('order list'),

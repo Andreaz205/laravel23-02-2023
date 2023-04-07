@@ -361,6 +361,7 @@
                         </div>
 
                         <div class="col-6">
+
                             <div :ref="`dropzone-${interior.id}`"
                                  @click="handleDropzoneClick"
                                  :class="['w-[200px] h-[150px] bg-gray rounded-xl flex justify-center items-center p-4 cursor-pointer', interior.image && 'hidden']">
@@ -384,7 +385,7 @@
                             <template v-if="interior.variants">
                                 <div v-for="variant in interior.variants" class="flex items-center gap-2">
                                     <div class="w-[100px] h-[100px] bg-gray-50 overflow-hidden mr-2">
-                                        <img :src="variant.images[0]?.image_url" alt="" class="w-full h-full object-contain">
+                                        <img :src="variant.images && variant.images.length ? variant.images[0]?.image_url : '/storage/images/no-image.jpg'" alt="" class="w-full h-full object-contain">
                                     </div>
                                     <div>{{ variant.title }}</div>
 <!--                                    <button @click="deleteVariant(interior)" class="btn btn-danger">-->

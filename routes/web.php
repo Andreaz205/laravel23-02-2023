@@ -154,6 +154,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/users/by-term', [\App\Http\Controllers\User\UserController::class, 'byTerm']);
     Route::get('/users/{user}', [\App\Http\Controllers\User\UserController::class, 'show']);
     Route::patch('/users/{user}/kind', [\App\Http\Controllers\User\UserController::class, 'changeKind']);
+    Route::delete('/users/{user}', [\App\Http\Controllers\User\UserController::class, 'destroy']);
 
 //    Route::get('/sales', [\App\Http\Controllers\Sale\SaleController::class, 'index']);
 //    Route::post('/sales', [\App\Http\Controllers\Sale\SaleController::class, 'store']);

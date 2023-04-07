@@ -1,11 +1,13 @@
 <template>
-    {{fieldsData}}
+    <Spinner v-if="isLoading" />
+    <Errors :errors="errors" />
     <div class="card card-primary">
 
         <!-- /.card-header -->
         <!-- form start -->
         <form>
             <div class="card-body">
+
                 <div class="form-group">
                     <label>Почта</label>
                     <input type="text" class="form-control" v-model="email" placeholder="Введите почту">
@@ -25,7 +27,6 @@
                     <label>Телефон</label>
                     <input type="text" class="form-control" v-model="phone" placeholder="Введите телефон">
                 </div>
-
 
                 <div class="form-group row" v-if="groups && groups.length">
                     <label>Выберите группу клиента</label>
@@ -54,13 +55,16 @@
 <script>
 import {router} from "@inertiajs/vue3";
 import UserFields from "@/Pages/User/UserFields.vue";
+import Errors from "@/Components/Errors/Errors.vue";
+import Spinner from "@/Components/Spinner.vue";
 
 export default {
     name: "CreateSingleUserForm",
-    components: {UserFields},
+    components: {Spinner, Errors, UserFields},
     props: ['groups', 'fields'],
     data () {
         return {
+            errors: null,
             fieldsData: JSON.parse(JSON.stringify(this.fields?.filter(field => field.user_kind === 'single'))),
             name: null,
             phone: null,
@@ -68,19 +72,24 @@ export default {
             password: null,
             group_id: this.groups ? 'none' : null,
             is_subscribed_to_news: true,
+            isLoading: false,
         }
     },
     methods: {
         async submitForm(event) {
-            event.preventDefault()
             try {
+                this.isLoading = true
+                event.preventDefault()
+                let notFilledData = null
                 let fields = this.fieldsData?.map(field => {
-                    if (field.is_required && field.value === undefined || field.is_required && field.value === '') return alert(`Нобхордимо заполнить дополнительное поле ${field.title}`)
+                    if (field.is_required && field.value === undefined || field.is_required && field.value === '') notFilledData = field
                     return {
                         id: field.id,
                         value: field.value
                     }
                 })
+                if (notFilledData) return alert(`Необходимо заполнить обязательные поля ${notFilledData.title}`)
+
                 let data = {
                     group_id: this.group_id === 'none' ? null : this.group_id,
                     name: this.name,
@@ -92,8 +101,12 @@ export default {
                 }
 
                 let response = await axios.post('/admin/users/single', data)
-                // router.visit('/admin/users')
+                router.visit('/admin/users')
+                this.isLoading = false
             } catch (e) {
+                this.isLoading = false
+                if (e?.response?.status === 422) return this.errors = e.response.data.errors
+                if (e?.response?.status === 500) return this.errors = [e.response.message]
                 alert(e.message ?? e)
             }
         },

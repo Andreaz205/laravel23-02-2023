@@ -153,6 +153,7 @@ import {Link} from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import Spinner from "@/Components/Spinner.vue";
 import Errors from "@/Components/Errors/Errors.vue";
+
 export default {
     name: "UserSettings",
     components: {Errors, Spinner, AuthenticatedLayout, Link},

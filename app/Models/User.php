@@ -16,6 +16,11 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function fields(): HasMany
     {
         return $this->hasMany(UserFieldUsers::class);

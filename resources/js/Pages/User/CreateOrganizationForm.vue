@@ -1,4 +1,6 @@
 <template>
+    <Spinner v-if="isLoading" />
+    <Errors :errors="errors"/>
         <div class="card card-primary">
             <!-- /.card-header -->
             <!-- form start -->
@@ -69,8 +71,6 @@
                         <input type="text" class="form-control" v-model="unloading_address" placeholder="Введите адрес разгрузки">
                     </div>
 
-
-
                     <div class="form-group row" v-if="groups && groups.length">
                         <label>Выберите группу клиента</label>
                         <select class="form-control" v-model="group_id">
@@ -98,13 +98,17 @@
 <script>
 import {router} from "@inertiajs/vue3";
 import UserFields from "@/Pages/User/UserFields.vue";
+import Spinner from "@/Components/Spinner.vue";
+import Errors from "@/Components/Errors/Errors.vue";
 
 export default {
     name: "CreateOrganizationForm",
-    components: {UserFields},
+    components: {Errors, Spinner, UserFields},
     props: ['groups', 'fields'],
     data() {
         return {
+            isLoading: false,
+            errors: null,
             fieldsData: JSON.parse(JSON.stringify(this.fields?.filter(field => field.user_kind !== 'organization'))),
             email: null,
             name: null,
@@ -125,9 +129,11 @@ export default {
     },
     methods: {
         async submitForm(event){
-            event.preventDefault()
             try {
+                this.isLoading = true
+                event.preventDefault()
                 let data = {
+                    fields: this.fieldsData,
                     group_id: this.group_id === 'none' ? null : this.group_id,
                     email: this.email,
                     name: this.name,
@@ -144,10 +150,13 @@ export default {
                     unloading_address: this.unloading_address,
                     is_subscribed_to_news: this.is_subscribed_to_news,
                 }
-                console.log(data)
-                // let response = await axios.post('/admin/users/organizations', data)
-                // router.visit('/admin/users')
+                let response = await axios.post('/admin/users/organizations', data)
+                router.visit('/admin/users')
+                this.isLoading = false
             } catch (e) {
+                this.isLoading = false
+                if (e?.response?.status === 422) return this.errors = e.response.data.errors
+                if (e?.response?.status === 500) return this.errors = [e.response.message]
                 alert(e.message ?? e)
             }
         },

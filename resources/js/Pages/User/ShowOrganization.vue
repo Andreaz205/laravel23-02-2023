@@ -7,9 +7,9 @@
             <div class="col-4">
                Организация
             </div>
-            <div class="col-4">
-                <button class="btn btn-warning" @click="changeUserKind('single')">Изменить тип пользователя на физическое лицо</button>
-            </div>
+<!--            <div class="col-4">-->
+<!--                <button class="btn btn-warning" @click="changeUserKind('single')">Изменить тип пользователя на физическое лицо</button>-->
+<!--            </div>-->
         </div>
         <div class="form-group row">
             <label for="inputName" class="col-sm-2 col-form-label">Название</label>

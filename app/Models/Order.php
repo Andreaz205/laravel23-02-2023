@@ -4,12 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
     use HasFactory;
     protected $guarded = false;
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function fields()
     {
@@ -18,7 +25,7 @@ class Order extends Model
 
     public function variants()
     {
-        return $this->belongsToMany(Variant::class, OrderVariants::class, 'order_id', 'variant_id');
+        return $this->belongsToMany(OrderVariantCopy::class, OrderVariants::class, 'order_id', 'order_variant_copy_id')->withPivot('quantity');
     }
 
     public function history()
