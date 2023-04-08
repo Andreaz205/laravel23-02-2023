@@ -246,8 +246,11 @@
                             Клиент
                         </div>
                         <div class="card-body">
-                            <div v-if="order.user">
-                                {{order.user.name}}
+                            <div v-if="order.user && order.user.length">
+                                {{order.user[0].name}}
+                                <small>
+                                    Зарегестрирован в системе
+                                </small>
                             </div>
                             <div v-else class="text-center text-lg">
                                 {{order.user_name}}

@@ -8,7 +8,7 @@
 
 <script>
 import { Line } from 'vue-chartjs'
-import {Chart as ChartJS,
+import {  Chart as ChartJS,
     CategoryScale,
     LinearScale,
     PointElement,
@@ -17,8 +17,15 @@ import {Chart as ChartJS,
     Tooltip,
     Legend } from 'chart.js'
 
-ChartJS.register(Title, Tooltip, Legend, PointElement,
-    LineElement, CategoryScale, LinearScale)
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+)
 
 export default {
     name: 'LineChart',
@@ -29,7 +36,7 @@ export default {
             chartData: {
                 labels: this.labelsProp,
                 datasets: [{
-                    label: 'Статистика посещений за последний месяц',
+                    label: this.chartLabel ?? 'Заголовок',
                     backgroundColor: this.backgroundColor,
                     data: this.chartDataFromBack
                 }]
