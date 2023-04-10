@@ -11,6 +11,7 @@ use App\Http\Services\Option\OptionService;
 use App\Http\Services\Order\OrderService;
 use App\Http\Services\Payment\YooKassaService;
 use App\Http\Services\Product\ProductService;
+use App\Http\Services\User\UserService;
 use App\Http\Services\Variant\VariantService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
@@ -33,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(OptionServiceInterface::class, OptionService::class);
         $this->app->bind(MaterialService::class, fn () => new MaterialService);
         $this->app->bind(YooKassaService::class, fn () => new YooKassaService);
+        $this->app->bind(UserService::class, fn () => new UserService);
     }
 
     /**

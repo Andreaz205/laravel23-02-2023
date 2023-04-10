@@ -63,7 +63,7 @@ class SocialiteController extends Controller
                 'avatar' => $user->getAvatar()
             ]
         );
-        $token = $userCreated->createToken('auth')->plainTextToken;
+        $token = $userCreated->createToken()->plainTextToken;
         return redirect(env('FRONTEND_AUTH_CALLBACK').'?token='.$token.'&userId='.$userCreated->id);
 //        return response()->json($userCreated . " " . $token, 200, ['Access-Token' => $token]);
     }

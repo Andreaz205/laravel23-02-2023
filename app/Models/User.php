@@ -16,6 +16,11 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
+    public function phone_codes(): HasMany
+    {
+        return $this->hasMany(UserPhoneCode::class);
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

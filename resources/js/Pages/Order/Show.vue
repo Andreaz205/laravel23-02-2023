@@ -246,17 +246,25 @@
                             Клиент
                         </div>
                         <div class="card-body">
-                            <div v-if="order.user && order.user.length">
-                                {{order.user[0].name}}
-                                <small>
-                                    Зарегестрирован в системе
-                                </small>
+<!--                            <div v-if="order.user && order.user.length">-->
+<!--                                {{order.user[0].name}}-->
+<!--                                <small>-->
+<!--                                    Зарегестрирован в системе-->
+<!--                                </small>-->
+<!--                            </div>-->
+                            <div v-if="order.user && order.user[0]" class="text-center text-lg">
+                                <Link  :href="`/admin/users/${order.user[0].id}`">{{order.user[0].name}}</Link>
+                                <small> Зарегестрирован в системе</small>
                             </div>
-                            <div v-else class="text-center text-lg">
+                            <div v-else>
                                 {{order.user_name}}
                                 <small>
                                     Клиент не зарегестрирован
                                 </small>
+                            </div>
+                            <div>
+
+
                             </div>
                         </div>
                     </div>

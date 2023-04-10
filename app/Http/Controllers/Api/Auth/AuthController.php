@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Group;
+use App\Http\Requests\Api\Auth\ConfirmLoginViaSmsRequest;
+use App\Http\Requests\Api\Auth\ConfirmRegisterSingleUserViaSms;
+use App\Http\Requests\Api\Auth\LoginViaSmsRequest;
+use App\Http\Requests\Api\Auth\RegisterSingleUserViaSmsRequest;
+use App\Http\Services\User\UserService;
 use App\Models\User;
-use App\Models\UserField;
-use App\Models\UserFieldUsers;
+use App\Models\UserPhoneCode;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,9 +23,14 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     use ResetsPasswords;
-
-
     protected string $broker = 'users';
+
+    private UserService $service;
+
+    public function __construct(UserService $service)
+    {
+        $this->service = $service;
+    }
 
     public function login(Request $request)
     {
@@ -67,19 +75,10 @@ class AuthController extends Controller
 
             $user = User::create($data);
             $newToken = $user->createToken('auth')->plainTextToken;
-            $defaultGroup = Group::query()->where('is_default', true)->first();
-            if (isset($defaultGroup)) $user->update (['group_id' => $defaultGroup->id]);
 
-            $userFields = UserField::whereUserKind('single')->get();
-            $map = [];
-            foreach ($userFields as $userField) {
-                $map[] = [
-                    'user_id' => $user->id,
-                    'user_field_id' => $userField->id,
-                    'value' => null,
-                ];
-            }
-            UserFieldUsers::query()->insert($map);
+            $this->service->handleAppendDefaultGroup($user);
+            $this->service->appendFieldsAfterCreating($user);
+
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -110,4 +109,98 @@ class AuthController extends Controller
             'email' => [trans($status)],
         ]);
     }
+
+
+
+
+
+    // Sms для физических лиц!
+    /**
+     * @throws ValidationException
+     */
+    public function registerSingleUserViaSms(RegisterSingleUserViaSmsRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $candidate = User::where('phone', $data['phone'])->first();
+        if (isset($candidate))
+            throw ValidationException::withMessages(['Пользователь с таким телефоном уже существует!']);
+        $code = UserPhoneCode::query()->create(['phone_number' => $data['phone']]);
+        $isSent = $code->sendCode();
+        if ($isSent) {
+            return Response::json(['message' => 'На указанный номер был выслан код подтверждения!']);
+        } else {
+            return Response::json(['message' => 'Ошибка, мы не смогли выслать код!']);
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function confirmRegisterSingleUserViaSms(ConfirmRegisterSingleUserViaSms $request)
+    {
+        $data = $request->validated();
+        $queryCode = (int)$data['code'];
+        try {
+            DB::beginTransaction();
+
+            if ($this->service->checkCode($data['phone'], $queryCode)) {
+               $user = User::query()->create($data);
+               $this->service->handleAppendDefaultGroup($user);
+               $this->service->appendFieldsAfterCreating($user);
+               $token = $user->createToken('auth')->plainTextToken;
+
+            } else {
+                throw ValidationException::withMessages(['Указанного номера телефона нет либо код недействителен!']);
+            }
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return Response::json(['message' => 'Что-то пошло не так!'], 500);
+        }
+        return Response::json(['user' => $user, 'token' => $token]);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function loginViaSms(LoginViaSmsRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $phone = $data['phone'];
+        $user = User::query()->where('phone', $phone)->first();
+        if (isset($user)) {
+            $code = UserPhoneCode::query()->create(['phone_number' => $phone]);
+            $isSent = $code->sendCode();
+            if ($isSent) {
+                return Response::json(['message' => 'На указанный номер был выслан код подтверждения!']);
+            } else {
+                return Response::json(['message' => 'Ошибка, мы не смогли выслать код!']);
+            }
+        }
+        throw ValidationException::withMessages(['Пользователя с таким номером не существует!']);
+    }
+
+    public function confirmLoginViaSms(ConfirmLoginViaSmsRequest $request)
+    {
+        $data = $request->validated();
+        $phone = $data['phone'];
+        $queryCode = (int)$data['code'];
+        try {
+            DB::beginTransaction();
+            if ($this->service->checkCode($phone, $queryCode)) {
+                $user = User::query()->where('phone', $phone)->first();
+                $token = $user->createToken('auth')->plainTextToken;
+            } else {
+                throw ValidationException::withMessages(['Указанного номера телефона нет либо код недействителен!']);
+            }
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return Response::json(['message' => 'Что-то пошло не так!'], 500);
+        }
+        return Response::json(['user' => $user, 'token' => $token]);
+    }
+
+
 }
+
