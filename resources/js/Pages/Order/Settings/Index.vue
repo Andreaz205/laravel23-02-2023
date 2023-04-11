@@ -1,80 +1,80 @@
 <template>
     <Spinner v-if="isLoading" />
-    <div class="modal fade" id="createFieldModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Добавить свойства</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
+<!--    <div class="modal fade" id="createFieldModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"-->
+<!--         aria-hidden="true">-->
+<!--        <div class="modal-dialog modal-xl" role="document">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title" id="exampleModalLabel">Добавить свойства</h5>-->
+<!--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                        <span aria-hidden="true">&times;</span>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <div class="container-fluid">-->
 
-                        <Errors :errors="errors"/>
+<!--                        <Errors :errors="errors"/>-->
 
-                        <div class="row">
-                            <div class="col-4">
-                                <label>Название</label>
-                            </div>
-                            <div class="col-8">
-                                <input type="text" class="form-control" v-model="title" placeholder="Название поля">
-                            </div>
-                        </div>
+<!--                        <div class="row">-->
+<!--                            <div class="col-4">-->
+<!--                                <label>Название</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-8">-->
+<!--                                <input type="text" class="form-control" v-model="title" placeholder="Название поля">-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="row">
-                            <div class="col-4">
-                                <label>Обязательное</label>
-                            </div>
-                            <div class="col-8">
-                                <input type="checkbox" class="form-control" v-model="is_required">
-                            </div>
-                        </div>
+<!--                        <div class="row">-->
+<!--                            <div class="col-4">-->
+<!--                                <label>Обязательное</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-8">-->
+<!--                                <input type="checkbox" class="form-control" v-model="is_required">-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="row">
-                            <div class="col-4">
-                                <label>Заполняется клиентом</label>
-                            </div>
-                            <div class="col-8">
-                                <input type="checkbox" class="form-control" v-model="is_user_fill">
-                            </div>
-                        </div>
+<!--                        <div class="row">-->
+<!--                            <div class="col-4">-->
+<!--                                <label>Заполняется клиентом</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-8">-->
+<!--                                <input type="checkbox" class="form-control" v-model="is_user_fill">-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="row ">
-                            <div class="col-4">
-                                <label>Тип</label>
-                            </div>
-                            <div class="col-8">
-                                <select class="form-control" v-model="type">
-                                    <option value="string">Строковое</option>
-                                    <option value="text">Несколько строк</option>
-                                    <option value="date">Дата</option>
-                                    <option value="bool">Да/Нет(Checkbox)</option>
-                                </select>
-                            </div>
-                        </div>
+<!--                        <div class="row ">-->
+<!--                            <div class="col-4">-->
+<!--                                <label>Тип</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-8">-->
+<!--                                <select class="form-control" v-model="type">-->
+<!--                                    <option value="string">Строковое</option>-->
+<!--                                    <option value="text">Несколько строк</option>-->
+<!--                                    <option value="date">Дата</option>-->
+<!--                                    <option value="bool">Да/Нет(Checkbox)</option>-->
+<!--                                </select>-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="row mt-2">
-                            <div class="col-4">
-                                <label>Описание</label>
-                            </div>
-                            <div class="col-8">
-                                <textarea  class="form-control" v-model="description" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary bg-gray-500" ref="close" data-dismiss="modal">Закрыть
-                    </button>
-                    <button type="button" class="btn btn-primary bg-blue-500" @click="addField">Сохранить
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+<!--                        <div class="row mt-2">-->
+<!--                            <div class="col-4">-->
+<!--                                <label>Описание</label>-->
+<!--                            </div>-->
+<!--                            <div class="col-8">-->
+<!--                                <textarea  class="form-control" v-model="description" />-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="modal-footer">-->
+<!--                    <button type="button" class="btn btn-secondary bg-gray-500" ref="close" data-dismiss="modal">Закрыть-->
+<!--                    </button>-->
+<!--                    <button type="button" class="btn btn-primary bg-blue-500" @click="addField">Сохранить-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 
     <AuthenticatedLayout>
         <div class="card">

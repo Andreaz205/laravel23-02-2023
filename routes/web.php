@@ -61,6 +61,9 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::patch('/products/{product}/update', [\App\Http\Controllers\Product\ProductController::class, 'update']);
     Route::delete('/products/{product}', [\App\Http\Controllers\Product\ProductController::class, 'destroy']);
 
+    Route::post('/products/{product}/sizes', [\App\Http\Controllers\Product\ProductController::class, 'appendSize']);
+    Route::delete('/products/sizes/{size}', [\App\Http\Controllers\Product\ProductController::class, 'deleteSize']);
+
     Route::get('/products/{product}/toggle-publish', [\App\Http\Controllers\Product\ProductController::class, 'togglePublish']);
 
     Route::post('/products/{product}/images', [\App\Http\Controllers\Image\ProductImageController::class, 'store']);
@@ -192,6 +195,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/kits/{kit}/products/{product}/toggle', [\App\Http\Controllers\Kit\KitsController::class, 'toggle']);
 
     Route::get('/statistics', [\App\Http\Controllers\Statistic\StatisticController::class, 'index']);
+    Route::post('/statistics/calculate-orders-period', [\App\Http\Controllers\Statistic\StatisticController::class, 'calculateOrdersPeriod']);
 
     Route::get('/discounts', [\App\Http\Controllers\Discount\DiscountController::class, 'index']);
     Route::patch('/discounts/toggle-availability', [\App\Http\Controllers\Discount\DiscountController::class, 'toggle']);

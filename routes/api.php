@@ -70,6 +70,7 @@ Route::get('/login/{provider}/callback', [\App\Http\Controllers\Api\Auth\Sociali
 
 
 
+Route::get('/variants/ids', [\App\Http\Controllers\Api\Variant\VariantController::class, 'variantIds']);
 Route::get('/variants/{variant}', [\App\Http\Controllers\Api\Variant\VariantController::class, 'variant']);
 Route::get('/variants', [\App\Http\Controllers\Api\Variant\VariantController::class, 'variants']);
 

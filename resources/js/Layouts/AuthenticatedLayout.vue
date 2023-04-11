@@ -75,7 +75,7 @@ export default {
                                 <div class="media">
                                     <div class="media-body">
                                         <a href="#">
-                                            Личные найтроки
+                                            Личные настройки
                                         </a>
                                     </div>
                                 </div>
@@ -101,7 +101,7 @@ export default {
                     </li>
 
                     <li>
-                        <a href="/home">Home</a>
+                        <a href="/">Главная</a>
                     </li>
 
                 </ul>

@@ -16,6 +16,11 @@ class VariantController extends Controller
         $this->variantService = $variantService;
     }
 
+    public function variantIds()
+    {
+        return Variant::pluck('id')->toArray();
+    }
+
     public function variants()
     {
         $variants = Variant::all();
@@ -29,12 +34,6 @@ class VariantController extends Controller
     {
         $product = $variant->product;
         $this->variantService->aggregateVariantByNameValues($variant);
-//        dd([
-//            "weight" =>  $product->weight * 1000,
-//            "length" =>  $product->length,
-//            "width" =>  $product->width,
-//            "height" =>  $product->height
-//        ]);
 
         if (isset($product->height) && isset($product->width) && isset($product->length) && isset($product->weight)) {
             $cdekBody = [
@@ -53,10 +52,23 @@ class VariantController extends Controller
                 ]
             ];
             $cdekData = $CDEKService->calculateByAvailableTariffs($cdekBody);
-            dd($cdekData);
             $variant->delivery = ['cdek' => $cdekData];
         }
+        $variant->title = $variant->getTitleAttribute();
+        $variant->load('images');
+        $additionalSizes = $product->additional_sizes()->get();
 
+        $sizes['main_size'] = [
+            'length' => $product->length,
+            'width' => $product->width,
+            'height' => $product->height,
+        ];
+
+        $sizes['other_sizes'] = $additionalSizes;
+        $variant->sizes = $sizes;
+
+//        $variant->sizes->main_size->width = $product->width;
+//        $variant->sizes->main_size->height = $product->height;
 
 //        $variant->load('images');
 //
@@ -98,3 +110,7 @@ class VariantController extends Controller
     }
 
 }
+
+
+
+

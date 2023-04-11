@@ -32,59 +32,59 @@ class AuthController extends Controller
         $this->service = $service;
     }
 
+    public function registerOrganization(Request $request)
+    {
+//        $data = $request->validate([
+//            'email' => ['required', 'email', 'max:100', 'unique:users,email'],
+//            'password' => ['required', 'string', 'max:100', 'confirmed'],
+//            'name' => ['required', 'string', 'max:100'],
+//        ]);
+//
+//        try {
+//            DB::beginTransaction();
+//
+//            $user = User::create($data);
+//
+//            $newToken = $user->createToken('auth')->plainTextToken;
+//
+//            $this->service->handleAppendDefaultGroup($user);
+//            $this->service->appendFieldsAfterCreating($user);
+//
+//            DB::commit();
+//        } catch (\Exception $exception) {
+//            DB::rollBack();
+//            return Response::json(['message' => $exception->getMessage()], 500);
+//        }
+//        return $newToken;
+    }
+
     public function login(Request $request)
     {
-        if (auth('sanctum')->user()) {
-            return response()->json([
-                'message' => 'User is already authorized'
-            ], 403);
-        }
-        $data = $request->validate([
-            'email' => ['required', 'email', 'max:100'],
-            'password' => ['required', 'string', 'max:100', 'confirmed'],
-        ]);
-
-        if (Auth::guard('web')->attempt(['email' => $data['email'], 'password' => $data['password']])) {
-            return Auth('web')->user()->createToken('auth')->plainTextToken;
-        } else {
-            return Response::json(['error' => 'Неправильный логин или пароль!'], 422);
-        }
+//        if (auth('sanctum')->user()) {
+//            return response()->json([
+//                'message' => 'User is already authorized'
+//            ], 403);
+//        }
+//        $data = $request->validate([
+//            'email' => ['required', 'email', 'max:100'],
+//            'password' => ['required', 'string', 'max:100', 'confirmed'],
+//        ]);
+//        if (Auth::guard('web')->attempt(['email' => $data['email'], 'password' => $data['password']])) {
+//            return Auth('web')->user()->createToken('auth')->plainTextToken;
+//        } else {
+//            return Response::json(['error' => 'Неправильный логин или пароль!'], 422);
+//        }
     }
 
     public function logout()
     {
         if (!auth('sanctum')->user()) {
             return response()->json([
-                'message' => 'Your are not authorized!'
+                'message' => 'Вы не авторизованы!'
             ], 403);
         }
         auth('sanctum')->user()->currentAccessToken()->delete();
         return Response::json(['status' => 'success']);
-    }
-
-    public function register(Request $request)
-    {
-        $data = $request->validate([
-            'email' => ['required', 'email', 'max:100', 'unique:users,email'],
-            'password' => ['required', 'string', 'max:100', 'confirmed'],
-            'name' => ['required', 'string', 'max:100'],
-        ]);
-
-        try {
-            DB::beginTransaction();
-
-            $user = User::create($data);
-            $newToken = $user->createToken('auth')->plainTextToken;
-
-            $this->service->handleAppendDefaultGroup($user);
-            $this->service->appendFieldsAfterCreating($user);
-
-            DB::commit();
-        } catch (\Exception $exception) {
-            DB::rollBack();
-            return Response::json(['message' => $exception->getMessage()], 500);
-        }
-        return $newToken;
     }
 
     /**
@@ -92,22 +92,24 @@ class AuthController extends Controller
      */
     public function sendForgotPasswordLink(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-           'email' => 'required|email|exists:users,email',
-        ]);
-        if ($validator->fails()) {
-            return Response::json(['message' => $validator->errors()], 422);
-        }
-        $data = $validator->validated();
-        $status = Password::broker('users')->sendResetLink($data);
-
-        if ($status == Password::RESET_LINK_SENT) {
-            return new JsonResponse(['status' => trans($status)], 200);
-        }
-
-        throw ValidationException::withMessages([
-            'email' => [trans($status)],
-        ]);
+//        $validator = Validator::make($request->all(), [
+//           'email' => 'required|email|exists:users,email',
+//        ]);
+//        if ($validator->fails()) {
+//            return Response::json(['errors' => $validator->errors()], 422);
+//        }
+//
+//        $data = $validator->validated();
+//
+//        $status = Password::broker('users')->sendResetLink($data);
+//
+//        if ($status == Password::RESET_LINK_SENT) {
+//            return new JsonResponse(['status' => trans($status)], 200);
+//        }
+//
+//        throw ValidationException::withMessages([
+//            'email' => [trans($status)],
+//        ]);
     }
 
 
@@ -129,7 +131,7 @@ class AuthController extends Controller
         if ($isSent) {
             return Response::json(['message' => 'На указанный номер был выслан код подтверждения!']);
         } else {
-            return Response::json(['message' => 'Ошибка, мы не смогли выслать код!']);
+            return Response::json(['message' => 'Ошибка, мы не смогли выслать код!'], 500);
         }
     }
 
@@ -174,7 +176,7 @@ class AuthController extends Controller
             if ($isSent) {
                 return Response::json(['message' => 'На указанный номер был выслан код подтверждения!']);
             } else {
-                return Response::json(['message' => 'Ошибка, мы не смогли выслать код!']);
+                return Response::json(['message' => 'Ошибка, мы не смогли выслать код!'], 500);
             }
         }
         throw ValidationException::withMessages(['Пользователя с таким номером не существует!']);
@@ -187,12 +189,14 @@ class AuthController extends Controller
         $queryCode = (int)$data['code'];
         try {
             DB::beginTransaction();
+
             if ($this->service->checkCode($phone, $queryCode)) {
                 $user = User::query()->where('phone', $phone)->first();
                 $token = $user->createToken('auth')->plainTextToken;
             } else {
                 throw ValidationException::withMessages(['Указанного номера телефона нет либо код недействителен!']);
             }
+
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -200,6 +204,7 @@ class AuthController extends Controller
         }
         return Response::json(['user' => $user, 'token' => $token]);
     }
+
 
 
 }

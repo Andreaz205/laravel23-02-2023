@@ -24,7 +24,7 @@ class Client
         $body = [...$params];
         $idempotency_token = 123456789;
         try {
-            $response = $client->post('https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/create?request_id=' . $idempotency_token);
+            $response = $client->post('https://b2b-authproxy.taxi.yandex.net/api/b2b/platform/offers/create', ['json' => $body]);
 //            $response = $client->post('https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/check-price', ['json' => $body]);
         } catch (BadResponseException $exception) {
             dd($exception->getMessage());
@@ -32,7 +32,8 @@ class Client
             dd($data);
             return \Illuminate\Support\Facades\Response::json(['message' => $exception->getResponse()->getBody()->getContents()], 400);
         }
-        dd($response->getBody()->getContents());
+        return json_decode($response->getBody()->getContents());
+
     }
 
     public function searchByTerm($term)

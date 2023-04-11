@@ -31,19 +31,23 @@ export default {
     name: 'LineChart',
     components: { Line },
     props: ['labelsProp', 'chartDataFromBack', 'chartLabel', 'backgroundColor'],
-    data() {
+    data () {
         return {
-            chartData: {
-                labels: this.labelsProp,
-                datasets: [{
-                    label: this.chartLabel ?? 'Заголовок',
-                    backgroundColor: this.backgroundColor,
-                    data: this.chartDataFromBack
-                }]
-            },
             chartOptions: {
                 maintainAspectRatio: false,
                 responsive: true
+            }
+        }
+    },
+    computed: {
+            chartData() {
+                return {
+                    labels: this.labelsProp,
+                    datasets: [{
+                        label: this.chartLabel ?? 'Заголовок',
+                        backgroundColor: this.backgroundColor,
+                        data: this.chartDataFromBack
+                    }]
             }
         }
     }

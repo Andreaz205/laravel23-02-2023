@@ -34,7 +34,7 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = User::with('group')->orderByDesc('created_at')->paginate($this->perPage);
+        $users = User::with('group')->orderByDesc('created_at')->withCount('orders')->paginate($this->perPage);
         return inertia('User/Index', [
             'usersData' => $users,
             'can-users' => [

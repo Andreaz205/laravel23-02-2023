@@ -24,17 +24,19 @@ export default {
     name: 'BarChart',
     components: { Bar },
     props: ['labels', 'chartDataFromBack', 'chartLabel', 'backgroundColor'],
-    data() {
-        return {
-            chartData: {
+    computed: {
+        chartData() {
+            return {
                 labels: this.labels,
                 datasets: [{
                     label: this.chartLabel,
                     backgroundColor: this.backgroundColor,
                     data: this.chartDataFromBack
                 }]
-            },
-            chartOptions: {
+            }
+        },
+        chartOptions() {
+            return  {
                 maintainAspectRatio: false,
                 responsive: true
             }

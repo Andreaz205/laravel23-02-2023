@@ -27,7 +27,7 @@ class StatisticRequest extends FormRequest
         return [
             'from' => 'nullable|date',
             'to' => 'nullable|date',
-            'detailing' => Rule::in(['day', 'week', 'month'])
+            'detailing' => ['required', Rule::in(['day', 'week', 'month'])]
         ];
     }
 

@@ -17,16 +17,21 @@ export default {
     components: {
         Pie
     },
-    data() {
-        return {
-            chartData: {
+    computed: {
+        chartData() {
+            return  {
                 labels: this.labelsProp,
-                datasets: [{
-                    backgroundColor: this.backgroundColors,
-                    data: this.chartDataFromBack
-                }]
-            },
-            chartOptions: {
+                datasets: [
+                    {
+                        backgroundColor: this.backgroundColors,
+                        data: this.chartDataFromBack
+                    }
+                ]
+            }
+        },
+
+        chartOptions() {
+            return {
                 maintainAspectRatio: false,
                 responsive: true
             }

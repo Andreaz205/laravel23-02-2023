@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Product\AppendSizeRequest;
 use App\Http\Requests\Product\StoreRequest;
 use App\Http\Requests\Product\UpdateRequest;
 use App\Http\Services\Category\CategoryService;
 use App\Http\Services\Material\MaterialService;
 use App\Http\Services\Product\ProductService;
 use App\Models\AccentProperty;
+use App\Models\AdditionalProductSize;
 use App\Models\Category;
 use App\Models\Group;
 use App\Models\OptionName;
@@ -19,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -141,7 +144,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $product->load('parameters');
+        $product->load('parameters', 'additional_sizes');
         return inertia('Product/Edit', [
             'productData' => $product,
             'can-products' => [
@@ -177,6 +180,20 @@ class ProductController extends Controller
             }
         }
         return Response::json(['status' => 'success']);
+    }
+
+    public function appendSize(AppendSizeRequest $request, Product $product)
+    {
+        $data = $request->validated();
+        $sameTitleSize = $product->additional_sizes()->where('title', $data['title'])->first();
+        if (isset($sameTitleSize))
+            throw ValidationException::withMessages(['Размер с таким названием у товара ' . $product->title . ' уже существует!']);
+        return $product->additional_sizes()->create($data);
+    }
+
+    public function deleteSize(AdditionalProductSize $size)
+    {
+        return $size->delete();
     }
 
     public function togglePublish(Product $product)

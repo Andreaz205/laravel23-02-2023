@@ -55,8 +55,8 @@
                                 <td><span class="tag tag-success">{{user.phone}}</span></td>
                                 <td>{{user.email}}</td>
                                 <td>{{user?.group ? user.group.title : 'Вне группы'}}</td>
-                                <td>{{user?.sale}}</td>
-                                <td>{{user.ordersQuantity}}</td>
+                                <td>{{user?.group?.discount || 0}}</td>
+                                <td>{{user.orders_count}}</td>
                             </tr>
                             </tbody>
                         </table>
