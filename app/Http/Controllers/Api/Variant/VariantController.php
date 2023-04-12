@@ -30,42 +30,46 @@ class VariantController extends Controller
         return $variants;
     }
 
-    public function variant(Variant $variant, CDEKService $CDEKService)
+    public function variant(Variant $variant, CDEKService $CDEKService, Request $request)
     {
         $product = $variant->product;
-        $this->variantService->aggregateVariantByNameValues($variant);
+        $this->variantService->aggregateVariantByMaterialUnits($variant);
+        unset($variant->product->variants);
+        $this->variantService->productColorsForVariant($variant, $product);
 
-        if (isset($product->height) && isset($product->width) && isset($product->length) && isset($product->weight)) {
-            $cdekBody = [
-                'from_location' => [
-                    'code' => 259,
-                ],
-                "to_location" => [
-                    "code" => 270
-                ],
-                "packages" => [
-                    "number" => 1,
-                    "weight" =>  $product->weight * 1000,
-                    "length" =>  $product->length,
-                    "width" =>  $product->width,
-                    "height" =>  $product->height
-                ]
-            ];
-            $cdekData = $CDEKService->calculateByAvailableTariffs($cdekBody);
-            $variant->delivery = ['cdek' => $cdekData];
-        }
+//        if (isset($product->height) && isset($product->width) && isset($product->length) && isset($product->weight)) {
+//            $cdekBody = [
+//                'from_location' => [
+//                    'code' => 259,
+//                ],
+//                "to_location" => [
+//                    "code" => 270
+//                ],
+//                "packages" => [
+//                    "number" => 1,
+//                    "weight" =>  $product->weight * 1000,
+//                    "length" =>  $product->length,
+//                    "width" =>  $product->width,
+//                    "height" =>  $product->height
+//                ]
+//            ];
+//            $cdekData = $CDEKService->calculateByAvailableTariffs($cdekBody);
+//            $variant->delivery = ['cdek' => $cdekData];
+//        }
         $variant->title = $variant->getTitleAttribute();
-        $variant->load('images');
-        $additionalSizes = $product->additional_sizes()->get();
 
+        $variant->load('images');
+
+        $additionalSizes = $product->additional_sizes()->get();
         $sizes['main_size'] = [
             'length' => $product->length,
             'width' => $product->width,
             'height' => $product->height,
         ];
-
         $sizes['other_sizes'] = $additionalSizes;
         $variant->sizes = $sizes;
+
+
 
 //        $variant->sizes->main_size->width = $product->width;
 //        $variant->sizes->main_size->height = $product->height;

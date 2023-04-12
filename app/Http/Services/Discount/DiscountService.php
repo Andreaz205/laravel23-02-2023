@@ -12,19 +12,14 @@ class DiscountService
     {
         $discounts = Discount::with('groups', 'categories')->get();
 
-        $accumulativeDiscounts = [];
         $orderDiscounts = [];
         $groupDiscounts = Group::with('discounted_categories')->get();
         $couponDiscounts = [];
 
         foreach ($discounts as $discount) {
-            if ($discount->type === 'accumulative') $accumulativeDiscounts[] = $discount;
             if ($discount->type === 'order') $orderDiscounts[] = $discount;
             if ($discount->type === 'coupon') $couponDiscounts[] = $discount;
         }
-
-        $accumulativeDiscountsResult = [];
-        $accumulativeDiscountsResult['discounts'] = $accumulativeDiscounts;
 
         $orderDiscountsResult = [];
         $orderDiscountsResult['discounts'] = $orderDiscounts;
@@ -36,12 +31,9 @@ class DiscountService
         $couponDiscountsResult['discounts'] = $couponDiscounts;
 
 
-        $discountsAvailability = DiscountsAvailability::limit(4)->get();
+        $discountsAvailability = DiscountsAvailability::limit(3)->get();
         foreach ($discountsAvailability as $accessItem) {
 
-            if ($accessItem->type == 'accumulative') {
-                $accumulativeDiscountsResult['is_available'] = $accessItem->is_available;
-            }
             if ($accessItem->type == 'order') {
                 $orderDiscountsResult['is_available'] = $accessItem->is_available;
             }
@@ -54,7 +46,6 @@ class DiscountService
         }
 
         $result = [
-            'accumulative_discounts' => $accumulativeDiscountsResult,
             'order_discounts' => $orderDiscountsResult,
             'group_discounts' => $groupDiscountsResult,
             'coupon_discounts' => $couponDiscountsResult,

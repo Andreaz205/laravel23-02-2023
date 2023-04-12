@@ -42,10 +42,18 @@ class OrderController extends Controller
             return response($validator->messages(), 422);
         }
         $data = $validator->validated();
-        $orderedVariantsArray = $data['variants'];
+        $orderedVariantsArray = collect($data['variants']);
+        $orderedVariantsIds = $orderedVariantsArray->map(fn ($item) => $item['id']);
+
         if (isset($user)) $data['user_id'] = $user->id;
         unset($data['variants']);
 
+        $sum = 0;
+        $orderedVariants = Variant::whereIn('id', $orderedVariantsIds)->get();
+        $orderedVariants->each(function  ($item) use(&$sum) {
+            $sum = $sum + $item->price;
+        });
+        $data['sum'] = $sum;
 
         //check quantity
 //        foreach($orderedVariantsArray as $arrayItem) {
@@ -93,7 +101,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()]);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
         return response()->json(['status' => 'success', $copies]);
     }

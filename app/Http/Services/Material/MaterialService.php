@@ -4,6 +4,7 @@ namespace App\Http\Services\Material;
 
 use App\Models\Category;
 use App\Models\Material;
+use App\Models\MaterialUnit;
 use App\Models\OptionValue;
 use App\Models\Variant;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -72,16 +73,19 @@ class MaterialService
     public function getSets($materials)
     {
         $sets = [];
+        $materialIds = $materials->map(fn($item) => $item->id);
+        $allMaterialUnits = MaterialUnit::whereIn('material_id', $materialIds)->with(['values' => fn ($query) => $query->with('color')])->get();
         foreach ($materials as $material) {
             $materialSet = [];
             $materialSet['material_id'] = $material->id;
             $matSets = [];
-            $materialUnits = $material->material_units;
-
-
+//            dd($material->material_units);
+//            $materialUnits = $material->material_units;
+            $materialUnits = $allMaterialUnits->filter(fn($item) => $item->material_id === $material->id);
             if (count($materialUnits)) {
+
                 if (count($materialUnits) == 1) {
-                    $values = $materialUnits[0]->values;
+                    $values = $materialUnits->first()->values;
                     $result = $values->map(fn($value) => [
                         0 => [
                             'id' => $value->id, 'value' => $value->value
@@ -92,7 +96,7 @@ class MaterialService
                     ]);
                     $materialSet['sets'] = $result;
                 } else {
-                    $materialValues = $this->allMaterialValues($material);
+                    $materialValues = $this->allMaterialValues($materialUnits);
                     $lastUnit = $materialUnits[count($materialUnits) - 1];
                     $lastUnitValues = $lastUnit->values;
                     foreach ($lastUnitValues as $value) {
@@ -155,10 +159,9 @@ class MaterialService
         }
     }
 
-    public function allMaterialValues($material)
+    public function allMaterialValues($materialUnits)
     {
         $values = [];
-        $materialUnits = $material->material_units;
         foreach ($materialUnits as $materialUnit) {
             $values = [...$values, ...$materialUnit->values];
         }

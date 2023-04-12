@@ -45,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         if(env('FORCE_HTTPS',false)) {
-            URL::forceScheme('https');
+//            URL::forceScheme('https');
         }
 //        Inertia::share('user', Auth('admin')->user());
     }

@@ -51,6 +51,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/favorites', [\App\Http\Controllers\Api\Favorite\FavoriteController::class, 'clear']);
 });
 
+Route::get('/categories/main/{category}', [\App\Http\Controllers\Api\Category\CategoryController::class, 'mainCategoryProducts']);
+Route::get('/categories/child/{category}', [\App\Http\Controllers\Api\Category\CategoryController::class, 'childCategoryProducts']);
 
 Route::get('/auth/logout', [\App\Http\Controllers\Api\Auth\AuthController::class,'logout']);
 Route::post('/auth/login', [\App\Http\Controllers\Api\Auth\AuthController::class,'login']);
@@ -76,6 +78,7 @@ Route::get('/variants', [\App\Http\Controllers\Api\Variant\VariantController::cl
 
 Route::post('/orders', [\App\Http\Controllers\Api\Order\OrderController::class, 'store']);
 
+Route::get('/variants/{variant}/reviews', [\App\Http\Controllers\Api\Review\ReviewController::class, 'reviews']);
 Route::post('/variants/{variant}/reviews', [\App\Http\Controllers\Api\Review\ReviewController::class, 'storeReview']);
 Route::post('/variants/{variant}/reviews/images', [\App\Http\Controllers\Api\Review\ReviewController::class, 'storeReviewImages']);
 

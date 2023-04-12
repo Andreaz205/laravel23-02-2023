@@ -41,6 +41,9 @@ class VariantController extends Controller
         $this->middleware('can:product delete', ['only' => ['destroy']]);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function store(Product $product, StoreRequest $request)
     {
         $data = $request->validated();
@@ -169,10 +172,10 @@ class VariantController extends Controller
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         $materialValuesIds = $data['material_unit_values'];
-
+        $materialUnits = $material->material_units;
         $lastId = $materialValuesIds[count($materialValuesIds) - 1];
         $value = MaterialUnitValue::find($lastId);
-        $allValues = $materialService->allMaterialValues($material);
+        $allValues = $materialService->allMaterialValues($materialUnits);
         $set = array_reverse($materialService->getSetByLastValue($value, $allValues));
 
         foreach ($set as $setItem) {
@@ -182,7 +185,7 @@ class VariantController extends Controller
             }
         }
 
-        $unitIds = $material->material_units()->pluck('id')->toArray();
+        $unitIds = $materialUnits->map(fn ($item) => $item->id);
         $valuesToDetach = $variant->material_unit_values()->whereIn('material_unit_id', $unitIds)->pluck('material_unit_values.id')->toArray();
 
 

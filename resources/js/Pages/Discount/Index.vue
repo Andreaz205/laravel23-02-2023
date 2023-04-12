@@ -1,7 +1,7 @@
 <template>
 
     <!--    TODO: Модальное окно для накопительной скидки-->
-    <AccumulativeDiscountForm :categories-data="categoriesData?.data" :groups-data="groupsData" @discountCreated="handleDiscountCreated"/>
+<!--    <AccumulativeDiscountForm :categories-data="categoriesData?.data" :groups-data="groupsData" @discountCreated="handleDiscountCreated"/>-->
 
     <!--    TODO: Модальное окно для скидки по сумме заказа-->
     <OrderDiscountForm :categories-data="categoriesData?.data" :groups-data="groupsData" @discountCreated="handleDiscountCreated"/>
@@ -25,12 +25,12 @@
                     <div class="col-lg-2 col-md-4">
                         <div class="nav flex-column nav-tabs h-100" id="vert-tabs-tab" role="tablist"
                              aria-orientation="vertical">
-                            <a class="nav-link  active" id="accumulative-discounts-tab" data-toggle="pill"
-                               href="#vert-tabs-home" role="tab" aria-controls="accumulative-discounts"
-                               aria-selected="true">
-                                Накопительные скидки
-                                ({{ discounts?.accumulative_discounts?.is_available ? 'Включены' : 'Выключены' }})
-                            </a>
+<!--                            <a class="nav-link  active" id="accumulative-discounts-tab" data-toggle="pill"-->
+<!--                               href="#vert-tabs-home" role="tab" aria-controls="accumulative-discounts"-->
+<!--                               aria-selected="true">-->
+<!--                                Накопительные скидки-->
+<!--                                ({{ discounts?.accumulative_discounts?.is_available ? 'Включены' : 'Выключены' }})-->
+<!--                            </a>-->
                             <a class="nav-link" id="order-sum-discounts-tab" data-toggle="pill"
                                href="#order-sum-discounts" role="tab" aria-controls="order-sum-discounts"
                                aria-selected="false">
@@ -55,97 +55,97 @@
                         <div class="tab-content" id="accumulative-discounts">
 
 
-                            <div class="tab-pane fade active show" id="vert-tabs-home" role="tabpanel"
-                                 aria-labelledby="vert-tabs-home-tab">
-                                <div class="container-fluid">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="my-2">
-<!--                                                v-if="canDiscounts.edit"-->
-                                                <button
-                                                    class="btn btn-primary bg-blue-500 mr-2"
-                                                    type="button"
-                                                    data-toggle="modal"
-                                                    data-target="#createAccumulativeDiscountModal"
-                                                >
-                                                    Добавить
-                                                </button>
-                                                <button class="btn btn-secondary mr-2"
-                                                        v-if="discounts?.accumulative_discounts?.is_available"
-                                                        @click="toggleAvailabilityDiscount('accumulative')">
-                                                    Выключить
-                                                </button>
-                                                <button class="btn btn-primary" v-else
-                                                        @click="toggleAvailabilityDiscount('accumulative')">
-                                                    Включить
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="container-fluid table-responsive">
-                                                <table class="table table-hover text-nowrap border-x-2 border-b-2">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>Стоимость заказов</th>
-                                                        <th>Уцененённые товары</th>
-                                                        <th>Комплекты товаров</th>
-                                                        <th>Категории</th>
-                                                        <th>Группы клиентов</th>
-                                                        <th>Величина скидки</th>
-                                                        <th></th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody v-if="discounts?.accumulative_discounts?.discounts && discounts.accumulative_discounts.discounts.length">
-                                                    <tr v-for="discount in discounts.accumulative_discounts.discounts">
-                                                        <td>{{discount.threshold}} p</td>
-                                                        <td>{{discount.allow_discounted ? 'Да' : 'Нет'}}</td>
-                                                        <td>{{ discount.allow_kits ? 'Да' : 'Нет'}}</td>
-                                                        <td>
-                                                            <template v-if="discount.categories && discount.categories.length">
-                                                                <span v-for="category in discount.categories">{{category.name}},</span>
-                                                            </template>
+<!--                            <div class="tab-pane fade active show" id="vert-tabs-home" role="tabpanel"-->
+<!--                                 aria-labelledby="vert-tabs-home-tab">-->
+<!--                                <div class="container-fluid">-->
+<!--                                    <div class="row">-->
+<!--                                        <div class="col-12">-->
+<!--                                            <div class="my-2">-->
+<!--&lt;!&ndash;                                                v-if="canDiscounts.edit"&ndash;&gt;-->
+<!--                                                <button-->
+<!--                                                    class="btn btn-primary bg-blue-500 mr-2"-->
+<!--                                                    type="button"-->
+<!--                                                    data-toggle="modal"-->
+<!--                                                    data-target="#createAccumulativeDiscountModal"-->
+<!--                                                >-->
+<!--                                                    Добавить-->
+<!--                                                </button>-->
+<!--                                                <button class="btn btn-secondary mr-2"-->
+<!--                                                        v-if="discounts?.accumulative_discounts?.is_available"-->
+<!--                                                        @click="toggleAvailabilityDiscount('accumulative')">-->
+<!--                                                    Выключить-->
+<!--                                                </button>-->
+<!--                                                <button class="btn btn-primary" v-else-->
+<!--                                                        @click="toggleAvailabilityDiscount('accumulative')">-->
+<!--                                                    Включить-->
+<!--                                                </button>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    <div class="row">-->
+<!--                                        <div class="col-12">-->
+<!--                                            <div class="container-fluid table-responsive">-->
+<!--                                                <table class="table table-hover text-nowrap border-x-2 border-b-2">-->
+<!--                                                    <thead>-->
+<!--                                                    <tr>-->
+<!--                                                        <th>Стоимость заказов</th>-->
+<!--                                                        <th>Уцененённые товары</th>-->
+<!--                                                        <th>Комплекты товаров</th>-->
+<!--                                                        <th>Категории</th>-->
+<!--                                                        <th>Группы клиентов</th>-->
+<!--                                                        <th>Величина скидки</th>-->
+<!--                                                        <th></th>-->
+<!--                                                    </tr>-->
+<!--                                                    </thead>-->
+<!--                                                    <tbody v-if="discounts?.accumulative_discounts?.discounts && discounts.accumulative_discounts.discounts.length">-->
+<!--                                                    <tr v-for="discount in discounts.accumulative_discounts.discounts">-->
+<!--                                                        <td>{{discount.threshold}} p</td>-->
+<!--                                                        <td>{{discount.allow_discounted ? 'Да' : 'Нет'}}</td>-->
+<!--                                                        <td>{{ discount.allow_kits ? 'Да' : 'Нет'}}</td>-->
+<!--                                                        <td>-->
+<!--                                                            <template v-if="discount.categories && discount.categories.length">-->
+<!--                                                                <span v-for="category in discount.categories">{{category.name}},</span>-->
+<!--                                                            </template>-->
 
-                                                            <template v-else>
-                                                                Все
-                                                            </template>
-                                                        </td>
-                                                        <td>
-                                                            <template v-if="discount.available_groups === 'all'">
-                                                                Все
-                                                            </template>
-                                                            <template v-if="discount.available_groups === 'without_groups'">
-                                                                Вне группы
-                                                            </template>
-                                                            <template v-if="
-                                                                discount.available_groups === 'selected' &&
-                                                                discount.groups &&
-                                                                discount.groups.length"
-                                                            >
-                                                                <span v-for="group in discount.groups">{{group.title}}</span><span> </span>
-                                                            </template>
-                                                        </td>
-                                                        <td>
-                                                            {{discount.value}} %
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-danger" @click="deleteDiscount(discount)">
-                                                                Удалить
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<!--                                                            <template v-else>-->
+<!--                                                                Все-->
+<!--                                                            </template>-->
+<!--                                                        </td>-->
+<!--                                                        <td>-->
+<!--                                                            <template v-if="discount.available_groups === 'all'">-->
+<!--                                                                Все-->
+<!--                                                            </template>-->
+<!--                                                            <template v-if="discount.available_groups === 'without_groups'">-->
+<!--                                                                Вне группы-->
+<!--                                                            </template>-->
+<!--                                                            <template v-if="-->
+<!--                                                                discount.available_groups === 'selected' &&-->
+<!--                                                                discount.groups &&-->
+<!--                                                                discount.groups.length"-->
+<!--                                                            >-->
+<!--                                                                <span v-for="group in discount.groups">{{group.title}}</span><span> </span>-->
+<!--                                                            </template>-->
+<!--                                                        </td>-->
+<!--                                                        <td>-->
+<!--                                                            {{discount.value}} %-->
+<!--                                                        </td>-->
+<!--                                                        <td>-->
+<!--                                                            <button class="btn btn-danger" @click="deleteDiscount(discount)">-->
+<!--                                                                Удалить-->
+<!--                                                            </button>-->
+<!--                                                        </td>-->
+<!--                                                    </tr>-->
+<!--                                                    </tbody>-->
+<!--                                                </table>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
 
 
 
-                            <div class="tab-pane fade" id="order-sum-discounts" role="tabpanel"
+                            <div class="tab-pane fade active show" id="order-sum-discounts" role="tabpanel"
                                  aria-labelledby="order-sum-discounts-tab">
                                 <div class="row">
                                     <div class="col-12">

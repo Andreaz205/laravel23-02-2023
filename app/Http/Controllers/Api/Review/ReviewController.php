@@ -13,6 +13,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ReviewController extends Controller
 {
@@ -77,5 +79,39 @@ class ReviewController extends Controller
         ///////////
         ///
         return $review;
+    }
+
+
+    public function reviews(Variant $variant, Request $request)
+    {
+        $data = Validator::make($request->all(), [
+            'last_review_id' => 'nullable|integer|exists:reviews,id',
+            'all' => ['nullable', Rule::in('true')]
+        ])->validated();
+
+        if (isset($datap['all'])) {
+            return  $variant->reviews()
+                ->where('published', true)
+                ->with(['images', 'answer' => fn ($query) => $query->with('manager')])
+                ->latest()
+                ->get();
+        }
+
+        if (isset($data['last_review_id'])) {
+            return  $variant->reviews()
+                ->where('id', '<', $data['last_review_id'])
+                ->where('published', true)
+                ->with(['images', 'answer' => fn ($query) => $query->with('manager')])
+                ->latest()
+                ->limit(10)
+                ->get();
+        }
+
+        return  $variant->reviews()
+            ->where('published', true)
+            ->with(['images', 'answer' => fn ($query) => $query->with('manager')])
+            ->latest()
+            ->limit(10)
+            ->get();
     }
 }

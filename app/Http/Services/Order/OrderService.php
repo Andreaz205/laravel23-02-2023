@@ -25,4 +25,9 @@ class OrderService
         }
         return 'success';
     }
+
+    public function calculateSumAfterSales($sum, $variants, $user = null)
+    {
+
+    }
 }

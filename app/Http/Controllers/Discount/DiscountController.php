@@ -5,11 +5,10 @@ namespace App\Http\Controllers\Discount;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Discount\StoreAccumulativeDiscountRequest;
 use App\Http\Requests\Discount\StoreCouponDiscountRequest;
-use App\Http\Requests\Discount\StoreRequest;
+//use App\Http\Requests\Discount\StoreRequest;
 use App\Http\Requests\Discount\ToggleAvailabilityRequest;
 use App\Http\Resources\Category\CategoryResource;
 use App\Http\Resources\Discount\AccumulativeDiscountResource;
-use App\Http\Services\Category\CategoryService;
 use App\Http\Services\Discount\DiscountService;
 use App\Models\Bonus;
 use App\Models\Category;
@@ -58,41 +57,41 @@ class DiscountController extends Controller
         return Response::json(['status' => 'success', 'is_available' => $isAvailableNow->is_available]);
     }
 
-    public function storeAccumulativeDiscount(StoreAccumulativeDiscountRequest $request)
-    {
-        $data = $request->validated();
-        $data['type'] = 'accumulative';
-        $availableGroups = 'all';
-        if (isset($data['groups'])) {
-            if ($data['groups'] === 'without_groups') {
-                $availableGroups = 'without_groups';
-            } else if (count($data['groups']) > 0) {
-                $availableGroups = 'selected';
-                $requestedGroups = $data['groups'];
-            }
-            unset($data['groups']);
-        }
-        if (isset($data['categories'])) {
-            $requestedCategories = $data['categories'];
-            unset($data['categories']);
-        }
-
-        try {
-            DB::beginTransaction();
-            $discount = Discount::create([...$data, 'available_groups' => $availableGroups]);
-            if (isset($requestedCategories)) {
-                $discount->categories()->attach($requestedCategories);
-            }
-            if (isset($requestedGroups)) {
-                $discount->groups()->attach($requestedGroups);
-            }
-            DB::commit();
-        } catch (\Exception $error) {
-            DB::rollBack();
-            return Response::json(['error' => $error->getMessage()]);
-        }
-        return new AccumulativeDiscountResource($discount);
-    }
+//    public function storeAccumulativeDiscount(StoreAccumulativeDiscountRequest $request)
+//    {
+//        $data = $request->validated();
+//        $data['type'] = 'accumulative';
+//        $availableGroups = 'all';
+//        if (isset($data['groups'])) {
+//            if ($data['groups'] === 'without_groups') {
+//                $availableGroups = 'without_groups';
+//            } else if (count($data['groups']) > 0) {
+//                $availableGroups = 'selected';
+//                $requestedGroups = $data['groups'];
+//            }
+//            unset($data['groups']);
+//        }
+//        if (isset($data['categories'])) {
+//            $requestedCategories = $data['categories'];
+//            unset($data['categories']);
+//        }
+//
+//        try {
+//            DB::beginTransaction();
+//            $discount = Discount::create([...$data, 'available_groups' => $availableGroups]);
+//            if (isset($requestedCategories)) {
+//                $discount->categories()->attach($requestedCategories);
+//            }
+//            if (isset($requestedGroups)) {
+//                $discount->groups()->attach($requestedGroups);
+//            }
+//            DB::commit();
+//        } catch (\Exception $error) {
+//            DB::rollBack();
+//            return Response::json(['error' => $error->getMessage()]);
+//        }
+//        return new AccumulativeDiscountResource($discount);
+//    }
 
     //Здесь я повторяюсь в коде
     public function storeOrderDiscount(StoreAccumulativeDiscountRequest $request)

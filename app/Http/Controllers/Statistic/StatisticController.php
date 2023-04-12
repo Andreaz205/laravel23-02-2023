@@ -56,7 +56,7 @@ class StatisticController extends Controller
         }
         $ordersDateLabels = [];
         foreach ($period as $item) {
-            $ordersDateLabels[] = $item->format('d-m-Y');
+            $ordersDateLabels[] = $item->format('Y-m-d');
         }
 
         $viewsData = AnalyticsService::monthViewsData($from->format('Y-m-d'), $to->format('Y-m-d'));
@@ -80,8 +80,9 @@ class StatisticController extends Controller
     public function calculateOrdersPeriod(StatisticRequest $request)
     {
         $data = $request->validated();
-        $from = isset($data['from']) ? Carbon::parse($data['from']) : Carbon::now()->subDays(30)->startOfDay();
-        $to = isset($data['to']) ? Carbon::parse($data['to']):  Carbon::now();
+
+        $from = isset($data['from']) ? Carbon::createFromTimeString($data['from']) : Carbon::now()->subDays(30)->startOfDay();
+        $to = isset($data['to']) ? Carbon::createFromTimeString($data['to']) :  Carbon::now();
         $detailing = $data['detailing'];
 
         $orders = Order::query()->whereBetween('created_at', [$from, $to])->get();

@@ -63,7 +63,7 @@ class TestController extends Controller
 
     public function testVariant(Variant $variant, VariantService $variantService)
     {
-        $variantService->aggregateVariantByNameValues($variant);
+        $variantService->aggregateVariantByMaterialUnits($variant);
         return inertia('Test/Variant', [
             'data' => $variant
         ]);

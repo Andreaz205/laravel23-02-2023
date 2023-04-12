@@ -156,7 +156,7 @@ export default {
                         "name": "1",
                         "barcode": "dod-235353253532",
                         "place_barcode": "dod-235353253532",
-                        "physical_dims": {"weight_gross": 49000, "predefined_volume": 600000000},
+                        "physical_dims": {"weight_gross": 49000, "predefined_volume": 100000000},
                         "billing_details": {
                             "unit_price": 2000000,
                             "assessed_unit_price": 2000000,
@@ -170,7 +170,7 @@ export default {
                             dx: 10,
                             dy: 60,
                             dz: 50,
-                            "predefined_volume": 600000000,
+                            "predefined_volume": 200000000,
                             "weight_gross": 49000,
                         },
                         "barcode": "dod-235353253532"

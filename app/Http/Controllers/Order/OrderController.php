@@ -129,6 +129,7 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
             $message = 'Статус оплаты изменён с \''. $order->getPayStatusAttribute($order->is_payed) .'\' на \''. $order->getPayStatusAttribute($data['is_payed']) .'\' пользователем '.Auth('admin')->user()->name;
+
             OrderHistory::create([
                 'order_id' => $order->id,
                 'note' => $message

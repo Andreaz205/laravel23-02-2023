@@ -235,7 +235,14 @@
         <div>
 
             <div class="mx-5 flex justify-between py-4">
-                <h1 class="text-xl">{{ product.title }}</h1>
+                <div class="flex">
+                    <Link href="/admin/products" class="text-lg mr-2">К товарам</Link>
+                    <span class="text-lg">
+                        /
+                    </span>
+                     <h1 class="text-xl ml-2"> {{ product.title }}</h1>
+                </div>
+
                 <Link href="/">Главная</Link>
             </div>
 
@@ -510,7 +517,7 @@
                                             <div class="flex absolute right-2">
                                                 <div class="mx-4">
                                                     <button
-                                                        v-if="canProducts.edit"
+                                                        v-if="canProducts.edit && variantsToDeleteIds.length"
                                                         data-delete-variants-button
                                                         class="btn btn-danger bg-red"
                                                         @click="handleDeleteVariants"
@@ -913,9 +920,6 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import MaterialVariantModal from "@/Pages/Product/Modal/MaterialVariantModal.vue";
 import {ModelSelect} from "vue-search-select";
 import Errors from "@/Components/Errors/Errors.vue";
-import {reactive} from "vue";
-
-
 
 export default {
     name: "Product",
@@ -947,11 +951,9 @@ export default {
         'categoriesData',
         'canProducts',
         'prices',
-        'allOptionNames',
         'accentPropertiesProps',
         'material_sets'
     ],
-            // createVariantForm: this.material_sets,
     data() {
         return {
             variantsToDeleteIds: [],
@@ -967,10 +969,6 @@ export default {
             selectedOptionName: null,
             changeVariantFormData: [],
             selectedVariant: null,
-            allOptionNamesData: this.allOptionNames,
-            optionNames: null,
-            isDeleteOptionOpen: null,
-            isCreateOptionOpen: null,
             product: JSON.parse(JSON.stringify(this.$props.productData)),
             images: this.$props.productData.images,
             dropzone: null,
@@ -1117,11 +1115,7 @@ export default {
             let newImage = res.data.data
             this.product.images.push(newImage)
             let searchedVariant = this.product.variants.find(v => v.id === this.selectedVariant.id)
-            console.log(searchedVariant)
             searchedVariant?.images?.push(newImage)
-            // let newImage = res.data.data
-            // this.product.images.push(newImage)
-            // console.log(newImage)
         },
         async handleDeleteVariants() {
             try {
@@ -1138,29 +1132,6 @@ export default {
                 this.isLoading = false
                 alert(e?.response?.errors ?? e?.message ?? e)
             }
-        },
-        async onSubmitEditOptionsFormNewValue(event, optionName) {
-            try {
-                event.preventDefault()
-                let formElements = [...event.target.elements]
-                let newValueInputElement = formElements.find(formElement => formElement.classList.contains('form-control'))
-                let newValue = newValueInputElement.value
-                let data = {
-                    'option_name_id': optionName.id,
-                    'value': newValue,
-                }
-                let response = await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant.id}/options/bind-with-new-value`, data)
-                let newOptionValue = response.data.data
-                let productName = this.product.option_names.find(name => name.id === optionName.id)
-                productName.option_values = [...productName.option_values, newOptionValue]
-                let searchedValue = this.selectedVariant.option_values.find(value => value.option_name_id == optionName.id)
-                this.selectedVariant.option_values.splice(this.selectedVariant.option_values.indexOf(searchedValue), 1)
-                this.selectedVariant.option_values = [...this.selectedVariant.option_values, newOptionValue]
-                optionName.edit_form_data_is_new = false
-            } catch (e) {
-                alert(e)
-            }
-
         },
         async saveOrder() {
             try {

@@ -9,32 +9,33 @@
                     <div class="col-12">
                         <Errors :errors="errors" />
                         <Spinner v-if="isLoading"/>
+
                         <div class="row">
-                        <label class="col-2">С</label>
-                        <div class="col-10">
-                            <VueDatePicker v-model="from" placeholder="Укажите дату начала ..." text-input />
-                        </div>
+                            <label class="col-2">С</label>
+                            <div class="col-10">
+                                <VueDatePicker v-model="from" placeholder="Укажите дату начала ..." text-input />
+                            </div>
                         </div>
 
                         <div class="row mt-2">
-                        <label class="col-2">По</label>
-                        <div class="col-10">
-                            <VueDatePicker v-model="to" placeholder="Укажите дату окончания..." text-input />
-                        </div>
+                            <label class="col-2">По</label>
+                            <div class="col-10">
+                                <VueDatePicker v-model="to" placeholder="Укажите дату окончания..." text-input />
+                            </div>
                         </div>
 
                         <div class="row mt-3">
-                        <label class="col-2">Интервал</label>
-                        <div class="col-10">
-                            <label for="radio-day">День</label>
-                            <input type="radio" id='radio-day' v-model="interval" value="day">
+                            <label class="col-2">Интервал</label>
+                            <div class="col-10">
+                                <label for="radio-day">День</label>
+                                <input type="radio" id='radio-day' v-model="interval" value="day">
 
-                            <label for="radio-week">Неделя</label>
-                            <input type="radio" id='radio-week' v-model="interval" value="week">
+                                <label for="radio-week">Неделя</label>
+                                <input type="radio" id='radio-week' v-model="interval" value="week">
 
-                            <label for="radio-month">Месяц</label>
-                            <input type="radio" id='radio-month' v-model="interval" value="month">
-                        </div>
+                                <label for="radio-month">Месяц</label>
+                                <input type="radio" id='radio-month' v-model="interval" value="month">
+                            </div>
                         </div>
 
                         <div class="text-center mt-3">
@@ -71,13 +72,14 @@ export default {
     props: ['dateLabels', 'countData'],
     data () {
         return {
+            // from: this.formatDateToDatepicker(JSON.parse(JSON.stringify(this.dateLabels[0]))),
+            from: JSON.parse(JSON.stringify(this.dateLabels[0])) + ' 00:00',
+            to: JSON.parse(JSON.stringify(this.dateLabels[this.dateLabels.length - 1])) + ' 23:59',
             errors: null,
             dateLabelsFinalData: JSON.parse(JSON.stringify(this.dateLabels)),
             countDataFinalData: JSON.parse(JSON.stringify(this.countData)),
             interval: 'day',
             isLoading: false,
-            from: JSON.parse(JSON.stringify(this.dateLabels[0])),
-            to: JSON.parse(JSON.stringify(this.dateLabels[this.dateLabels.length - 1])) + ' 23:59'
         }
     },
     methods: {
