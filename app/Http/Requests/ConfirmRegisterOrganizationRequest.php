@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\Auth;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterSingleUserViaSmsRequest extends FormRequest
+class ConfirmRegisterOrganizationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,11 @@ class RegisterSingleUserViaSmsRequest extends FormRequest
     public function rules()
     {
         return [
-            'phone' => 'required|string|min:11|max:11|unique:users,phone',
-            'name' => 'required|string|max:255|min:2',
-            'family' => 'required|string|max:255|min:2',
-            'patronymic' => 'required|string|max:255|min:2',
+            'email' => 'required|email|unique:users,email',
+            'name' => 'required|string|max:255',
+            'password' => 'required|string|min:6|confirmed',
+            'inn' => 'required|integer|max:9999999999999999',
+            'code' => 'required|integer|max:999999999999999999999999'
         ];
     }
 }

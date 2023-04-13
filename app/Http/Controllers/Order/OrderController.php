@@ -24,18 +24,6 @@ class OrderController extends Controller
 
     public function index()
     {
-        return inertia('Order/Index', [
-            'can-orders' => [
-                'list' => Auth('admin')->user()?->can('order list'),
-                'create' => Auth('admin')->user()?->can('order create'),
-                'edit' => Auth('admin')->user()?->can('order edit'),
-                'delete' => Auth('admin')->user()?->can('order delete'),
-            ]
-        ]);
-    }
-
-    public function data()
-    {
         $orders = Order::orderBy('created_at', 'desc')->with('fields')->paginate(25);
         foreach ($orders as $order) {
             $sum = 0;
@@ -51,7 +39,15 @@ class OrderController extends Controller
             $order->sum = $sum;
             $order->admin;
         }
-        return $orders;
+        return inertia('Order/Index', [
+            'ordersPaginationData' => $orders,
+            'can-orders' => [
+                'list' => Auth('admin')->user()?->can('order list'),
+                'create' => Auth('admin')->user()?->can('order create'),
+                'edit' => Auth('admin')->user()?->can('order edit'),
+                'delete' => Auth('admin')->user()?->can('order delete'),
+            ]
+        ]);
     }
 
     public function show(Order $order)

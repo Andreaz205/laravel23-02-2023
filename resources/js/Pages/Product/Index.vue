@@ -170,7 +170,7 @@ export default {
         },
         async storeProduct() {
             let {data: newProduct} = await axios.post('/admin/products', {title: this.productName})
-            this.products.push(newProduct)
+            this.products.unshift(newProduct)
                 // router.visit(
                 //     '/admin/product', {
                 //     method: 'GET'
@@ -195,9 +195,6 @@ export default {
             return this.pagination?.slice(1, -1)
         }
     },
-    mounted() {
-        console.log()
-    }
 }
 </script>
 

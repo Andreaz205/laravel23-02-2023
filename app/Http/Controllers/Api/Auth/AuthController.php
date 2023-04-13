@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Events\Email\VerifyNotificationEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Auth\ConfirmLoginViaSmsRequest;
 use App\Http\Requests\Api\Auth\ConfirmRegisterSingleUserViaSms;
 use App\Http\Requests\Api\Auth\LoginViaSmsRequest;
+use App\Http\Requests\Api\Auth\RegisterOrganizationRequest;
 use App\Http\Requests\Api\Auth\RegisterSingleUserViaSmsRequest;
+use App\Http\Requests\ConfirmRegisterOrganizationRequest;
 use App\Http\Services\User\UserService;
 use App\Models\User;
 use App\Models\UserPhoneCode;
@@ -32,30 +35,52 @@ class AuthController extends Controller
         $this->service = $service;
     }
 
-    public function registerOrganization(Request $request)
+    public function registerOrganization(RegisterOrganizationRequest $request)
     {
-//        $data = $request->validate([
-//            'email' => ['required', 'email', 'max:100', 'unique:users,email'],
-//            'password' => ['required', 'string', 'max:100', 'confirmed'],
-//            'name' => ['required', 'string', 'max:100'],
-//        ]);
-//
-//        try {
-//            DB::beginTransaction();
-//
+        $data = $request->validated();
+        try {
+            DB::beginTransaction();
+            event(new VerifyNotificationEvent($data['email']));
 //            $user = User::create($data);
 //
 //            $newToken = $user->createToken('auth')->plainTextToken;
 //
 //            $this->service->handleAppendDefaultGroup($user);
-//            $this->service->appendFieldsAfterCreating($user);
-//
-//            DB::commit();
-//        } catch (\Exception $exception) {
-//            DB::rollBack();
-//            return Response::json(['message' => $exception->getMessage()], 500);
-//        }
-//        return $newToken;
+//            $this->service->appendFieldsAfterCreating($user, 'organization');
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return Response::json(['message' => "Возникла ошибка!"], 500);
+        }
+        return Response::json(['message' => 'Сообщение отправлено на указанный почтовый ящик']);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function confirmRegisterOrganization(ConfirmRegisterOrganizationRequest $request)
+    {
+        $data = $request->validated();
+        $code = $data['code'];
+        unset($data['code']);
+        $isValid = $this->service->checkCode($data['email'], $code, 'email');
+        if (! $isValid) throw ValidationException::withMessages(['Ваш код недействителен!']);
+
+        try {
+            DB::beginTransaction();
+            $data['kind'] = 'organization';
+            $user = User::query()->create($data);
+            $this->service->handleAppendDefaultGroup($user);
+            $this->service->appendFieldsAfterCreating($user, 'organization');
+
+            $newToken = $user->createToken('auth')->plainTextToken;
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return Response::json(['message' => "Возникла ошибка!"], 500);
+        }
+        return Response::json(['user' => $user, 'token' => $newToken]);
     }
 
     public function login(Request $request)
@@ -123,9 +148,6 @@ class AuthController extends Controller
     public function registerSingleUserViaSms(RegisterSingleUserViaSmsRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $candidate = User::where('phone', $data['phone'])->first();
-        if (isset($candidate))
-            throw ValidationException::withMessages(['Пользователь с таким телефоном уже существует!']);
         $code = UserPhoneCode::query()->create(['phone_number' => $data['phone']]);
         $isSent = $code->sendCode();
         if ($isSent) {

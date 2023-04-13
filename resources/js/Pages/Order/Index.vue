@@ -13,8 +13,8 @@
                 </div>
             </div>
             <!-- /.card-header -->
-            <div class="card-body">
-                <table class="table table-bordered">
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
                     <thead>
                     <tr>
                         <th>Номер</th>
@@ -35,8 +35,8 @@
                         <th>Создан</th>
                     </tr>
                     </thead>
-                    <tbody v-if='orders?.data'>
-                        <OrderRow v-for="order in orders.data" :order="order" :format-date="this.formatDate" />
+                    <tbody v-if='orders'>
+                        <OrderRow v-for="order in orders" :order="order" :format-date="this.formatDate" />
                     </tbody>
                 </table>
             </div>
@@ -71,10 +71,11 @@ export default {
     name: "Orders",
     components: {AuthenticatedLayout, OrderRow, Link},
     layout: AuthenticatedLayout,
+    props: ['ordersPaginationData'],
     data () {
         return {
-            orders: null,
-            pagination: null
+            orders: this.ordersPaginationData.data,
+            pagination: this.ordersPaginationData.links
         }
     },
     computed: {
@@ -86,22 +87,20 @@ export default {
         formatDate(date) {
             return  formatDate(date)
         },
-        async initData() {
-            let {data} = await axios.get('/admin/orders/data')
-            this.orders = data
-            this.pagination = data.links
-            console.log(this.orders)
-        },
+        // async initData() {
+        //     let {data} = await axios.get('/admin/orders/data')
+        //     this.orders = data
+        //     this.pagination = data.links
+        // },
         async fetchOrdersPage(url) {
             let {data} = await axios.get(url)
             this.orders = data
             this.pagination = data.links
-            console.log(data)
         }
     },
-    mounted() {
-        this.initData()
-    }
+    // mounted() {
+    //     this.initData()
+    // }
 }
 </script>
 

@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\Email\VerifyNotificationEvent;
 use App\Events\Vk\GetGroupPosts;
+use App\Listeners\Email\HandleVerifyNotification;
 use App\Listeners\Vk\GetGroupPostsListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -25,6 +27,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         GetGroupPosts::class => [
             GetGroupPostsListener::class.'@handle',
+        ],
+        VerifyNotificationEvent::class => [
+            HandleVerifyNotification::class.'@handle'
         ]
     ];
 

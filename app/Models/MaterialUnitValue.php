@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
@@ -33,6 +34,11 @@ class MaterialUnitValue extends Model
     public function color(): HasOne
     {
         return $this->hasOne(Color::class, 'last_material_unit_value_id', 'id');
+    }
+
+    public function variants(): BelongsToMany
+    {
+        return $this->belongsToMany(Variant::class, MaterialUnitValueVariants::class, 'material_unit_value_id', 'variant_id');
     }
 
 }

@@ -192,7 +192,7 @@ export default {
                         value: field.value,
                     }
                 })
-                let response = await axios.patch(`/admin/users/${this.user.id}/update`, {data, fields: fieldsData})
+                let response = await axios.patch(`/admin/users/${this.user.id}/update`, {...data, fields: fieldsData})
                 this.$page.props.user = response.data.data
                 this.isLoading = false
             } catch (e) {

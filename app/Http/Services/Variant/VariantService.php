@@ -12,13 +12,29 @@ use Illuminate\Support\Facades\Response;
 
 class  VariantService implements VariantServiceInterface
 {
+    public function getTitle(&$variant)
+    {
+        $variant->variant_title = $variant->material_unit_values->map(fn ($item) => $item->value)->join(' ');
+    }
+
+    public function getTitleWithProductName(&$variant, $product)
+    {
+        $variant->variant_title = collect([$product->title, ...$variant->material_unit_values->map(fn ($item) => $item->value)])->join(' ');
+    }
+
+    public function appendColorsForVariantFromAggregatedProducts(&$variant, $products)
+    {
+
+    }
+
     public function productColorsForVariant(&$variant, $product)
     {
         $variantsWithColors = $product->variants()
             ->whereHas('material_unit_values', fn($query) => $query->has('color'))
             ->with(['material_unit_values' => fn ($query) => $query->has('color')->with('color')])
-            ->whereNot('id', $variant->id)
             ->get();
+
+
         $count = count($variantsWithColors);
         $colors['count'] = $count;
         foreach ($variantsWithColors as $key => $variantWithColor) {

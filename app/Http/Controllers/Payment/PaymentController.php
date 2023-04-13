@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Payment;
 
 use App\Enums\PaymentStatusEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Payment\StoreRequest;
 use App\Http\Services\Payment\YooKassaService;
 use App\Models\Transaction;
 
@@ -19,22 +20,25 @@ use function PHPUnit\Framework\throwException;
 
 class PaymentController extends Controller
 {
-    public function index()
-    {
-//        $transactions = Transaction::orderByDesc('created_at')->get();
-//        return inertia('Payment/Index', ['transactions' => $transactions]);
-    }
 
-    public function store(Request $request, YooKassaService $yooKassaService)
+    public function store(StoreRequest $request, YooKassaService $yooKassaService)
     {
-        $amount = (float)$request->input('amount');
-        $description = (string)$request->input('description');
+        $user = Auth('sanctum')->user();
+
+        $data = $request->validated();
+        $user = $request->user();
+        $amount = $data['amount'];
+        $description = $data['description'];
+        $orderId = $data['order_id'];
+
 
         try {
           DB::beginTransaction();
             $transaction = Transaction::create([
                 'amount' => $amount,
+                'user_id' => $user?->id,
                 'description' => $description,
+                'order_id' => $orderId
             ]);
 
             if ($transaction) {
@@ -66,6 +70,7 @@ class PaymentController extends Controller
                 ? new NotificationSucceeded($requestBody)
                 : new NotificationWaitingForCapture($requestBody);
             $payment = $notification->getObject();
+
             if (isset($payment->status) && $payment->status === 'waiting_for_capture') {
                 $client = $yooKassaService->getClient();
                 $client->capturePayment([
@@ -91,8 +96,7 @@ class PaymentController extends Controller
                 }
             }
         } catch (\Exception $exception) {
-            Log::error($exception->getMessage());
-            return Response::json(['message' => $exception->getMessage()], 500);
+            Log::error('payment_error  => ' . $exception->getMessage());
         }
     }
 }

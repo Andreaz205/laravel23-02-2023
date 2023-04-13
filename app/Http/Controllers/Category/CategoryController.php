@@ -81,7 +81,6 @@ class CategoryController extends Controller
         if (count($variants) && isset($product->category_id))
             throw ValidationException::withMessages(['Чтобы изменить категорию необходимо удалить варианты товара!']);
         $categoryId = $data['category_id'];
-//        $category = Category::find($categoryId);
         try {
             DB::beginTransaction();
 
@@ -91,7 +90,6 @@ class CategoryController extends Controller
             DB::rollBack();
             return Response::json(['message' => $e->getMessage()], 500);
         }
-
         return 1111;
 //        return redirect('/admin/products/'. $product->id)
 //            ->with('message', 'Категория ' . $category->name . ' была добавлена к товару ' . $product->title);

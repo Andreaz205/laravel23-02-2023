@@ -51,12 +51,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/favorites', [\App\Http\Controllers\Api\Favorite\FavoriteController::class, 'clear']);
 });
 
-Route::get('/categories/main/{category}', [\App\Http\Controllers\Api\Category\CategoryController::class, 'mainCategoryProducts']);
-Route::get('/categories/child/{category}', [\App\Http\Controllers\Api\Category\CategoryController::class, 'childCategoryProducts']);
+Route::get('/categories/{category}/products', [\App\Http\Controllers\Api\Category\CategoryController::class, 'categoryVariants']);
 
 Route::get('/auth/logout', [\App\Http\Controllers\Api\Auth\AuthController::class,'logout']);
 Route::post('/auth/login', [\App\Http\Controllers\Api\Auth\AuthController::class,'login']);
-Route::post('/auth/register', [\App\Http\Controllers\Api\Auth\AuthController::class,'register']);
+
+Route::post('/auth/register-organization', [\App\Http\Controllers\Api\Auth\AuthController::class,'registerOrganization']);
+Route::post('/auth/confirm-register-organization', [\App\Http\Controllers\Api\Auth\AuthController::class,'confirmRegisterOrganization']);
 
 Route::post('/auth/login-sms', [\App\Http\Controllers\Api\Auth\AuthController::class,'loginViaSms']);
 Route::post('/auth/confirm-login-sms', [\App\Http\Controllers\Api\Auth\AuthController::class,'confirmLoginViaSms']);

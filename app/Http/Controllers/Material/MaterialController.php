@@ -37,10 +37,6 @@ class MaterialController extends Controller
         $categories = Category::whereNull('parent_category_id')->with(['materials'])->get();
         $materials = Material::with(['material_units' => fn ($query) => $query->with('child_unit')])->orderBy('created_at', 'ASC')->get();
         $materials = MaterialResource::collection($materials)->resolve();
-//        foreach ($materials as $material) {
-//            $material['plain_units'] = $materialService::plainMaterialUnits($material['material_unit']);
-//        }
-
         return inertia('Material/Index', [
             'categories' => $categories,
             'materials' => $materials,
@@ -163,6 +159,7 @@ class MaterialController extends Controller
         if ($titleCandidate)
             throw ValidationException::withMessages(['В материале ' . $material->title . ' уже существует элемент с названием ' . $data['title']]);
 
+
         return $material->material_units()->create($data);
     }
 
@@ -224,16 +221,21 @@ class MaterialController extends Controller
         return $materialService->paginate($sets, 10);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function destroyUnit(MaterialUnit $unit)
     {
-        $value = $unit->values()->first();
+        $candidate = $unit->values()->has('variants')->first();
 
-        $candidateVariant = MaterialUnitValueVariants::where('material_unit_value_id', $value->id)->first();
-        if (isset($candidateVariant))
-            throw ValidationException::withMessages(['Невозможно удлаить значение так как к нему прявязаны варианты, удалите варианты!']);
+        if (isset($candidate))
+            throw ValidationException::withMessages(['Невозможно удлаить столбец так как к его свойствам прявязаны варианты товаров: 1) ' . $candidate->variants->first()->product->title . '..., удалите варианты!']);
 
+        $childUnit = $unit->child_unit;
+        if (isset($childUnit)) {
+            throw ValidationException::withMessages(['Невозможно удлить столбец так как он содержит дочерний ' . $childUnit->title . '. Сначала необходимо удалить дочерний!']);
+        }
         $unit->delete();
-
         return 1111;
     }
 

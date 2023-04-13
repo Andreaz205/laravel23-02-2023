@@ -4,6 +4,7 @@ namespace App\Http\Services\User;
 
 use App\Models\Group;
 use App\Models\User;
+use App\Models\UserEmailCode;
 use App\Models\UserField;
 use App\Models\UserFieldUsers;
 use App\Models\UserPhoneCode;
@@ -12,9 +13,9 @@ use Illuminate\Support\Facades\Response;
 
 class UserService
 {
-    public function appendFieldsAfterCreating($user): void
+    public function appendFieldsAfterCreating($user, $kind = 'single'): void
     {
-        $userFields = UserField::whereUserKind('single')->get();
+        $userFields = UserField::whereUserKind($kind)->get();
         $map = [];
         foreach ($userFields as $userField) {
             $map[] = [
@@ -33,14 +34,26 @@ class UserService
             $user->update (['group_id' => $defaultGroup->id]);
     }
 
-    public function checkCode($phone, $queryCode): bool
+    public function checkCode($uniqueUserField, $queryCode, $type = 'phone'): bool
     {
-        $candidateNote = UserPhoneCode::query()
-            ->where('phone_number', $phone)
-            ->where('is_used', false)
-            ->where('created_at', '>', Carbon::now()->subMinutes(15))
-            ->latest('created_at')
-            ->first();
+        switch ($type) {
+            case 'email':
+                $candidateNote = UserEmailCode::query()
+                    ->where('email', $uniqueUserField)
+                    ->where('is_used', false)
+                    ->where('created_at', '>', Carbon::now()->subMinutes(15))
+                    ->latest('created_at')
+                    ->first();
+                break;
+            case 'phone':
+                $candidateNote = UserPhoneCode::query()
+                    ->where('phone_number', $uniqueUserField)
+                    ->where('is_used', false)
+                    ->where('created_at', '>', Carbon::now()->subMinutes(15))
+                    ->latest('created_at')
+                    ->first();
+                break;
+        }
 
         if (isset($candidateNote)) {
             $code = (int)$candidateNote->code;

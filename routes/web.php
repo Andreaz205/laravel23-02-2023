@@ -149,6 +149,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/user-settings/fields', [\App\Http\Controllers\User\UserFieldController::class, 'store']);
     Route::delete('/user-settings/fields/{field}', [\App\Http\Controllers\User\UserFieldController::class, 'destroy']);
 
+    Route::get('/users/{user}/transactions', [\App\Http\Controllers\User\TransactionsController::class, 'index']);
+
     Route::get('/users', [\App\Http\Controllers\User\UserController::class, 'index']);
     Route::get('/users/create', [\App\Http\Controllers\User\UserController::class, 'create']);
     Route::patch('/users/{user}/update', [\App\Http\Controllers\User\UserController::class, 'update']);
@@ -254,7 +256,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/main-page-sales/update', [\App\Http\Controllers\Sale\MainPageSalesController::class, 'update']);
 
 });
-Route::get('/payment-index', [\App\Http\Controllers\Payment\PaymentController::class, 'index']);
+
 Route::post('/payment', [\App\Http\Controllers\Payment\PaymentController::class, 'store']);
 Route::match(['GET', 'POST'], '/payment/callback', [\App\Http\Controllers\Payment\PaymentController::class, 'callback']);
 

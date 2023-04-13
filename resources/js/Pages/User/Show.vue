@@ -57,6 +57,20 @@
                         Нет заказов!
                     </div>
                 </div>
+
+                <div class="card">
+                    <div class="card-header text-center text-lg">
+                        Транзакции пользователя
+                    </div>
+
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <Link :href="`/admin/users/${this.user.id}/transactions`">
+                                Посмотреть (0)
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 

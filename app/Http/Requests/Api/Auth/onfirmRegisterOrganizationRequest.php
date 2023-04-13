@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterSingleUserViaSmsRequest extends FormRequest
+class onfirmRegisterOrganizationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class RegisterSingleUserViaSmsRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,10 +24,7 @@ class RegisterSingleUserViaSmsRequest extends FormRequest
     public function rules()
     {
         return [
-            'phone' => 'required|string|min:11|max:11|unique:users,phone',
-            'name' => 'required|string|max:255|min:2',
-            'family' => 'required|string|max:255|min:2',
-            'patronymic' => 'required|string|max:255|min:2',
+            //
         ];
     }
 }

@@ -92,12 +92,7 @@ class ProductController extends Controller
 
     public function show(Product $product, MaterialService $materialService)
     {
-//        $product = $this->productService->aggregateOptionsForSingleProduct($product);
         $accentProperties = AccentProperty::with('media')->get();
-
-//        $productNames = $product->option_names()->with('option_values')->get();
-//        $product->option_names = $productNames;
-//        $allOptionNames = OptionName::query()->with('option_values')->get();
         $models = $product
             ->product_models()
             ->withCount('images')
@@ -107,11 +102,6 @@ class ProductController extends Controller
                 return $model;
             });
 
-//        $productNames = $product->option_names()->with('option_values')->get();
-//        $product->option_names = $productNames;
-//        $allOptionNames = OptionName::query()->with('option_values')->get();
-//        $models = $product->product_models()->with(['images'])->withCount('images')->get();
-
         $materials = $product->materials()->with(['material_units' => fn ($query) => $query->with(['values'])])->get();
         $materialSets =  $materialService->getSets($materials);
         $product->load('parameters', 'category');
@@ -119,11 +109,8 @@ class ProductController extends Controller
         $product->images = $product->images()->orderBy('position', 'ASC')->get();
         $product->variants = $product->variants()->with([ 'images', 'prices', 'material_unit_values' => fn ($query) => $query->with('color')])->get();
         $categories = Category::all();
-//        $categories = $this->productService->categoriesWithCheckedProp($product);
         $categories = $this->categoryService->nestedCategories($categories);
         $prices = Price::all();
-//            'allOptionNames' => $allOptionNames,
-//            'categoriesData' => $categories,
 
         return inertia('Product/Show', [
             'material_sets' => $materialSets,

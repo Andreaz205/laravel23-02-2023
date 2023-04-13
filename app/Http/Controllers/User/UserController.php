@@ -63,6 +63,8 @@ class UserController extends Controller
         ]);
     }
 
+
+
     public function storeOrganisation(StoreOrganizationRequest $request)
     {
         $data = $request->validated();

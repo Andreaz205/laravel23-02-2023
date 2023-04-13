@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Api\Auth;
+namespace App\Http\Requests\Payment;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterSingleUserViaSmsRequest extends FormRequest
+class StoreRequest extends FormRequest
 {
+    private string $regex = "/^(?=.+)(?:[1-9]\d*|0)?(?:\.\d+)?$/";
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -24,10 +25,10 @@ class RegisterSingleUserViaSmsRequest extends FormRequest
     public function rules()
     {
         return [
-            'phone' => 'required|string|min:11|max:11|unique:users,phone',
-            'name' => 'required|string|max:255|min:2',
-            'family' => 'required|string|max:255|min:2',
-            'patronymic' => 'required|string|max:255|min:2',
+            'amount' => ['required', 'regex:'.$this->regex],
+            'user_id' => 'nullable|integer|exists:users,id',
+            'order_id' => 'required|integer|exists:orders,id',
+            'description' => 'nullable|text|max:1000',
         ];
     }
 }
