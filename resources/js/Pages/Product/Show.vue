@@ -177,6 +177,13 @@
                     <div class="modal-body">
                         <Errors :errors="errors"/>
                         <div class="container-fluid" v-if="materials && materials.length">
+                            <div class="row">
+                                <label class="col-4">
+                                    Введите артикул:
+                                </label>
+                                <input type="text" class="form-control col-8" v-model="newVariantCode">
+                            </div>
+
                             <div class="row mt-3" v-for="material in materials">
 
                                 <label class="col-4">
@@ -550,9 +557,6 @@
                                                 <th class="border-0"></th>
                                                 <th class="border-0"></th>
                                                 <th class="border-0"></th>
-                                                <template v-if="product.option_names && product.option_names.length">
-                                                    <th class="top-header" v-for="optionName in product.option_names"></th>
-                                                </template>
                                                 <template v-if="materials && materials.length">
                                                     <template v-for="material in materials">
                                                         <th v-if="material.material_units.length !== 1" :colspan="material.material_units.length" class="text-center">
@@ -956,6 +960,7 @@ export default {
     ],
     data() {
         return {
+            newVariantCode: null,
             variantsToDeleteIds: [],
             createVariantForm: this.materials.map(material => ({
                 material_id: material.id,
@@ -969,7 +974,7 @@ export default {
             selectedOptionName: null,
             changeVariantFormData: [],
             selectedVariant: null,
-            product: JSON.parse(JSON.stringify(this.$props.productData)),
+            product: JSON.parse(JSON.stringify(this.productData)),
             images: this.$props.productData.images,
             dropzone: null,
             createOptionFormData: [
@@ -1017,11 +1022,13 @@ export default {
                     materials.push({material_id: form.material_id, ids: ids})
                 })
                 let data = {
-                    materials
+                    materials,
+                    code: this.newVariantCode
                 }
                 let response = await axios.post(`/admin/products/${this.product.id}/variants`, data)
 
                 this.product.variants.push(response.data)
+                this.newVariantCode = null
                 this.isLoading = false
             } catch (e) {
                 this.isLoading = false
@@ -1059,10 +1066,21 @@ export default {
                 }
                 await axios.post(`/admin/products/${this.product.id}/variants/${this.selectedVariant.id}/photos/bind`, data)
                 this.selectedVariant.images = []
+                let savedImages = []
                 imagesIds.map(imageId => {
                     const searchedImage = this.product.images.find(image => image.id === imageId)
-                        if (searchedImage) this.selectedVariant.images.push(searchedImage)
-                    })
+                    if (searchedImage) {
+                        savedImages.push(searchedImage.id)
+                        this.selectedVariant.images.push(searchedImage)
+                        searchedImage.variant_id = this.selectedVariant.id
+                    }
+                })
+                this.product?.images?.map(image => {
+                    let candidateSavedImage = savedImages.find(id => id === image.id)
+                    if (!candidateSavedImage && image?.variant_id === this.selectedVariant?.id) {
+                        image.variant_id = null
+                    }
+                })
             } catch (e) {
                 alert(e)
             }
@@ -1126,7 +1144,7 @@ export default {
                 ids.map(variantToDelete => {
                     this.product.variants = this.product.variants.filter(variant => variant.id != variantToDelete)
                 })
-
+                this.variantsToDeleteIds = []
                 this.isLoading = false
             } catch (e) {
                 this.isLoading = false
@@ -1241,6 +1259,14 @@ export default {
 </script>
 
 <style scoped lang='scss'>
+[contenteditable]:hover {
+    outline: 1px solid #2d3748;
+    padding: 5px;
+}
+[contenteditable] {
+    border: none;
+    outline: none;
+}
 table {
     table-layout: fixed;
     width: 100%;

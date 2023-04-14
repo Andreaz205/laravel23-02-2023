@@ -15,10 +15,10 @@ class Variant extends Model
     use HasFactory;
     protected $guarded = false;
 
-    public function color()
-    {
+
+
 //        return $this->belongsTo(Color::class, MaterialUnitValueVariants::class, 'last_material_unit_value_id', 'color_id', '', '');
-    }
+
 
     public function prices()
     {

@@ -45,4 +45,9 @@ class Category extends Model
         return $this->belongsToMany(Material::class, CategoryMaterials::class);
     }
 
+    public function variants()
+    {
+        return $this->hasManyThrough(Variant::class, Product::class, 'category_id', 'product_id', 'id', 'id');
+    }
+
 }

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api\Variant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Variant\PriceRequest;
 use App\Http\Services\Delivery\CDEKService;
 use App\Http\Services\Variant\VariantService;
+use App\Models\Discount;
+use App\Models\Price;
 use App\Models\RelatedVariant;
 use App\Models\Variant;
 use Illuminate\Http\Request;
@@ -30,11 +33,39 @@ class VariantController extends Controller
         return $variants;
     }
 
+    public function getPrice(PriceRequest $request)
+    {
+        $data = $request->validated();
+        $user = Auth('sanctum')->user();
+        $group = $user?->group()->get();
+
+        if (isset($group)) {
+            $price = Price::query()->whereRelation('groups', 'id', '=', $group[0]->id)->first();
+            if (isset($price)) {
+                $variants = Variant::query()
+                    ->whereIn('id', $data['variants'])
+                    ->with(['prices' => fn ($query) => $query->where('price_id', $price->id)])
+                    ->get();
+
+                $response = [];
+                foreach ($variants as $variant) {
+                    $response[] = [
+                        'id' => $variant->id,
+                        'price' => $variant->prices[0]->price,
+                    ];
+                }
+                return $response;
+            }
+        }
+        return Variant::query()->whereIn('id', $data['variants'])->get(['id', 'price']);
+    }
+
     public function variant(Variant $variant, CDEKService $CDEKService, Request $request)
     {
         $product = $variant->product;
         $this->variantService->aggregateVariantByMaterialUnits($variant);
-        unset($variant->product->variants);
+        unset($variant->product->variants, $variant->material_unit_values);
+
         $this->variantService->productColorsForVariant($variant, $product);
 
 //        if (isset($product->height) && isset($product->width) && isset($product->length) && isset($product->weight)) {
@@ -112,6 +143,7 @@ class VariantController extends Controller
 
         return $variant;
     }
+
 
 }
 

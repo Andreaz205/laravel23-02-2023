@@ -24,6 +24,7 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
+            'code' => 'required|string',
             'materials' => 'required|array',
             'materials.*.material_id' => 'required|integer|exists:materials,id',
             'materials.*.ids' => 'required|array',
@@ -34,6 +35,9 @@ class StoreRequest extends FormRequest
     public function messages()
     {
         return [
+            'code.required' => 'Артикул обязательный!',
+            'code.string' => 'Артикул должен быть строкой!!',
+
             'materials.required' => 'Не указаны материалы!',
             'materials.array' => 'Указанные материалы должны быть представлены в виде массива!',
             'materials.*.material_id.required' => 'Не указан "material_id"!',

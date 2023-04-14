@@ -126,59 +126,59 @@ export default {
                     // skip_door_to_door: true
                 }
                 let data2 = {
-                    "info": {
-                        "operator_request_id": "235353253532"
+                    info: {
+                        operator_request_id: "235353253532"
                     },
-                    "source": {
-                        "platform_station": {
-                            "platform_id": "3ed47320-6e04-40eb-85ba-ed702cd0d7d2"
+                    source: {
+                        platform_station: {
+                            platform_id: "3ed47320-6e04-40eb-85ba-ed702cd0d7d2"
                         }
                     },
-                    "destination": {
-                        "type": "custom_location",
-                        "custom_location": {
-                            "longitude": 37.540756,
-                            "latitude": 55.79211,
-                            "details": {
-                                "short_text": "Ленинградский проспект, 37",
-                                "full_text": "Москва, Ленинградский проспект, 37 ",
-                                "description": "Москва",
-                                "point": [37.540756, 55.79211],
-                                "full_address": "Москва, Ленинградский проспект, 37 ",
-                                "room": "5"
+                    destination: {
+                        type: "custom_location",
+                        custom_location: {
+                            longitude: 37.540756,
+                            latitude: 55.79211,
+                            details: {
+                                short_text: "Ленинградский проспект, 37",
+                                full_text: "Москва, Ленинградский проспект, 37 ",
+                                description: "Москва",
+                                point: [37.540756, 55.79211],
+                                full_address: "Москва, Ленинградский проспект, 37 ",
+                                room: "5"
                             }
                         },
-                        "interval_utc": {"from": "2023-04-18T11:00:00.000000Z", "to": "2023-04-18T20:59:00.000000Z"}
+                        interval_utc: {"from": "2023-04-18T11:00:00.000000Z", "to": "2023-04-18T20:59:00.000000Z"}
                     },
-                    "items": [{
-                        "article": "1",
-                        "count": 1,
-                        "name": "1",
-                        "barcode": "dod-235353253532",
-                        "place_barcode": "dod-235353253532",
-                        "physical_dims": {"weight_gross": 49000, "predefined_volume": 100000000},
-                        "billing_details": {
-                            "unit_price": 2000000,
-                            "assessed_unit_price": 2000000,
-                            "inn": "745212240657",
-                            "nds": -1,
-                            "need_nds": false
+                    items: [{
+                        article: "1",
+                        count: 1,
+                        name: "1",
+                        barcode: "dod-235353253532",
+                        place_barcode: "dod-235353253532",
+                        physical_dims: {"weight_gross": 49000, "predefined_volume": 100000000},
+                        billing_details: {
+                            unit_price: 2000000,
+                            assessed_unit_price: 2000000,
+                            inn: "745212240657",
+                            nds: -1,
+                            need_nds: false
                         }
                     }],
-                    "places": [{
-                        "physical_dims": {
+                    places: [{
+                        physical_dims: {
                             dx: 10,
                             dy: 60,
                             dz: 50,
-                            "predefined_volume": 200000000,
-                            "weight_gross": 49000,
+                            predefined_volume: 200000000,
+                            weight_gross: 49000,
                         },
-                        "barcode": "dod-235353253532"
+                        barcode: "dod-235353253532"
                     }],
-                    "billing_info": {"payment_method": "already_paid"},
-                    "recipient_info": {"first_name": "Стёпа", "phone": "+73215325535"},
-                    "last_mile_policy": "time_interval",
-                    "particular_items_refuse": false
+                    billing_info: {"payment_method": "already_paid"},
+                    recipient_info: {"first_name": "Стёпа", "phone": "+73215325535"},
+                    last_mile_policy: "time_interval",
+                    particular_items_refuse: false
                 }
                 let response = await axios.post(`/api/delivery/yandex/calculate`, data2)
                 this.deliveryData = response.data.data

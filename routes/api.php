@@ -51,7 +51,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/favorites', [\App\Http\Controllers\Api\Favorite\FavoriteController::class, 'clear']);
 });
 
-Route::get('/categories/{category}/products', [\App\Http\Controllers\Api\Category\CategoryController::class, 'categoryVariants']);
 
 Route::get('/auth/logout', [\App\Http\Controllers\Api\Auth\AuthController::class,'logout']);
 Route::post('/auth/login', [\App\Http\Controllers\Api\Auth\AuthController::class,'login']);
@@ -71,11 +70,16 @@ Route::post('/auth/reset-password', [\App\Http\Controllers\Api\Auth\AuthControll
 Route::get('/login/{provider}', [\App\Http\Controllers\Api\Auth\SocialiteController::class,'redirectToProvider']);
 Route::get('/login/{provider}/callback', [\App\Http\Controllers\Api\Auth\SocialiteController::class,'handleProviderCallback']);
 
+Route::get('/catalog', [\App\Http\Controllers\Api\Category\CategoryController::class, 'catalog']);
+Route::get('/catalog/parent-category/{category}', [\App\Http\Controllers\Api\Category\CategoryController::class, 'parentCategoryVariants']);
+Route::get('/catalog/child-category/{category}', [\App\Http\Controllers\Api\Category\CategoryController::class, 'childCategoryVariants']);
+Route::post('/variants/price', [\App\Http\Controllers\Api\Variant\VariantController::class, 'getPrice']);
 
 
 Route::get('/variants/ids', [\App\Http\Controllers\Api\Variant\VariantController::class, 'variantIds']);
 Route::get('/variants/{variant}', [\App\Http\Controllers\Api\Variant\VariantController::class, 'variant']);
 Route::get('/variants', [\App\Http\Controllers\Api\Variant\VariantController::class, 'variants']);
+
 
 Route::post('/orders', [\App\Http\Controllers\Api\Order\OrderController::class, 'store']);
 

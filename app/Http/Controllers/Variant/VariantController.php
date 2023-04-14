@@ -56,6 +56,10 @@ class VariantController extends Controller
                 'material_units' => fn ($query) => $query->with('values')
             ])->get();
 
+        $code = $data['code'];
+        $otherProductVariants = $product->variants()->pluck('code')->toArray();
+        if (in_array($code, $otherProductVariants)) throw ValidationException::withMessages(['Артикул должен быть уникальным для данного товара!']);
+
         foreach ($form as $formItem) {
             $materialId = $formItem['material_id'];
             $key = $productMaterials->search(fn ($value, $key) => $value->id == $materialId);
@@ -96,7 +100,8 @@ class VariantController extends Controller
             DB::beginTransaction();
 
             $variant = Variant::create([
-                'product_id' => $product->id
+                'product_id' => $product->id,
+                'code' => $data['code']
             ]);
             $prices = Price::all();
             foreach ($prices as $price) {
@@ -119,6 +124,10 @@ class VariantController extends Controller
         $field = $data['field'];
         $value = $data['value'];
 
+        if ($field === 'code') {
+            $otherVariantsCodes = $product->variants()->whereNot('id', $variant->id)->pluck('code')->toArray();
+            if (in_array($value, $otherVariantsCodes)) throw ValidationException::withMessages(['Вариант с таким артикулом уже сущствует!']);
+        }
         $variant->update([
             $field => $value
         ]);

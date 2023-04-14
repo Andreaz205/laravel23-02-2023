@@ -40,9 +40,14 @@
         </div>
     </div>
     <AuthenticatedLayout>
-        <div class="card card-secondary">
-            <div class="card-header">
-                <h3 class="card-title">Редактировать информацию о товаре</h3>
+        <div class="card">
+            <div class="card-header text-center text-lg relative">
+                Редактировать информацию о товаре
+                <button class="absolute btn btn-default top-1/2 -translate-y-1/2 left-1">
+                    <Link :href="`/admin/products/${product.id}`">
+                        К {{product.title}}
+                    </Link>
+                </button>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
@@ -188,10 +193,11 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import CustomSwitch from "@/Components/CustomSwitch.vue";
 import {router} from "@inertiajs/vue3";
 import Errors from "@/Components/Errors/Errors.vue";
+import {Link} from '@inertiajs/vue3'
 
 export default {
     name: "Edit",
-    components: {Errors, CustomSwitch, AuthenticatedLayout},
+    components: {Errors, CustomSwitch, AuthenticatedLayout, Link},
     props: ['productData'],
     data () {
         return {

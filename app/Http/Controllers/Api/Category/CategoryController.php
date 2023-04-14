@@ -7,17 +7,77 @@ use App\Http\Services\Variant\VariantService;
 use App\Models\Category;
 use Exception;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
 
 class CategoryController extends Controller
 {
+    public function catalog(VariantService $variantService)
+    {
+        $parentCategories = Category::query()
+            ->whereNull('parent_category_id')
+            ->with(['child_categories' => function ($query) {
+                return $query->with(['variants' => function ($query) {
+                    return $query->with(
+                        [
+                            'product',
+                            'images' => fn ($query) => $query->limit(6),
+                            'material_unit_values' => fn ($query) => $query->with('color')
+                        ]
+                    )->limit(10);
+                }]);
+            }])
+            ->with(['variants' => function ($query) {
+                return $query->with(
+                    [
+                        'product',
+                        'images' => fn ($query) => $query->limit(6),
+                        'material_unit_values' => fn ($query) => $query->with('color')
+                    ]
+                )->limit(10);
+            }])
+            ->get();
+        $response = collect([]);
+        foreach ($parentCategories as $parentCategory) {
+            $childCategories = $parentCategory->child_categories;
+            $childVariants = collect([]);
+
+            foreach ($parentCategory->variants as $variant) {
+                $product = $variant->product;
+                $variantService->getTitleWithProductName($variant, $product);
+                unset($variant->material_unit_values, $variant->product);
+                $childVariants->push($variant);
+            }
+
+            foreach ($childCategories as $childCategory) {
+                $variants = $childCategory->variants;
+                foreach ($variants as $variant) {
+                    $product = $variant->product;
+                    $variantService->getTitleWithProductName($variant, $product);
+                    unset($variant->material_unit_values, $variant->product);
+                    $childVariants->push($variant);
+                }
+            }
+            $response[] = [
+                'category' => $parentCategory->name,
+                'variants' => $childVariants,
+            ];
+        }
+        return $response;
+
+    }
+
     /**
      * @throws Exception
      */
-
-    public function categoryVariants(Category $category, VariantService $variantService)
+    public function parentCategoryVariants(Category $category, VariantService $variantService)
     {
         if (! isset($category->parent_category_id)) {
-            $mainCategoryProducts = $category->products()->whereHas('variants')->with(['variants' => fn ($query) => $query->with(['images', 'material_unit_values' => fn ($query) => with('color')])->limit(6)])->limit(10)->get();
+            $mainCategoryProducts = $category
+                ->products()
+                ->whereHas('variants')
+                ->with(['variants' => fn ($query) => $query->with(['images' => fn ($query) => $query->limit(6), 'material_unit_values' => fn ($query) => $query->with('color')])->limit(20)])
+                ->limit(10)
+                ->get();
             $category->products = $mainCategoryProducts;
             $childCategories = $category->child_categories()
                 ->with(['products' => fn ($query) => $query->whereHas('variants')->with(['variants' => fn ($query) => $query->with(['images', 'material_unit_values'])->limit(6)])->limit(10)])
@@ -54,14 +114,22 @@ class CategoryController extends Controller
                 'child_categories' => $childCategories,
                 'others' => $mainCategoryVariants
             ]);
+        }
+        throw ValidationException::withMessages(['message' => 'Некорректная категория для маршрута!']);
+    }
 
-        } else {
+    /**
+     * @throws ValidationException
+     */
+    public function childCategoryVariants(Category $category, VariantService $variantService)
+    {
+        if (isset($category->parent_category_id)) {
             $products = $category->products()
                 ->with(['variants' => fn ($query) => $query->with([
                     'material_unit_values' => fn ($query) => $query->with('color'),
                     'images' => fn ($query) => $query->limit(6)
                 ])
-                ->limit(10)])
+                    ->limit(10)])
                 ->limit(20)
                 ->get();
 
@@ -74,7 +142,7 @@ class CategoryController extends Controller
 
             return $products;
         }
+        throw ValidationException::withMessages(['message' => 'Некорректная категория для маршрута!']);
     }
-
 
 }

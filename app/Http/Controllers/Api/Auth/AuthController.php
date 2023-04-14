@@ -16,11 +16,8 @@ use App\Models\UserPhoneCode;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -41,6 +38,7 @@ class AuthController extends Controller
         try {
             DB::beginTransaction();
             event(new VerifyNotificationEvent($data['email']));
+
 //            $user = User::create($data);
 //
 //            $newToken = $user->createToken('auth')->plainTextToken;

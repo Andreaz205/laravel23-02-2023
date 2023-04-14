@@ -9,4 +9,9 @@ class PriceVariants extends Model
 {
     use HasFactory;
     protected $guarded = false;
+
+    public function price()
+    {
+        return $this->belongsTo(Price::class, 'price_id', 'id');
+    }
 }

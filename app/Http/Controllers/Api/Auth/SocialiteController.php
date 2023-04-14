@@ -58,9 +58,6 @@ class SocialiteController extends Controller
             [
                 'provider' => $provider,
                 'provider_id' => $user->getId(),
-            ],
-            [
-                'avatar' => $user->getAvatar()
             ]
         );
         $token = $userCreated->createToken()->plainTextToken;

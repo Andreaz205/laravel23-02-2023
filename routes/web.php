@@ -255,6 +255,9 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/main-page-sales/{sale}/image', [\App\Http\Controllers\Sale\MainPageSalesController::class, 'loadImage']);
     Route::post('/main-page-sales/update', [\App\Http\Controllers\Sale\MainPageSalesController::class, 'update']);
 
+    Route::get('/delivery', [\App\Http\Controllers\Delivery\DeliveryController::class, 'index']);
+    Route::get('/delivery/yandex', [\App\Http\Controllers\Delivery\YandexController::class, 'index']);
+    Route::get('/delivery/business-lines', [\App\Http\Controllers\Delivery\BusinessLinesController::class, 'index']);
 });
 
 Route::post('/payment', [\App\Http\Controllers\Payment\PaymentController::class, 'store']);

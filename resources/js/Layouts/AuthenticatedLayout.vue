@@ -284,6 +284,13 @@ export default {
                                 <!--                            </a>-->
                             </li>
 
+                            <li class="nav-item">
+                                <Link href="/admin/delivery" class="nav-link">
+                                    <i class="nav-icon fas fa-truck"></i>
+                                    <p>Доставка</p>
+                                </Link>
+                            </li>
+
 
 
                         </ul>
