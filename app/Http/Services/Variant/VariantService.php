@@ -57,7 +57,7 @@ class  VariantService implements VariantServiceInterface
         foreach ($productVars as $productVar) {
             $varVals = $productVar->material_unit_values;
             foreach ($varVals as $val) {
-                if ($productValues->search(fn($value) => $value->id === $val->id) === false) {
+                if ($productValues->search(fn($value) => (int)$value->id === (int)$val->id) === false) {
                     $productValues->push($val);
                 }
             }
@@ -76,7 +76,7 @@ class  VariantService implements VariantServiceInterface
             if (isset($productValues)) {
                 foreach ($materialUnits as $unit) {
                     foreach ($productValues as $value) {
-                        if ($unit->id == $value->material_unit_id) {
+                        if ((int)$unit->id === (int)$value->material_unit_id) {
                             $matValues[] = $value;
                         }
                     }
@@ -96,7 +96,7 @@ class  VariantService implements VariantServiceInterface
                     $searchedValue = null;
                     foreach ($materialUnit->values as $nameValue) {
                         foreach ($existsVariantValues as $existsVariantValue) {
-                            if ((int)$existsVariantValue->id == (int)$nameValue->id) {
+                            if ((int)$existsVariantValue->id === (int)$nameValue->id) {
                                 $flag = true;
                                 $searchedValue = $existsVariantValue;
                                 break 2;
@@ -105,7 +105,7 @@ class  VariantService implements VariantServiceInterface
                     }
                     if ($flag) {
                         $variantValues[] = $searchedValue;
-                        $materialUnit->activeValueId = $searchedValue->id;
+                        $materialUnit->activeValueId = (int)$searchedValue->id;
                     }
                 }
 //                $variant->variantValues = $variantValues;
@@ -118,7 +118,7 @@ class  VariantService implements VariantServiceInterface
                 //Обозначаю активные элементы
                 foreach ($productValues as $productValue) {
                     foreach ($variantValues as $variantValue) {
-                        if ($productValue->id == $variantValue->id) {
+                        if ((int)$productValue->id === (int)$variantValue->id) {
                             $productValue->active = true;
                         }
                     }
@@ -146,9 +146,9 @@ class  VariantService implements VariantServiceInterface
                     $vals = [];
                     foreach ($searchedVariantIds as $searchedVariantId) {
 
-                        $variantValuesNotes = $notes->filter(fn($item) => $item->variant_id === $searchedVariantId);
+                        $variantValuesNotes = $notes->filter(fn($item) => (int)$item->variant_id === (int)$searchedVariantId);
                         foreach ($variantValuesNotes as $variantValuesNote) {
-                            array_push($vals, $variantValuesNote->material_unit_value_id);
+                            array_push($vals, (int)$variantValuesNote->material_unit_value_id);
                         }
                         $result = [];
                         foreach ($vals as $key => $val) {
@@ -161,7 +161,7 @@ class  VariantService implements VariantServiceInterface
                     $availableValues = [];
                     foreach ($vals as $val) {
                         foreach ($materialUnit->values as $mtVal) {
-                            if ($mtVal->id == $val) {
+                            if ((int)$mtVal->id === (int)$val) {
                                 if (!in_array($mtVal, $availableValues)) {
                                     array_push($availableValues, $mtVal);
                                 }
@@ -173,17 +173,17 @@ class  VariantService implements VariantServiceInterface
                     //Попробую здесь построить ссылку важный момент здесь selected ids это предыдущие только
                     $selectedIds = [];
                     foreach ($variantValues as $variantValue) {
-                        if ($materialUnit->id == $variantValue->material_unit_id) {
+                        if ((int)$materialUnit->id === (int)$variantValue->material_unit_id) {
                             break;
                         } else {
-                            array_push($selectedIds, $variantValue->id);
+                            $selectedIds[] = (int)$variantValue->id;
                         }
                     }
 
                     $materialUnit->selectedIds = $selectedIds;
 
                     foreach ($materialUnit->values as $value) {
-                        $searchedIds = [...$selectedIds, $value->id];
+                        $searchedIds = [...$selectedIds, (int)$value->id];
                         //Над этим я пыхтел 2 недели!!! Относиться осторожно!!!
                         $bingoVariantArray = $this->intersectVariants($searchedIds, $notes);
                         $bingoVariant = null;
@@ -196,14 +196,14 @@ class  VariantService implements VariantServiceInterface
                         }
                         $value->searchedIds = $searchedIds;
                     }
-                    array_push($activeIds, $materialUnit->activeValueId);
+                    $activeIds[] = (int)$materialUnit->activeValueId;
                 }
                 // Построение ссылки на вариант для первой опции
                 $firstOptionName = $variant->material_units[0];
                 foreach ($firstOptionName->values as $nameValue) {
-                    $searchedVariantNote = $notes->filter(fn($item) => $item->material_unit_value_id === $nameValue['id'])->first();
-                    $searchedVariant = $productVars->filter(fn($item) => $item->id === $searchedVariantNote->variant_id)->first();
-                    $nameValue->linkedVariantId = $searchedVariant->id;
+                    $searchedVariantNote = $notes->filter(fn($item) => (int)$item->material_unit_value_id === (int)$nameValue['id'])->first();
+                    $searchedVariant = $productVars->filter(fn($item) => (int)$item->id === (int)$searchedVariantNote->variant_id)->first();
+                    $nameValue->linkedVariantId = (int)$searchedVariant->id;
                 }
             }
         }
@@ -214,15 +214,15 @@ class  VariantService implements VariantServiceInterface
     {
         $resultIds = [];
         foreach ($valuesIds as $key => $value) {
-            array_push($resultIds, +$value);
+            $resultIds[] = (int)$value;
         }
         $candidates = [];
 
         foreach ($resultIds as $materialValue) {
             $$materialValue = [];
             foreach ($pivot_notes as $note) {
-                if ($note->material_unit_value_id == $materialValue) {
-                    array_push($$materialValue, $note->variant_id);
+                if ((int)$note->material_unit_value_id === (int)$materialValue) {
+                    array_push($$materialValue, (int)$note->variant_id);
                 }
             }
             array_push($candidates, $$materialValue);

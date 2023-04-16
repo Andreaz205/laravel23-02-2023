@@ -63,7 +63,7 @@
                 <label class="col-sm-2 col-form-label">{{field.title}}</label>
                 <div class="col-10">
                     <template v-for="userField in user.fields" :key="userField.id">
-                        <template v-if="userField.user_field_id === field.id">
+                        <template v-if="+userField.user_field_id === +field.id">
                             <input v-if="field.type === 'string'"  class="form-control" type="text" :value="userField.value" :ref="`field-${userField.id}`" :id="userField.id">
                             <textarea v-if="field.type === 'text'"  class="form-control"  :value="userField.value" :ref="`field-${userField.id}`" :id="userField.id" />
                             <input v-if="field.type === 'bool'"  class="form-control" type="checkbox" :checked="userField.value" :ref="`field-${userField.id}`" :id="userField.id">
@@ -123,13 +123,11 @@ export default {
                     }
                 })
 
-                let fieldsData = fields.map(field => {
-                    if (field.type === 'checkbox') console.log(field.checked)
-                    return {
+                let fieldsData = fields.map(field => ({
                         user_field_id: field.id,
                         value: field?.type === 'checkbox' ? field.checked : field.__vueParentComponent ? field.value : field.date_value,
-                    }
-                })
+                    })
+                )
 
                 let response = await axios.patch(`/admin/users/${this.user.id}/update`, {...data, fields: fieldsData})
                 this.$page.props.user = response.data.data
@@ -151,7 +149,7 @@ export default {
             let field = this.$refs[key][0]
             if (!field.__vueParentComponent) {
                 let fieldId = +key.split('-')[1]
-                let candidateUserField = this.user.fields?.find(f => f.id === fieldId)
+                let candidateUserField = this.user.fields?.find(f => f.id === +fieldId)
                 if (candidateUserField) {
                     field.id = candidateUserField.id
                     field.date_value = candidateUserField.value

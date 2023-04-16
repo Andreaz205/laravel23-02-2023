@@ -697,9 +697,9 @@
 <!--                                                                    </template>-->
 <!--                                                                </template>-->
 
-                                                                <template v-if="variant.material_unit_values && variant.material_unit_values.length && variant.material_unit_values.find(value => value.material_unit_id === unit.id)">
+                                                                <template v-if="variant.material_unit_values && variant.material_unit_values.length && variant.material_unit_values.find(value => +value.material_unit_id === +unit.id)">
                                                                     <template v-for="material_unit_value in variant.material_unit_values" :key="material_unit_value.id">
-                                                                        <td v-if="material_unit_value.material_unit_id === unit.id">
+                                                                        <td v-if="+material_unit_value.material_unit_id === +unit.id">
                                                                             <div
                                                                                 class="flex justify-center items-center"
                                                                                 @click="handleMaterialUnitValueClick(material, variant)"

@@ -38,7 +38,7 @@ class Client
 
     public function searchByTerm($term)
     {
-        $client = new \GuzzleHttp\Client();
+        $client = $this->getClient();
 
         try {
             $response = $client->get('https://geocode-maps.yandex.ru/1.x/?format=json&apikey='. config('services.yandex-maps.geocoder_token') .'&geocode=' . $term);
@@ -46,5 +46,16 @@ class Client
             dd($exception->getMessage());
         }
         return $response->getBody()->getContents();
+    }
+
+    public function getPvzList($body)
+    {
+        $client = $this->getClient();
+        try {
+            $response = $client->post('https://b2b-authproxy.taxi.yandex.net/api/b2b/platform/pickup-points/list', ['json' => $body]);
+            dd($response->getBody()->getContents());
+        } catch (\Exception $exception) {
+            dd($exception->getMessage());
+        }
     }
 }

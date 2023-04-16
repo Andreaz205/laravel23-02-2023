@@ -69,7 +69,7 @@ export default {
             try {
                 this.isLoading = true
                 await axios.get(`/admin/kits/${this.kit.id}/products/bind-variants/${variant.id}`)
-                let searchedProduct = this.products.find(product => product.id === variant.product_id)
+                let searchedProduct = this.products.find(product => +product.id === +variant.product_id)
                 searchedProduct.variant = variant
                 this.isLoading = false
             } catch (e) {

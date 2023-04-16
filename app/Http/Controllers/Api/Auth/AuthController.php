@@ -69,6 +69,7 @@ class AuthController extends Controller
             DB::beginTransaction();
             $data['kind'] = 'organization';
             $user = User::query()->create($data);
+
             $this->service->handleAppendDefaultGroup($user);
             $this->service->appendFieldsAfterCreating($user, 'organization');
 
@@ -224,8 +225,5 @@ class AuthController extends Controller
         }
         return Response::json(['user' => $user, 'token' => $token]);
     }
-
-
-
 }
 

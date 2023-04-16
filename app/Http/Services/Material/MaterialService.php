@@ -81,7 +81,7 @@ class MaterialService
             $matSets = [];
 //            dd($material->material_units);
 //            $materialUnits = $material->material_units;
-            $materialUnits = $allMaterialUnits->filter(fn($item) => $item->material_id === $material->id);
+            $materialUnits = $allMaterialUnits->filter(fn($item) => (int)$item->material_id === (int)$material->id);
             if (count($materialUnits)) {
 
                 if (count($materialUnits) == 1) {
@@ -124,11 +124,11 @@ class MaterialService
                 'id' => $materialLastUnitValue->id, 'value' => $materialLastUnitValue->value
         ]];
         $currentValue = $materialLastUnitValue;
-        $parentValueKey = $allMaterialValues->search(fn ($value, $key) => $value->id == $currentValue->parent_material_unit_value_id);
+        $parentValueKey = $allMaterialValues->search(fn ($value, $key) => (int)$value->id === (int)$currentValue->parent_material_unit_value_id);
         while ($parentValueKey !== false) {
             $currentValue = $allMaterialValues[$parentValueKey];
             $set[] = ['id' => $currentValue->id, 'value' => $currentValue->value];
-            $parentValueKey = $allMaterialValues->search(fn ($value, $key) => $value->id == $currentValue->parent_material_unit_value_id);
+            $parentValueKey = $allMaterialValues->search(fn ($value, $key) => (int)$value->id === (int)$currentValue->parent_material_unit_value_id);
         };
         return $set;
     }

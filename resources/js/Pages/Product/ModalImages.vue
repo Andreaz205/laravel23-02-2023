@@ -5,7 +5,7 @@
                 <div class="relative">
 
                     <img :src="image.image_url" alt="">
-                    <input v-if="image.variant_id === selectedVariantImages.id" type="checkbox" :id="'image-checkbox-' + image.id" class="image-checkbox absolute top-3 left-3 w-10 h-10" checked>
+                    <input v-if="+image.variant_id === +selectedVariantImages.id" type="checkbox" :id="'image-checkbox-' + image.id" class="image-checkbox absolute top-3 left-3 w-10 h-10" checked>
                     <input v-else type="checkbox" :id="'image-checkbox-' + image.id" class="image-checkbox absolute top-3 left-3 w-10 h-10">
 
                 </div>
@@ -20,7 +20,7 @@ export default {
     props: ['product', 'selectedVariantImages'],
     methods: {
         images() {
-            let variantImages = JSON.parse(JSON.stringify(this.product?.images?.filter(image => image.variant_id === this.selectedVariantImages.id)))
+            let variantImages = JSON.parse(JSON.stringify(this.product?.images?.filter(image => +image.variant_id === +this.selectedVariantImages.id)))
             let otherImages = JSON.parse(JSON.stringify(this.product?.images?.filter(image => !image.variant_id )))
             console.log([...variantImages, ...otherImages])
             return [...variantImages, ...otherImages]

@@ -10,17 +10,11 @@
     <CouponDiscountForm :categories-data="categoriesData?.data" :groups-data="groupsData" @discountCreated="handleDiscountCreated"/>
 
     <AuthenticatedLayout>
-        <div class="card card-primary">
-            <div class="card-header">
-                <h3 class="card-title">Скидки и бонусы</h3>
+        <div class="card m-4">
+            <div class="card-header text-center text-xl">
+                <h3>Внутренние скидки</h3>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 text-center mt-2 mb-5">
-                        <span class="text-xl">Скидки</span>
-                    </div>
-                </div>
-
+            <div class="card-body min-h-[250px]">
                 <div class="row">
                     <div class="col-lg-2 col-md-4">
                         <div class="nav flex-column nav-tabs h-100" id="vert-tabs-tab" role="tablist"

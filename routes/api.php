@@ -35,6 +35,7 @@ Route::group(['prefix' => '/delivery/business-lines'], function () {
 Route::group(['prefix' => '/delivery/yandex'], function () {
     Route::get('search-by-term', [\App\Http\Controllers\Api\Delivery\Yandex\YandexDeliveryController::class, 'getCoordinatesByTerm']);
     Route::post('calculate', [\App\Http\Controllers\Api\Delivery\Yandex\YandexDeliveryController::class, 'calculate']);
+    Route::get('pvz', [\App\Http\Controllers\Api\Delivery\Yandex\YandexDeliveryController::class, 'pvzList']);
 //    Route::get('cities-by-term', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'getCitiesByTerm']);
 //    Route::post('calculate', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'calculate']);
 //    Route::get('cities', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'getLocalities']);

@@ -59,11 +59,13 @@ class StatisticController extends Controller
             $ordersDateLabels[] = $item->format('Y-m-d');
         }
 
-        $viewsData = AnalyticsService::monthViewsData($from->format('Y-m-d'), $to->format('Y-m-d'));
-        $devicesData = AnalyticsService::monthDevicesData();
-        $visitsPerPage = AnalyticsService::monthVisitsPerPage();
-
-
+        try {
+            $viewsData = AnalyticsService::monthViewsData($from->format('Y-m-d'), $to->format('Y-m-d'));
+            $devicesData = AnalyticsService::monthDevicesData();
+            $visitsPerPage = AnalyticsService::monthVisitsPerPage();
+        } catch (\Exception $exception) {
+            return 'Some error occurred!';
+        }
 
         return inertia('Statistic/Index', [
             'ordersDateLabels' => $ordersDateLabels,

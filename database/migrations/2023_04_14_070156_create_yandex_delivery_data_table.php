@@ -17,12 +17,15 @@ return new class extends Migration
             $table->id();
 //            $table->integer('delivery_cost')->nullable();
             $table->enum('payment_method', ["already_paid", "cash_on_receipt", "card_on_receipt", "cashless"]);
-            $table->string('destination_details_comment')->nullable();
-            $table->string('destination_details_full_address')->nullable();
-            $table->string('destination_details_room')->nullable();
-            $table->string('operator_request_id'); // id order
-            $table->decimal('latitude', 8, 2);
-            $table->decimal('longitude', 8, 2);
+            $table->string('platform_id');
+            $table->string('platform_address');
+
+//            $table->string('destination_details_comment')->nullable();
+//            $table->string('destination_details_full_address')->nullable();
+//            $table->string('destination_details_room')->nullable();
+//            $table->string('operator_request_id'); // id order
+//            $table->decimal('latitude', 8, 2);
+//            $table->decimal('longitude', 8, 2);
 
             $table->timestamps();
         });

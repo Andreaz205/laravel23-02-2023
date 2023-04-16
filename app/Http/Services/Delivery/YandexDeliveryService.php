@@ -22,4 +22,9 @@ class YandexDeliveryService
     {
         return $this->client->searchByTerm($term);
     }
+
+    public function pvzList($body)
+    {
+        return $this->client->getPvzList($body);
+    }
 }

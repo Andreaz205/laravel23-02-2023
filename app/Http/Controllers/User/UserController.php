@@ -137,7 +137,7 @@ class UserController extends Controller
         $requiredFields = $allSingleUserFields->filter(fn ($item) => $item->is_required === true && $item->user_kind === 'single');
 
         foreach ($requiredFields as $requiredField) {
-            $key = $dataFieldsCollection->search(fn ($item) => $item['id'] === $requiredField->id);
+            $key = $dataFieldsCollection->search(fn ($item) => (int)$item['id'] === (int)$requiredField->id);
             if (!isset($dataFieldsCollection[$key]['value']))
                 throw ValidationException::withMessages(['Не заполнены обязательные дополнительные поля ' . $requiredField->title]);
             if ($key === false)
@@ -160,7 +160,7 @@ class UserController extends Controller
             $fields = [];
 
             foreach ($allSingleUserFields as $singleUserField) {
-                $key = $dataFieldsCollection->search(fn ($item) => $item['id'] === $singleUserField->id);
+                $key = $dataFieldsCollection->search(fn ($item) => (int)$item['id'] === (int)$singleUserField->id);
                 if ($key !== false) {
 
                     $fields[] = [
@@ -210,7 +210,7 @@ class UserController extends Controller
         $fields = UserField::where('user_kind', $user->kind)->get();
         $user->fields = $user->fields()->get()->map(function ($field) use($fields, $user) {
             foreach ($fields as $globalUserField) {
-                if ($field->user_field_id === $globalUserField->id) {
+                if ((int)$field->user_field_id === (int)$globalUserField->id) {
                     if ($globalUserField->user_kind === $user->kind) {
                         return $field;
                     }

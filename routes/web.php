@@ -257,7 +257,9 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::get('/delivery', [\App\Http\Controllers\Delivery\DeliveryController::class, 'index']);
     Route::get('/delivery/yandex', [\App\Http\Controllers\Delivery\YandexController::class, 'index']);
+    Route::patch('/delivery/yandex', [\App\Http\Controllers\Delivery\YandexController::class, 'update']);
     Route::get('/delivery/business-lines', [\App\Http\Controllers\Delivery\BusinessLinesController::class, 'index']);
+    Route::patch('/delivery/business-lines', [\App\Http\Controllers\Delivery\BusinessLinesController::class, 'update']);
 });
 
 Route::post('/payment', [\App\Http\Controllers\Payment\PaymentController::class, 'store']);

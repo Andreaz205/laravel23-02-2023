@@ -82,13 +82,19 @@ export default {
                 event.preventDefault()
                 let notFilledData = null
                 let fields = this.fieldsData?.map(field => {
-                    if (field.is_required && field.value === undefined || field.is_required && field.value === '') notFilledData = field
+                    console.log(field)
+                    if (field.is_required && !field.value) {
+                        notFilledData = field
+                    }
                     return {
                         id: field.id,
                         value: field.value
                     }
                 })
-                if (notFilledData) return alert(`Необходимо заполнить обязательные поля ${notFilledData.title}`)
+                if (notFilledData) {
+                     alert(`Необходимо заполнить обязательные поля ${notFilledData.title}`)
+                    return this.isLoading = false
+                }
 
                 let data = {
                     group_id: this.group_id === 'none' ? null : this.group_id,
