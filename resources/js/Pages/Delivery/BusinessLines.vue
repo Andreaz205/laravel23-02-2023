@@ -27,7 +27,7 @@
 import FlushMessage from '@/Components/FlashMessage.vue'
 import {Link} from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import Spinner from "@/Components/Spinner";
+import Spinner from "@/Components/Spinner.vue";
 export default {
     name: "DeliveryLines",
     components: {Spinner, Link, FlushMessage},

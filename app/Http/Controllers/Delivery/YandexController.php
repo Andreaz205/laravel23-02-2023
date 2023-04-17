@@ -4,17 +4,32 @@ namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Delivery\Yandex\UpdateRequest;
+use App\Http\Services\Delivery\YandexDeliveryService;
 use App\Models\YandexDeliveryData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class YandexController extends Controller
 {
+    private YandexDeliveryService $service;
+
+    public function __construct(YandexDeliveryService $service)
+    {
+        $this->service = $service;
+    }
+
     public function index()
     {
         $data = YandexDeliveryData::query()->first();
-        return inertia('Delivery/Yandex', [
-            'data' => $data
+
+        $body = [
+            'available_for_dropoff' => true,
+//            'type' => 'terminal'
+        ];
+        $pvz = $this->service->pvzList($body);
+        return inertia('Delivery/Yandex/Yandex', [
+            'data' => $data,
+            'points' => $pvz,
         ]);
     }
 

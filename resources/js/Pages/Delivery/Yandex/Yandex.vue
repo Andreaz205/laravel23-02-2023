@@ -63,15 +63,16 @@
 
             <div class="row">
                 <div class="col-10">
-                    <input type="text" class="form-control" disabled :value="data.platform_address">
+                    <input type="text" class="form-control" disabled :value="platform_address">
                 </div>
                 <div class="col-2">
-                    <button class="btn btn-warning">
+                    <button class="btn btn-warning" @click="handleEditPvz">
                         Изменить
                     </button>
                 </div>
-
             </div>
+
+            <Pvz v-if="isPointsOpen" :points="points" @changePvz="handleChangePvz"/>
 
             <div class="row mt-2">
                 <div class="col-12 text-center">
@@ -91,15 +92,18 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import Errors from "@/Components/Errors/Errors.vue";
 import Spinner from "@/Components/Spinner.vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
+import Pvz from "@/Pages/Delivery/Yandex/Pvz.vue";
 export default {
     name: "Yandex",
-    components: {FlashMessage, Spinner, Errors, Link},
+    components: {Pvz, FlashMessage, Spinner, Errors, Link},
     layout: AuthenticatedLayout,
     props: [
-        'data'
+        'data',
+        'points'
     ],
     data () {
         return {
+            isPointsOpen: false,
             isLoading: false,
             errors: null,
             payment_method: this.data?.payment_method ?? null,
@@ -108,15 +112,29 @@ export default {
         }
     },
     methods: {
+        handleEditPvz() {
+            if (this.isPointsOpen) {
+                this.platform_id = this.data?.platform_id ?? null,
+                this.platform_address = this.data?.platform_address ?? null,
+                this.isPointsOpen = false
+            } else {
+                this.isPointsOpen = true
+            }
+        },
+        handleChangePvz(item) {
+            this.platform_id = item.value
+            this.platform_address = item.text
+        },
         async saveChanges() {
             try {
                 this.isLoading = true
                 let data = {
                     payment_method: this.payment_method,
-                    platform_id: "3ed47320-6e04-40eb-85ba-ed702cd0d7d2",
-                    platform_address: 'Монтажников 16'
+                    platform_id: this.platform_id,
+                    platform_address: this.platform_address
                 }
                 await this.$inertia.patch('/admin/delivery/yandex', data)
+                if (this.isPointsOpen) this.handleEditPvz()
                 this.isLoading = false
             } catch (e) {
                 this.isLoading = false

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Services\Variant\VariantService;
 use App\Models\Variant;
+use App\Models\YandexDeliveryData;
 use Illuminate\Http\Request;
 require_once storage_path('/app/sms/sms.ru.php');
 
@@ -63,9 +64,10 @@ class TestController extends Controller
 
     public function testVariant(Variant $variant, VariantService $variantService)
     {
+
         $variantService->aggregateVariantByMaterialUnits($variant);
         return inertia('Test/Variant', [
-            'data' => $variant
+            'data' => $variant,
         ]);
     }
 }

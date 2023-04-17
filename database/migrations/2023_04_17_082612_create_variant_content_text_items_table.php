@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('business_lines_delivery_data', function (Blueprint $table) {
+        Schema::create('variant_content_text_items', function (Blueprint $table) {
             $table->id();
-            $table->string('terminal_id');
-            $table->string('terminal_address');
+            $table->foreignId('variant_content_id')->constrained('variant_contents')->onDelete('cascade');
+            $table->string('title');
+            $table->string('description');
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('business_lines_delivery_data');
+        Schema::dropIfExists('variant_content_text_items');
     }
 };

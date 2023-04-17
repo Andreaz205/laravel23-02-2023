@@ -27,10 +27,9 @@ class Client
             $response = $client->post('https://b2b-authproxy.taxi.yandex.net/api/b2b/platform/offers/create', ['json' => $body]);
 //            $response = $client->post('https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/check-price', ['json' => $body]);
         } catch (BadResponseException $exception) {
-            dd($exception->getMessage());
-            $data = json_decode($exception->getResponse()->getBody()->getContents());
-            dd($data);
-            return \Illuminate\Support\Facades\Response::json(['message' => $exception->getResponse()->getBody()->getContents()], 400);
+            dd(json_decode($exception->getResponse()->getBody()->getContents()));
+            $message = json_decode($exception->getResponse()->getBody()->getContents())->message;
+            return \Illuminate\Support\Facades\Response::json(['message' => $message], 400);
         }
         return json_decode($response->getBody()->getContents());
 
@@ -53,9 +52,26 @@ class Client
         $client = $this->getClient();
         try {
             $response = $client->post('https://b2b-authproxy.taxi.yandex.net/api/b2b/platform/pickup-points/list', ['json' => $body]);
-            dd($response->getBody()->getContents());
         } catch (\Exception $exception) {
-            dd($exception->getMessage());
+            $response = json_decode($exception->getResponse()->getBody()->getContents());
+            $errorMessage = $response?->error_details ?? 'Что то пошло не так!';
+            return \Illuminate\Support\Facades\Response::json(['message' => $errorMessage], 500);
         }
+        $pointsData = $response->getBody()->getContents();
+        return $this->convertPvzList($pointsData);
+    }
+
+    private function convertPvzList(string $pointsData): array
+    {
+        $pointsDataJson = json_decode($pointsData);
+        $points = $pointsDataJson->points;
+        $map = [];
+        foreach ($points as $point) {
+            $map[] = [
+                'platform_id' => $point->id,
+                'address' => $point->address->full_address
+            ];
+        }
+        return $map;
     }
 }

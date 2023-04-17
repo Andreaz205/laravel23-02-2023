@@ -232,7 +232,6 @@ export default {
              })
         },
         deleteParameter (parameter) {
-             console.log(parameter)
              this.parameters = this.parameters.filter(param => param.id !== parameter.id)
         },
         async onSubmit () {

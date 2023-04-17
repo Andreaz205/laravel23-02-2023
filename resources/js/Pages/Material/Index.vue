@@ -117,6 +117,8 @@
             </div>
 
         </template>
+
+
         <button
             type="button" class="btn btn-primary bg-blue"
             data-toggle="modal"
@@ -124,6 +126,7 @@
         >
             Добавить
         </button>
+        <ContentPreview />
     </AuthenticatedLayout>
 </template>
 
@@ -133,9 +136,10 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import Spinner from '@/Components/Spinner.vue'
 import Errors from "@/Components/Errors/Errors.vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
+import ContentPreview from "@/Pages/Material/ContentPreview.vue";
 export default {
     name: "Index",
-    components: {FlashMessage, Errors, AuthenticatedLayout, Link, Spinner},
+    components: {ContentPreview, FlashMessage, Errors, AuthenticatedLayout, Link, Spinner},
     props: ['categories', 'materials'],
     data () {
         return {

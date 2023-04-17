@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('business_lines_delivery_data', function (Blueprint $table) {
+        Schema::create('variant_contents', function (Blueprint $table) {
             $table->id();
-            $table->string('terminal_id');
-            $table->string('terminal_address');
+            $table->string('title');
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('business_lines_delivery_data');
+        Schema::dropIfExists('variant_contents');
     }
 };

@@ -22,30 +22,17 @@ class YandexDeliveryController extends Controller
     public function calculate(Request $request)
     {
         $params = $request->all();
+
         return $this->service->calculate($params);
     }
 
     public function pvzList()
     {
-        $latitude['to'] = 55.272220;
-        $latitude['from'] = 55.073802;
-
-        $longitude['from'] = 61.236601;
-        $longitude['to'] = 61.510408;
-
         $body = [
-            'latitude' => [
-                'from' => $latitude['from'],
-                'to' => $latitude['to'],
-            ],
-            'longitude' => [
-                'from' => $longitude['from'],
-                'to' => $longitude['to'],
-            ],
             'available_for_dropoff' => true,
-            'type' => 'terminal'
+//            'type' => 'terminal'
         ];
-
         return $this->service->pvzList($body);
     }
+
 }

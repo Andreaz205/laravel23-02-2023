@@ -477,7 +477,6 @@
                     </div>
                 </div>
 
-
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
@@ -924,10 +923,12 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import MaterialVariantModal from "@/Pages/Product/Modal/MaterialVariantModal.vue";
 import {ModelSelect} from "vue-search-select";
 import Errors from "@/Components/Errors/Errors.vue";
+import ContentPreview from "@/Pages/Material/ContentPreview.vue";
 
 export default {
     name: "Product",
     components: {
+        ContentPreview,
         Errors,
         MaterialVariantModal,
         FlashMessage,

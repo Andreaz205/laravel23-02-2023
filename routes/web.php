@@ -88,6 +88,20 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::post('/products/{product}/accent-properties', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'bind']);
 
+    Route::get('/materials/variants-content', [\App\Http\Controllers\Variant\VariantContentController::class, 'index']);
+    Route::get('/materials/variants-content/create', [\App\Http\Controllers\Variant\VariantContentController::class, 'create']);
+    Route::post('/materials/variants-content', [\App\Http\Controllers\Variant\VariantContentController::class, 'store']);
+    Route::get('/materials/variants-content/{variantContent}/edit', [\App\Http\Controllers\Variant\VariantContentController::class, 'edit']);
+
+    Route::post('/materials/variants-content/{variantContent}/append-item', [\App\Http\Controllers\Variant\VariantContentController::class, 'appendItem']);
+    Route::post('/materials/variants-content-items/{variantContentItem}/append-image', [\App\Http\Controllers\Variant\VariantContentController::class, 'appendImage']);
+    Route::delete('/materials/variants-content-items/{variantContentItem}', [\App\Http\Controllers\Variant\VariantContentController::class, 'deleteItem']);
+
+    Route::post('/materials/variants-content/{variantContent}/append-text-item', [\App\Http\Controllers\Variant\VariantContentController::class, 'appendTextItem']);
+    Route::delete('/materials/variants-content-text-items/{variantContentTextItem}', [\App\Http\Controllers\Variant\VariantContentController::class, 'deleteTextItem']);
+
+    Route::delete('/materials/variants-content/{contentItem}', [\App\Http\Controllers\Variant\VariantContentController::class, 'destroy']);
+
     Route::get('/products/{product}/models/edit', [\App\Http\Controllers\Product\ProductModelController::class, 'edit']);
     Route::post('/products/{product}/models', [\App\Http\Controllers\Product\ProductModelController::class, 'store']);
     Route::post('/products/{product}/models/{model}/images', [\App\Http\Controllers\Product\ProductModelController::class, 'addImage']);
