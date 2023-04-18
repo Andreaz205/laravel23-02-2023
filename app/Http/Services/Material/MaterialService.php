@@ -29,7 +29,7 @@ class MaterialService
     public static function products(Category $category)
     {
         $products = collect();
-        $childCategories = $category->child_categories;
+        $childCategories = $category->child_categories()->with('products')->get();
         $categories = [$category, ...$childCategories];
         foreach ($categories as $cat) {
             $currentCategoryProducts = $cat->products;

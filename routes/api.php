@@ -26,8 +26,10 @@ Route::group(['prefix' => '/delivery/cdek'], function () {
 
 Route::group(['prefix' => '/delivery/business-lines'], function () {
     Route::get('cities', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'cities']);
-    Route::get('cities-by-term', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'getCitiesByTerm']);
+    Route::get('cities-by-term', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'getCitiesByTerm']); //q
+    Route::get('city-street', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'street']);
     Route::post('calculate', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'calculate']);
+    Route::post('terminals', [\App\Http\Controllers\Api\Delivery\BusinessLines\BusinessLinesController::class, 'getTerminals']);
 //    Route::get('cities', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'getLocalities']);
 //    Route::post('calculate-by-available-tariffs', [\App\Http\Controllers\Api\Delivery\CDEK\CdekController::class, 'calculateByAvailableTariffs']);
 });

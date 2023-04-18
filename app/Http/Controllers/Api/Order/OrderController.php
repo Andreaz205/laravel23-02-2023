@@ -21,7 +21,7 @@ class OrderController extends Controller
         $this->orderService = $service;
     }
 
-    public function store(Request $request)
+    public function store(Request $request, OrderService $orderService)
     {
         $user = Auth('sanctum')->user();
 
@@ -49,12 +49,14 @@ class OrderController extends Controller
         unset($data['variants']);
 
         $sum = 0;
-        $orderedVariants = Variant::whereIn('id', $orderedVariantsIds)->get();
-        $orderedVariants->each(function  ($item) use(&$sum) {
+        $orderedVariants = Variant::query()->whereIn('id', $orderedVariantsIds)->get();
+        $orderedVariants->each(function  ($item) use(&$sum, &$bonuses) {
             $sum = $sum + $item->price;
         });
         $data['sum'] = $sum;
 
+        $bonuses = $orderService->calculateBonuses($orderedVariantsIds, $user);
+        $data['bonuses'] = $bonuses;
         //check quantity
 //        foreach($orderedVariantsArray as $arrayItem) {
 //            $variantId = $arrayItem['id'];
@@ -66,14 +68,17 @@ class OrderController extends Controller
 //        }
         $copies = [];
         try {
-
             DB::beginTransaction();
             $newOrder = Order::query()->create($data);
+            $variants = Variant::query()
+                ->whereIn('id', $orderedVariantsIds)
+                ->with(['material_unit_values', 'images' => fn ($query) => $query->limit(1)])
+                ->get();
+            $orderService->attachUserPriceByGroup($variants, $user);
+
             foreach ($orderedVariantsArray as $variantItem) {
-                $variant = Variant::query()
-                    ->where('id', $variantItem['id'])
-                    ->with(['material_unit_values', 'images' => fn ($query) => $query->limit(1)])
-                    ->first();
+                $variant = $variants->find($variantItem['id']);
+
                 $title = $variant->getTitleAttribute();
                 $variantCopy = OrderVariantCopy::create([
                     'order_id' => $newOrder->id,

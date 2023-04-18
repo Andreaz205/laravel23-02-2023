@@ -39,8 +39,8 @@ class VariantController extends Controller
         $user = Auth('sanctum')->user();
         $group = $user?->group()->get();
 
-        if (isset($group)) {
-            $price = Price::query()->whereRelation('groups', 'id', '=', $group[0]->id)->first();
+        if (isset($group) && count($group)) {
+            $price = Price::query()->whereRelation('groups', 'id', '=', $group[0]?->id)->first();
             if (isset($price)) {
                 $variants = Variant::query()
                     ->whereIn('id', $data['variants'])

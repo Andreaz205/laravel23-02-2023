@@ -71,6 +71,18 @@
                         </li>
                     </ul>
                 </div>
+
+                <div class="card">
+                    <div class="card-header text-center text-lg">
+                        Баллы пользователя
+                    </div>
+
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            {{user.bonuses}}
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 

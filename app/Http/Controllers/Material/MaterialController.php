@@ -70,9 +70,14 @@ class MaterialController extends Controller
     {
         $data = $request->validated();
         $materialIds = $data['materials'];
-        // Валидация категории
+
         if (isset($category->parent_category_id)) throw ValidationException::withMessages(['Недопустимая категория']);
-        $variants = MaterialService::productsVariants(MaterialService::products($category));
+
+        $existedProducts = MaterialService::products($category);
+        $variants = MaterialService::productsVariants($existedProducts);
+        $errorProducts = collect($existedProducts)->slice(0, 5)->map(fn ($item) => $item->title)->join(', ', '');
+        if (count($variants)) throw ValidationException::withMessages(["Невозможено убрать/добавить материалы к категории {$category->name}, т.к. у данный категории уже указаны материалы и их
+        изменение приведёт к нарушению структуры товаров! Для того чтобы изменить материалы у данной категории необходимо удалить варианты у товаров {$errorProducts}"]);
 
         // Валидация для цвета
         $materials = Material::whereIn('id', $materialIds)->get();

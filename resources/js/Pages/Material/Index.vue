@@ -66,6 +66,16 @@
                             </div>
                         </Link>
                     </div>
+
+                    <Link href="/admin/categories" class="col-4">
+                        <div class="card p-4 min-h-[200px] hover:bg-gray-100 cursor-pointer bg-blue-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Добавить</h5>
+                            </div>
+                        </div>
+                    </Link>
+
+
                 </div>
             </div>
         </template>
@@ -113,19 +123,24 @@
                                 </div>
                             </div>
                     </div>
+
+                    <div
+                         type="button" class="col-4"
+                         data-toggle="modal"
+                         data-target="#createOptionsModal"
+                    >
+                        <div class="card p-4 min-h-[200px] hover:bg-gray-100 cursor-pointer bg-blue-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Добавить</h5>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
         </template>
 
-
-        <button
-            type="button" class="btn btn-primary bg-blue"
-            data-toggle="modal"
-            data-target="#createOptionsModal"
-        >
-            Добавить
-        </button>
         <ContentPreview />
     </AuthenticatedLayout>
 </template>

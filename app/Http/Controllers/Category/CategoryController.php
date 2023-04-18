@@ -7,6 +7,7 @@ use App\Http\Requests\Category\BindRequest;
 use App\Http\Requests\Category\CategoryStoreRequest;
 use App\Http\Requests\Category\StoreCategoryImageRequest;
 use App\Http\Resources\Category\CategoryResource;
+use App\Http\Services\Material\MaterialService;
 use App\Models\Category;
 use App\Models\CategoryProducts;
 use App\Models\CategoryVariants;
@@ -54,12 +55,18 @@ class CategoryController extends Controller
         $categoryId = $data['category_id'];
 
         if (isset($categoryId)) {
-            $parentCategory = Category::find($categoryId);
+            $parentCategory = Category::with('materials')->find($categoryId);
             if (isset($parentCategory->parent_category_id)) throw ValidationException::withMessages(['Недопустимая вложенность!']);
-            $category = Category::create([
-                'name' => $name,
-                'parent_category_id' => $categoryId
-            ]);
+            try {
+                $materialsIds = $parentCategory->materials->map(fn ($item) => $item->id);
+                $category = Category::create([
+                    'name' => $name,
+                    'parent_category_id' => $categoryId
+                ]);
+                $category->materials()->sync($materialsIds);
+            } catch (\Exception $exception) {
+                return Response::json(['message' => 'Что то пошло не так!'], 500);
+            }
         } else {
             $category = Category::create([
                 'name' => $name,
@@ -68,9 +75,18 @@ class CategoryController extends Controller
         return new CategoryResource($category);
     }
 
-    public function destroy(Category $category)
+    public function destroy(Category $category, MaterialService  $materialService)
     {
-        $category->delete();
+        $productsIds = $materialService::products($category)->map(fn ($item) => $item->id);
+        try {
+            DB::beginTransaction();
+            Variant::query()->whereIn('product_id', $productsIds)->delete();
+            $category->delete();
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return Response::json(['message' => $exception->getMessage()], 500);
+        }
         return Response::json(['status' => 'success']);
     }
 

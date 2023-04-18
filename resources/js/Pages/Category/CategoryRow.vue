@@ -13,8 +13,8 @@
                 </div>
                 <div>
                     <input v-if="hasCheckbox"  type="checkbox" class="form-control" @change="onChangeCheckbox($event, category)" @click="handleCheckboxClick" :checked="category.is_checked || checkedIds?.includes(category.id)">
-                    <button v-if="deleteButton" class="mr-2" @click="category.parent_category_id ? emitDeleteCategoryWithoutCategory :  emitDeleteCategoryWithCategory($event, category)">
-                        <i class="fas fa-times" ></i>
+                    <button v-if="deleteButton" class="mr-2"  @click="emitDeleteCategory({event: $event, category: category})">
+                        <i class="fas fa-times hover:bg-gray-300"></i>
                     </button>
                 </div>
             </div>
@@ -27,14 +27,13 @@
                 <table class="table table-hover">
                     <tbody>
                         <CategoryRow
-
                             v-for="cat in category.child_categories"
                             :key="cat.id"
                             :category="cat"
                             :selected-category="selectedCategory"
                             @changeSelectedCategory="emitChangeSelectedCategory"
                             @changeCheckboxValue="emitChangeCheckboxValue"
-                            @deleteCategory="deleteCategory($event, category, cat)"
+                            @deleteCategory="emitDeleteCategory($event)"
                             :delete-button="deleteButton"
                             :has-checkbox="hasCheckbox"
                             :checked-ids="checkedIds"
@@ -79,28 +78,13 @@ export default {
         'checkedIds'
     ],
     methods: {
-        async deleteCategory(event, parentCategory, category) {
-            try {
-                event.stopPropagation()
-                await axios.delete(`/admin/categories/${category.id}`)
-                parentCategory.child_categories = parentCategory.child_categories.filter(cat => cat.id != category.id)
-                this.$emit('changeSelectedCategory', null)
-            } catch (e) {
-                alert(e)
-            }
-        },
         emitChangeSelectedCategory(category) {
             this.$emit('changeSelectedCategory', category)
         },
-        emitDeleteCategoryWithoutCategory(event) {
-            event.stopPropagation()
+        emitDeleteCategory(data) {
+            data.event.stopPropagation()
             this.emitChangeSelectedCategory(null)
-            this.$emit('deleteCategory')
-        },
-        emitDeleteCategoryWithCategory(event, category) {
-            this.emitChangeSelectedCategory(null)
-            event.stopPropagation()
-            this.$emit('deleteCategory', category)
+            this.$emit('deleteCategory', data)
         },
         emitChangeCheckboxValue(category, isChecked) {
             this.$emit('changeCheckboxValue', category, isChecked)

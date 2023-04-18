@@ -2,32 +2,121 @@
 
 namespace App\Http\Services\Order;
 
+use App\Models\Bonus;
+use App\Models\Price;
 use App\Models\Variant;
 
 class OrderService
 {
-    public function checkPrice($orderedVariantsArray)
+    public function calculateBonuses($orderedVariantsIds, $user = null): int
     {
-        $ids = [];
-        foreach ($orderedVariantsArray as $arrayItem) {
-            $ids[] = $arrayItem['id'];
-        }
-        $variants = Variant::whereIn('id', $ids)->get(['id', 'price']);
-        foreach ($variants as $variant) {
-            foreach ($orderedVariantsArray as $arrayItem) {
-                if ($variant->id == $arrayItem['id']) {
-                    if ($variant->price != $arrayItem['price']) {
-                        return 'fail';
+        if (!isset($user)) return 0;
+        $variants = Variant::query()->whereIn('id', $orderedVariantsIds)->with(['product' => fn ($query) => $query->with('category'), 'kits'])->get();
+        $bonusesInfo = Bonus::query()->with(['categories', 'groups'])->first();
+        $isUserGroupAvailableForBonuses = $this->checkUserGroupAvailabilityForBonuses($bonusesInfo, $user);
+
+        $userGroup = $user?->group;
+        $bonusesCount = 0;
+        if ($isUserGroupAvailableForBonuses) {
+
+            if (isset($userGroup)) {
+                $isHasPrice = $this->hasUserPriceByGroup($user);
+                if ($isHasPrice) {
+                    $this->attachUserPriceByGroup($variants, $user);
+                } else {
+                    $discount = $user->group->discount;
+                    $this->attachUserPriceByGroupDiscount($variants, $discount);
+                }
+            }
+
+            foreach ($variants as $variant) {
+                $isCategoryAvailableForBonuses = $this->checkVariantCategoryAvailabilityForBonuses($variant, $bonusesInfo);
+                if ($isCategoryAvailableForBonuses) {
+                    if ($bonusesInfo->allow_kits) {
+                        if (count($variant->kits)) {
+                            if ($bonusesInfo->allow_discounted) {
+                                $bonusesCount += $this->getBalls($variant->price, $bonusesInfo);
+                            } else {
+                                if (!$variant->old_price) {
+                                    $bonusesCount += $this->getBalls($variant->price, $bonusesInfo);
+                                }
+                            }
+                        }
+                    } else {
+                        if ($bonusesInfo->allow_discounted) {
+                            $bonusesCount += $this->getBalls($variant->price, $bonusesInfo);
+                        } else {
+                            if (!$variant->old_price) {
+                                $bonusesCount += $this->getBalls($variant->price, $bonusesInfo);
+                            }
+                        }
                     }
-                    continue 2;
                 }
             }
         }
-        return 'success';
+
+        return $bonusesCount;
     }
 
-    public function calculateSumAfterSales($sum, $variants, $user = null)
+    public function attachUserPriceByGroup(&$variants, $user = null): void
     {
+        $price = Price::query()->whereRelation('groups', 'id', '=', $user->group->id)->first();
+        $variants = Variant::query()
+            ->whereIn('id', $variants->map(fn ($variant) => $variant->id))
+            ->with(['prices' => fn ($query) => $query->where('price_id', $price->id)])
+            ->get();
+        foreach ($variants as $variant) {
+            $variant['price'] = $variant->prices[0]->price;
+        }
+    }
+
+    public function attachUserPriceByGroupDiscount(&$variants, $discount): void
+    {
+        foreach ($variants as $variant) {
+            $variant['price'] = $variant->price + $variant->price * $discount / 100;
+        }
+    }
+
+    public function hasUserPriceByGroup($user = null): bool
+    {
+        $price = Price::query()->whereRelation('groups', 'id', '=', $user->group->id)->first();
+        return isset($price);
+    }
+
+    public function getBalls(int $price, \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null $bonusInfo): int
+    {
+        $coefficientConversion = $bonusInfo->coefficient_conversion;
+        $percent = $bonusInfo->bonus_percent;
+        return $price * $percent / 100 * $coefficientConversion ?? 0;
+    }
+
+    public function checkVariantCategoryAvailabilityForBonuses(&$variant, \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null &$bonusInfo): bool
+    {
+        if ($bonusInfo->available_groups === 'all') return true;
+        $variantCategory = $variant->product->category;
+        if (!count($bonusInfo->categories)) return true;
+        $isFound = $bonusInfo->categories->search(fn ($item) => (int)$item->id === (int)$variantCategory->id);
+        return ! $isFound === false;
+
+    }
+
+    public function checkUserGroupAvailabilityForBonuses(\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null &$bonusInfo, \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null &$user = null): bool
+    {
+        if ($bonusInfo->available_groups === 'all') return true;
+        if ($bonusInfo->available_groups === 'without_groups') {
+            $group = $user?->group()->get();
+            return ! isset($group) && count($group);
+        }
+        $bonusGroups = $bonusInfo->groups;
+        if (isset($bonusGroups)) {
+            $group = $user?->group()->get();
+            if (isset($group) && count($group)) {
+                $isFound = $bonusGroups->search(fn ($item) => (int)$item->id === (int)$group[0]->id);
+                return ! $isFound === false;
+            }
+            return false;
+        }
+        return true;
 
     }
 }

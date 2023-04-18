@@ -103,4 +103,40 @@ class Client
         }
         return $response->getBody()->getContents();
     }
+
+    public function getStreet($params)
+    {
+        $client = $this->getClient();
+        $body = [
+            ...$params,
+            'appkey' => config('services.business_lines.appkey'),
+            'sessionID' => ServiceTokens::whereServiceName('business_lines')->first()->token
+        ];
+        try {
+            $response = $client->post("https://api.dellin.ru/v1/public/kladr_street.json", ['json' => $body]);
+        } catch (\Exception $exception) {
+            $exceptionBody = json_decode($exception->getResponse()->getBody()->getContents());
+            if ($exceptionBody->metadata->status === 400) return Response::json(['message' => $exceptionBody->errors], 400);
+            return Response::json(['message' => mb_convert_encoding($exception->getMessage(), "UTF-8", "auto")], 500);
+        }
+        return $response->getBody()->getContents();
+    }
+
+    public function getTerminals($params)
+    {
+        $client = $this->getClient();
+        $body = [
+            ...$params,
+            'appkey' => config('services.business_lines.appkey'),
+            'sessionID' => ServiceTokens::whereServiceName('business_lines')->first()->token
+        ];
+        try {
+            $response = $client->post("https://api.dellin.ru/v1/public/request_terminals.json", ['json' => $body]);
+        } catch (\Exception $exception) {
+            $exceptionBody = json_decode($exception->getResponse()->getBody()->getContents());
+            if ($exceptionBody->metadata->status === 400) return Response::json(['message' => $exceptionBody->errors], 400);
+            return Response::json(['message' => mb_convert_encoding($exception->getMessage(), "UTF-8", "auto")], 500);
+        }
+        return $response->getBody()->getContents();
+    }
 }

@@ -104,6 +104,7 @@ class OrderController extends Controller
                 'note' => $message
             ]);
             $order->update($data);
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -124,13 +125,21 @@ class OrderController extends Controller
         $data = $validator->validated();
         try {
             DB::beginTransaction();
-            $message = 'Статус оплаты изменён с \''. $order->getPayStatusAttribute($order->is_payed) .'\' на \''. $order->getPayStatusAttribute($data['is_payed']) .'\' пользователем '.Auth('admin')->user()->name;
+            $message = 'Статус оплаты изменён с \''. $order->getPayStatusAttribute($order->is_payed) .'\' на \''. $order->getPayStatusAttribute($data['is_payed']) .'\' пользователем ' . Auth('admin')->user()->name;
 
             OrderHistory::create([
                 'order_id' => $order->id,
                 'note' => $message
             ]);
             $order->update($data);
+            if ($order->user) {
+                if ($data['is_payed']) {
+                    $order->user->update(['bonuses' => $order->user->bonuses + $order->bonuses]);
+                } else {
+                    $order->user->update(['bonuses' => $order->user->bonuses - $order->bonuses]);
+                }
+            }
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();

@@ -26,4 +26,14 @@ class BusinessLinesService
     {
         return $this->businessLinesClient->calculate($params);
     }
+
+    public function getStreet($params)
+    {
+        return $this->businessLinesClient->getStreet($params);
+    }
+
+    public function getTerminals($params)
+    {
+        return $this->businessLinesClient->getTerminals($params);
+    }
 }

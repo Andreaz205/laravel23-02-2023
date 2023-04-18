@@ -68,11 +68,22 @@ export default {
                             type: 'auto'
                         },
                         arrival: {
-                            variant: 'terminal',
-                            city: this.item.value,
+                            variant: 'address',
+                            address: {
+                                street: "3000000100004700000000000"
+                            },
+                            "time":{
+                                "worktimeStart":"9:30",
+                                "worktimeEnd":"19:00",
+                                "breakStart":"12:00",
+                                "breakEnd":"13:00",
+                                "exactTime":false
+                            },
+                            // variant: 'address',
+                            // city: this.item.value,
                         },
                         derival: {
-                            produceDate: '2023-04-06',
+                            produceDate: '2023-04-18',
                             variant: 'terminal',
                             terminalID: chelyabinskTerminalCode,
                         },

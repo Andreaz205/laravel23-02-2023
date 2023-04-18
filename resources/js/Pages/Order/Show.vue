@@ -3,8 +3,8 @@
         <div v-if="order">
 
             <div class="row">
-               <div class="col-xl-9 col-md-12">
-                   <div class="card">
+                <div class="col-xl-9 col-md-12">
+                    <div class="card m-3">
 
                        <div class="card-header">
                            <div class="flex gap-x-4">
@@ -98,7 +98,7 @@
                        </div>
                    </div>
 
-                   <div class="card my-3">
+                    <div class="card m-3">
                        <div class="card-body table-responsive p-0">
                            <table class="table table-hover text-nowrap">
                                <thead>
@@ -172,76 +172,14 @@
                            <div class="d-flex justify-between items-end flex-column">
                                <div>Итого <span class="font-bold">{{ finishSum }}</span></div>
                                <div>Прибыль <span class="font-bold">{{ profit }}</span></div>
+                               <div>Бонусы<span class="font-bold">{{order.bonuses}}</span></div>
                            </div>
                        </div>
                    </div>
+                </div>
 
-
-                   <div class="card card-primary card-tabs">
-                       <div class="card-header p-0 pt-1">
-                           <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
-                               <li class="nav-item">
-                                   <a class="nav-link" id="custom-tabs-one-home-tab" data-toggle="pill"
-                                      href="#custom-tabs-one-home" role="tab" aria-controls="custom-tabs-one-home"
-                                      aria-selected="false">Комментарий продавца</a>
-                               </li>
-                               <li class="nav-item">
-                                   <a class="nav-link active" id="custom-tabs-one-profile-tab" data-toggle="pill"
-                                      href="#custom-tabs-one-profile" role="tab" aria-controls="custom-tabs-one-profile"
-                                      aria-selected="true">История</a>
-                               </li>
-                               <li class="nav-item">
-                                   <a class="nav-link" id="custom-tabs-one-messages-tab" data-toggle="pill"
-                                      href="#custom-tabs-one-messages" role="tab" aria-controls="custom-tabs-one-messages"
-                                      aria-selected="false">Клиент</a>
-                               </li>
-                               <li class="nav-item">
-                                   <a class="nav-link" id="custom-tabs-one-settings-tab" data-toggle="pill"
-                                      href="#custom-tabs-one-settings" role="tab" aria-controls="custom-tabs-one-settings"
-                                      aria-selected="false">Доставка</a>
-                               </li>
-                           </ul>
-                       </div>
-
-                       <div class="card-body">
-                           <div class="tab-content min-h-[300px]" id="custom-tabs-one-tabContent">
-                               <div class="tab-pane fade" id="custom-tabs-one-home" role="tabpanel"
-                                    aria-labelledby="custom-tabs-one-home-tab">
-                                   <div contenteditable="true" @input="adminComment = $event.target.innerText">
-                                       {{ order.admin_comment ? order.admin_comment : '-' }}
-                                   </div>
-                                   <button @click="setManagerComment(adminComment)" class="btn btn-primary">
-                                       Сохранить
-                                   </button>
-                               </div>
-                               <div class="tab-pane fade active show" id="custom-tabs-one-profile" role="tabpanel"
-                                    aria-labelledby="custom-tabs-one-profile-tab">
-                                   <div v-if="order.history">
-                                       <div v-for="historyItem in order.history">
-                                           {{ formatDate(historyItem.created_at) }} - {{ historyItem.note }}
-                                       </div>
-                                   </div>
-                               </div>
-                               <div class="tab-pane fade" id="custom-tabs-one-messages" role="tabpanel"
-                                    aria-labelledby="custom-tabs-one-messages-tab">
-                                   <div>
-                                       {{ order.user_name }}
-                                   </div>
-                                   <div>
-                                       {{ order.phone }}
-                                   </div>
-                               </div>
-                               <div class="tab-pane fade" id="custom-tabs-one-settings" role="tabpanel"
-                                    aria-labelledby="custom-tabs-one-settings-tab">
-                                   {{ order.address }}
-                               </div>
-                           </div>
-                       </div>
-                       <!-- /.card -->
-                   </div>
-               </div>
                 <div class="col-xl-3 col-md-12">
-                    <div class="card">
+                    <div class="card m-3">
                         <div class="card-header text-center text-lg">
                             Клиент
                         </div>
@@ -262,17 +200,73 @@
                                     Клиент не зарегестрирован
                                 </small>
                             </div>
-                            <div>
-
-
-                            </div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
+            <div class="card card-tabs m-3">
+                <div class="card-header p-0 pt-1">
+                    <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link" id="custom-tabs-one-home-tab" data-toggle="pill"
+                               href="#custom-tabs-one-home" role="tab" aria-controls="custom-tabs-one-home"
+                               aria-selected="false">Комментарий продавца</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" id="custom-tabs-one-profile-tab" data-toggle="pill"
+                               href="#custom-tabs-one-profile" role="tab" aria-controls="custom-tabs-one-profile"
+                               aria-selected="true">История</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="custom-tabs-one-messages-tab" data-toggle="pill"
+                               href="#custom-tabs-one-messages" role="tab" aria-controls="custom-tabs-one-messages"
+                               aria-selected="false">Клиент</a>
+                        </li>
+                    </ul>
+                </div>
 
+                <div class="card-body">
+                    <div class="tab-content min-h-[300px]" id="custom-tabs-one-tabContent">
+                        <div class="tab-pane fade" id="custom-tabs-one-home" role="tabpanel"
+                             aria-labelledby="custom-tabs-one-home-tab">
+                            <div contenteditable="true" @input="adminComment = $event.target.innerText">
+                                {{ order.admin_comment ? order.admin_comment : '-' }}
+                            </div>
+                            <button @click="setManagerComment(adminComment)" class="btn btn-primary">
+                                Сохранить
+                            </button>
+                        </div>
+                        <div class="tab-pane fade active show" id="custom-tabs-one-profile" role="tabpanel"
+                             aria-labelledby="custom-tabs-one-profile-tab">
+                            <div v-if="order.history">
+                                <div v-for="historyItem in order.history">
+                                    {{ formatDate(historyItem.created_at) }} - {{ historyItem.note }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="custom-tabs-one-messages" role="tabpanel"
+                             aria-labelledby="custom-tabs-one-messages-tab">
+                            <div>
+                                {{ order.user_name }}
+                            </div>
+                            <div>
+                                {{ order.phone }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card -->
+            </div>
+
+            <div class="card m-3">
+                <div class="card-header text-center text-lg">
+                   Доставка
+                </div>
+                <div class="card-body">
+
+                </div>
+            </div>
 
         </div>
     </AuthenticatedLayout>

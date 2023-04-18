@@ -427,12 +427,12 @@
                     </div>
                 </div>
 
-                <AccentProperties :accent-properties-props="product.accent_properties" :product="product"/>
+<!--                <AccentProperties :accent-properties-props="product.accent_properties" :product="product"/>-->
 
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
-                            <div class="card-header text-center text-lg bg-yellow">
+                            <div class="card-header text-center text-xl">
                                 Прокручиваемые модели
                             </div>
                             <div class="card-body">

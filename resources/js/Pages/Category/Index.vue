@@ -68,46 +68,31 @@
     </div>
 
     <AuthenticatedLayout>
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="flex justify-between items-center w-full">
-                            <h3 class="card-title">Управление категориями</h3>
-                            <div class="input-group input-group-sm" style="width: 150px;">
-                                <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
 
-                                <div class="input-group-append">
-                                    <button type="submit" class="btn btn-default">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                <div class="card">
+                    <div class="card-header text-center text-xl">
+                        Управление категориями
                     </div>
                     <!-- ./card-header -->
                     <div class="card-body p-0">
                         <table class="table table-hover">
                             <tbody>
                             <tr>
-                                <td class="border-0 flex flex-nowrap">
-                                    <button
+                                <td class="border-0 text-center text-lg relative">
+                                    <div class="absolute left-3 top-1/2 -translate-y-1/2">
+                                        <button
                                             type="button" class="mr-2"
                                             data-toggle="modal" data-target="#addCategoryButton"
-                                    >
-                                        <i class="fas fa-plus" ></i>
-                                    </button>
-                                    <form id="edit">
+                                        >
+                                            <i class="fas fa-plus" ></i>
+                                        </button>
+
                                         <button type="button"
                                                 data-toggle="modal" data-target="#editCategoryButton">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                    </form>
+                                    </div>
 
-                                </td>
-                            </tr>
-                            <tr aria-expanded="true" id="catalog">
-                                <td>
                                     Каталог
                                 </td>
                             </tr>
@@ -123,7 +108,7 @@
                                                             :change-selected-category="changeSelectedCategory"
                                                             :selected-category="selectedCategory"
                                                             :category="category"
-                                                            @deleteCategory="deleteMainCategory"
+                                                            @deleteCategory="deleteCategory"
                                                             @changeSelectedCategory="changeSelectedCategory"
                                                             :delete-button="true"
                                                         />
@@ -137,11 +122,8 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- /.card-body -->
+
                 </div>
-                <!-- /.card -->
-            </div>
-        </div>
     </AuthenticatedLayout>
 
 </template>
@@ -186,11 +168,16 @@ export default {
             if (this.selectedCategory?.id === category?.id) return this.selectedCategory = null
             this.selectedCategory = category
         },
-        async deleteMainCategory(category) {
+        async deleteCategory(data) {
             try {
                 this.isLoading = true
-                await axios.delete(`/admin/categories/${category.id}`)
-                this.categories = this.categories.filter(cat => cat.id !== category.id)
+                await axios.delete(`/admin/categories/${data.category.id}`)
+                if (data.category.parent_category_id) {
+                    let index = this.categories.find(category => category.id === data.category.parent_category_id).child_categories.indexOf(data.category)
+                    this.categories.find(category => category.id === data.category.parent_category_id).child_categories.splice(index, 1)
+                } else {
+                    this.categories = this.categories.filter(cat => cat.id !== data.category.id)
+                }
                 this.$emit('changeSelectedCategory', null)
                 this.isLoading = false
             } catch (e) {
