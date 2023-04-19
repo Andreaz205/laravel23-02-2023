@@ -5,47 +5,18 @@ namespace App\Http\Services\Product;
 use App\Http\Contracts\ProductServiceInterface;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Validation\ValidationException;
 
 class ProductService implements ProductServiceInterface
 {
 
-//    public function aggregateOptionsForCollection($products)
-//    {
-//        if (isset ($products)) {
-//            foreach ($products as $product) {
-//                $productOptions = $product->options;
-//                if (isset ($productOptions)) {
-//                    $columnNames = $this->calculateColumnNames($productOptions);
-//                    $product->columns = $columnNames;
-//                }
-//            }
-//            return $products;
-//        }
-//        return null;
-//    }
-
-//    public function calculateColumnNames($productOptions)
-//    {
-//        $columnNames = [];
-//        foreach($productOptions as $productOption) {
-//            if (!in_array($productOption->title, $columnNames)) {
-//                $columnNames[] = $productOption->title;
-//            }
-//        }
-//        return $columnNames;
-//    }
-
     public function aggregateOptionsForSingleProduct($product)
     {
-//        if (isset($product) ) {
-//            $optionNames = $product->option_names;
-//            foreach ($optionNames as $optionName) {
-//                $optionName->option_values;
-//            }
-//            $product->option_names = $optionNames;
-//        }
-//        return $product;
+
     }
+
+
+
 
     public function categoriesWithCheckedProp($product)
     {

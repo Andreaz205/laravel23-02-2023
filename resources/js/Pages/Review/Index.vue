@@ -2,9 +2,9 @@
     <AuthenticatedLayout>
 
 
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Отзывы</h3>
+        <div class="card m-3">
+            <div class="card-header text-center text-xl">
+                Отзывы
 
                 <!--                <div class="card-tools">-->
                 <!--                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">-->
@@ -19,7 +19,7 @@
                 <table class="table projects">
                     <thead>
                     <tr>
-                        <th style="width: 1%">#</th>
+                        <th style="width: 10%">#</th>
                         <th style="width: 10%">Название</th>
                         <th>Клиент</th>
                         <th>Оценка</th>

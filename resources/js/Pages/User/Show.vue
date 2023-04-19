@@ -65,14 +65,15 @@
 
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <Link :href="`/admin/users/${this.user.id}/transactions`">
-                                Посмотреть (0)
+                            <Link :href="`/admin/users/${user.id}/transactions`">
+                                Посмотреть ({{user.transactions_count}})
                             </Link>
                         </li>
                     </ul>
                 </div>
 
                 <div class="card">
+
                     <div class="card-header text-center text-lg">
                         Баллы пользователя
                     </div>
@@ -82,7 +83,9 @@
                             {{user.bonuses}}
                         </li>
                     </ul>
+
                 </div>
+
             </div>
         </div>
 

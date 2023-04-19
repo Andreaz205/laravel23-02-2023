@@ -3,11 +3,20 @@
 namespace App\Http\Services\Order;
 
 use App\Models\Bonus;
+use App\Models\Order;
 use App\Models\Price;
+use App\Models\User;
 use App\Models\Variant;
 
 class OrderService
 {
+    private array $canceledStatuses;
+
+    public function __construct()
+    {
+        $this->canceledStatuses = ['aborted', 'client_enabled', 'back', 'back_process',];
+    }
+
     public function calculateBonuses($orderedVariantsIds, $user = null): int
     {
         if (!isset($user)) return 0;
@@ -117,6 +126,56 @@ class OrderService
             return false;
         }
         return true;
+    }
 
+    public function handleEditBonusesAfterChangeStatus(string $status, Order $order): void
+    {
+        if (isset($order->user) && $order->is_payed) {
+            $orderBonuses = $order->bonuses;
+            if (in_array($status, $this->canceledStatuses)) {
+                if ($order->is_bonuses_added) {
+                    $order->user->update(['bonuses' => $order->user->bonuses - $orderBonuses]);
+                    $order->update(['is_bonuses_added' => false]);
+                }
+            } else {
+                if (! $order->is_bonuses_added) {
+                    $order->user->update(['bonuses' => $order->user->bonuses + $orderBonuses]);
+                    $order->update(['is_bonuses_added' => true]);
+                }
+            }
+        }
+    }
+
+    public function handleEditBonusesAfterChangePaidStatus(bool $isPaid, Order $order): void
+    {
+        $user = $order->user;
+        if (isset($user)) {
+            if ($isPaid) {
+                if (! $order->is_bonuses_added) {
+                    $user->update(['bonuses' => $user->bonuses + $order->bonuses]);
+                    $order->update(['is_bonuses_added' => true]);
+                }
+            } else {
+                if ($order->is_bonuses_added) {
+                    $user->update(['bonuses' => $user->bonuses - $order->bonuses]);
+                    $order->update(['is_bonuses_added' => false]);
+                }
+            }
+        }
+    }
+
+    public function getOrderSumFromRequestWithPreparedPrices(\Illuminate\Support\Collection $orderedVariantsArray, \Illuminate\Database\Eloquent\Collection $variants): array
+    {
+        $purchaseSum = 0;
+        $sum = 0;
+        foreach ($orderedVariantsArray as $orderedVariantsArrayItem) {
+            $variant = $variants->find($orderedVariantsArrayItem['id']);
+            $sum += $variant->price;
+            $purchaseSum += $variant->purchase_price;
+        }
+        return [
+            'sum' => $sum,
+            'purchase_sum' => $purchaseSum,
+        ];
     }
 }

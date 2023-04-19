@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\AppendSizeRequest;
+use App\Http\Requests\Product\PaginatedProductsRequest;
 use App\Http\Requests\Product\StoreRequest;
 use App\Http\Requests\Product\UpdateRequest;
 use App\Http\Services\Category\CategoryService;
@@ -27,7 +28,7 @@ class ProductController extends Controller
 {
     protected ProductService $productService;
     protected CategoryService $categoryService;
-
+    private int $perPage = 20;
     public function __construct(ProductService $productService, CategoryService $categoryService)
     {
         $this->productService = $productService;
@@ -40,14 +41,11 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Product::with('images')->withCount('variants')->orderByDesc('created_at')->paginate(20);
-        foreach ($products as $product) {
-            $product->min_max_price = $product->getMinMaxPriceAttribute();
-            $product->quantity = $product->getQuantityAttribute();
-        }
+        $categories = Category::query()->with('child_categories')->whereNull('parent_category_id')->get();
 
         return inertia('Product/Index', [
-            'productsData' => $products,
+            'categories' => $categories,
+
             'can-products' => [
                 'list' => Auth('admin')->user()->can('product list'),
                 'create' => Auth('admin')->user()->can('product create'),
@@ -55,6 +53,38 @@ class ProductController extends Controller
                 'delete' => Auth('admin')->user()->can('product delete'),
             ]
         ]);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function paginatedData(PaginatedProductsRequest $request)
+    {
+        $data = $request->validated();
+        $categoryId = $data['category_id'] ?? null;
+        $type = $data['type'] ?? 'current';
+        if (isset($categoryId)) {
+            if ($type === 'all') {
+                $category = Category::query()->find($categoryId);
+                $productIds = $this->categoryService->allCategoryProductsIds($category);
+                $products = Product::with('images')
+                    ->withCount('variants')
+                    ->whereIn('id', $productIds)
+                    ->orderByDesc('created_at')
+                    ->paginate($this->perPage)
+                    ->appends($request->query())
+                ;
+            } else {
+                $products = Product::with('images')->withCount('variants')->where('category_id', $categoryId)->orderByDesc('created_at')->paginate($this->perPage)->appends($request->query());
+            }
+        } else {
+            $products = Product::with('images')->withCount('variants')->orderByDesc('created_at')->paginate($this->perPage)->appends($request->query());
+        }
+        foreach ($products as $product) {
+            $product->min_max_price = $product->getMinMaxPriceAttribute();
+            $product->quantity = $product->getQuantityAttribute();
+        }
+        return $products;
     }
 
     public function byTerm(Request $request)
@@ -68,9 +98,9 @@ class ProductController extends Controller
         $data = $validator->validated();
 
         if (isset($data['term']))
-            $products = Product::where('title', 'ilike', '%'.$data['term'].'%')->with('images')->withCount('variants')->paginate(20);
+            $products = Product::where('title', 'ilike', '%'.$data['term'].'%')->with('images')->withCount('variants')->paginate($this->perPage);
         else
-            $products =  Product::with('images')->withCount('variants')->paginate(20);
+            $products =  Product::with('images')->withCount('variants')->paginate($this->perPage);
 
         foreach ($products as $product) {
             $product->min_max_price = $product->getMinMaxPriceAttribute();

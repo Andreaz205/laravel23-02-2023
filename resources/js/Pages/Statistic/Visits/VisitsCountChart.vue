@@ -1,5 +1,5 @@
 <template>
-    <div class="card">
+    <div class="card m-3">
         <div class="card-header text-center text-lg">
             Посещения сайта
         </div>

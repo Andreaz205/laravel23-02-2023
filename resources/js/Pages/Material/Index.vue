@@ -141,7 +141,7 @@
 
         </template>
 
-        <ContentPreview />
+        <ContentPreview :contentItems="contentItems"/>
     </AuthenticatedLayout>
 </template>
 
@@ -155,7 +155,7 @@ import ContentPreview from "@/Pages/Material/ContentPreview.vue";
 export default {
     name: "Index",
     components: {ContentPreview, FlashMessage, Errors, AuthenticatedLayout, Link, Spinner},
-    props: ['categories', 'materials'],
+    props: ['categories', 'materials', 'contentItems'],
     data () {
         return {
             newMaterialTitle: '',

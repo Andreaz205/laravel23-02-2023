@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::patch('/managers/{admin}/update', [\App\Http\Controllers\Manager\ManagerController::class, 'update']);
     Route::delete('/managers/{admin}', [\App\Http\Controllers\Manager\ManagerController::class, 'destroy']);
 
+    Route::get('/products/paginated-data', [\App\Http\Controllers\Product\ProductController::class, 'paginatedData']);
 
     Route::get('/products', [\App\Http\Controllers\Product\ProductController::class, 'index'])->name('product.index');
     Route::get('/products/by-term', [\App\Http\Controllers\Product\ProductController::class, 'byTerm']);
@@ -211,7 +212,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/kits/{kit}/products/{product}/toggle', [\App\Http\Controllers\Kit\KitsController::class, 'toggle']);
 
     Route::get('/statistics', [\App\Http\Controllers\Statistic\StatisticController::class, 'index']);
-    Route::post('/statistics/calculate-orders-period', [\App\Http\Controllers\Statistic\StatisticController::class, 'calculateOrdersPeriod']);
+    Route::post('/statistics/calculate-orders-count-period', [\App\Http\Controllers\Statistic\StatisticController::class, 'calculateOrdersCountPeriod']);
+    Route::post('/statistics/calculate-orders-profit-period', [\App\Http\Controllers\Statistic\StatisticController::class, 'calculateOrdersProfitPeriod']);
 
     Route::get('/discounts', [\App\Http\Controllers\Discount\DiscountController::class, 'index']);
     Route::patch('/discounts/toggle-availability', [\App\Http\Controllers\Discount\DiscountController::class, 'toggle']);

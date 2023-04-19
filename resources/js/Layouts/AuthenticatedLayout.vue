@@ -74,13 +74,26 @@ export default {
                                 <!-- Message Start -->
                                 <div class="media">
                                     <div class="media-body">
+                                        <span>
+                                            {{$page.props.auth.user.name}}
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- Message End -->
+                            </div>
+
+                            <div href="#" class="dropdown-item">
+                                <!-- Message Start -->
+                                <div class="media">
+                                    <div class="media-body">
                                         <a href="#">
-                                            Личные настройки
+                                            Профиль
                                         </a>
                                     </div>
                                 </div>
                                 <!-- Message End -->
                             </div>
+
                             <div class="dropdown-divider"></div>
                             <div href="#" class="dropdown-item">
                                 <!-- Message Start -->
@@ -89,7 +102,7 @@ export default {
                                     <div class="media-body">
                                         <div class="w-full">
                                             <button type="submit" class="w-full" @click="logout">
-                                                Logout
+                                                Выйти из системы
                                             </button>
                                         </div>
                                     </div>
@@ -100,8 +113,8 @@ export default {
                         </div>
                     </li>
 
-                    <li>
-                        <a href="/">Главная</a>
+                    <li class="flex items-center">
+                        <Link href="/">Главная</Link>
                     </li>
 
                 </ul>

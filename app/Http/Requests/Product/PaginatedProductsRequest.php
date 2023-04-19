@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Payment;
+namespace App\Http\Requests\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreRequest extends FormRequest
+class PaginatedProductsRequest extends FormRequest
 {
-    private string $regex = "/^(?=.+)(?:[1-9]\d*|0)?(?:\.\d+)?$/";
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,9 +25,8 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'amount' => ['required', 'regex:'.$this->regex],
-            'order_id' => 'required|integer|exists:orders,id',
-            'description' => 'nullable|string|max:255',
+            'category_id' => 'nullable|integer|exists:categories,id',
+            'type' => ['nullable', Rule::in(['current', 'all'])]
         ];
     }
 }

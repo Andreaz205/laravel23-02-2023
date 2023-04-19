@@ -1,29 +1,26 @@
 <template>
     <AuthenticatedLayout>
-        <div v-if="order">
+        <div v-if="order" class="container-fluid">
 
             <div class="row">
                 <div class="col-xl-9 col-md-12">
                     <div class="card m-3">
 
-                       <div class="card-header">
-                           <div class="flex gap-x-4">
-                               <Link href="/admin/orders">
-                                   <button class="btn btn-default">
-                                       <i class="fas fa-long-arrow-alt-left"></i>
-                                       <span class="ml-1">
-                                    Назад
-                                </span>
-                                   </button>
-                               </Link>
+                       <div class="card-header text-center relative">
+
+                               <button class="btn btn-default absolute left-2 top-1/2 -translate-y-1/2">
+                                   <Link href="/admin/orders">
+                                        Назад
+                                   </Link>
+                               </button>
+
                                <div>
                                    <span class="text-lg">Заказ </span>
-                                   <span class="text-2xl text-red-400">
-                                {{ order.id }}</span> <span class="text-sm ">от</span> <small class="text-gray-600">
+                                   <span class="text-2xl text-red-400">{{ order.id }}</span> <span class="text-sm ">от</span> <small class="text-gray-600">
                                    {{ formatDate(order.created_at) }}
                                </small>
                                </div>
-                           </div>
+
                        </div>
 
                        <div class="card-body">
@@ -97,85 +94,6 @@
                            </div>
                        </div>
                    </div>
-
-                    <div class="card m-3">
-                       <div class="card-body table-responsive p-0">
-                           <table class="table table-hover text-nowrap">
-                               <thead>
-                               <tr>
-                                   <th style="width: 50px"></th>
-                                   <th>Фото</th>
-                                   <th>Артикул</th>
-                                   <th>Наименование</th>
-                                   <th>Комментарий</th>
-                                   <th>Количество</th>
-                                   <th>Сумма</th>
-                                   <th style="width: 100px;"></th>
-                               </tr>
-                               </thead>
-
-                               <tbody v-if="variants">
-
-                               <tr v-for="variant in variants">
-                                   <td>
-                                       <div class="flex justify-center">
-                                           {{ variant.id }}
-                                       </div>
-                                   </td>
-                                   <td>
-                                       <div class="flex justify-center">
-                                           <a :href="'/admin/products/' + variant.product_link_id">
-                                               <img :src="variant.image_url || '/storage/images/no-image.jpg'">
-                                           </a>
-                                       </div>
-                                   </td>
-                                   <td>
-                                       <div class="flex justify-center">
-                                           {{ variant.code ?? '-' }}
-                                       </div>
-                                   </td>
-                                   <td>
-                                       <div class="flex justify-center">
-                                           <a :href="'/admin/products/' + variant.product_link_id">
-                                               {{ variant.title }}
-                                           </a>
-                                       </div>
-                                   </td>
-                                   <td>
-                                       <div class="flex justify-center">
-                                           <div >
-                                               {{ order.comment ? order.comment : '-' }}
-                                           </div>
-                                       </div>
-                                   </td>
-                                   <td>
-                                       <div class="flex justify-center">
-                                           <div >
-                                               {{ variant.ordered_quantity }}
-                                           </div>
-                                       </div>
-                                   </td>
-                                   <td>
-                                       <div class="flex justify-center">
-                                           {{ variant.ordered_quantity * variant.price }}
-                                       </div>
-                                   </td>
-                                   <td>
-                                       <div class="flex justify-center">
-                                           <a href="#">...</a>
-                                       </div>
-                                   </td>
-                               </tr>
-                               </tbody>
-                           </table>
-
-                           <div class="d-flex justify-between items-end flex-column">
-                               <div>Итого <span class="font-bold">{{ finishSum }}</span></div>
-                               <div>Прибыль <span class="font-bold">{{ profit }}</span></div>
-                               <div>Бонусы<span class="font-bold">{{order.bonuses}}</span></div>
-                           </div>
-                       </div>
-                   </div>
                 </div>
 
                 <div class="col-xl-3 col-md-12">
@@ -184,14 +102,8 @@
                             Клиент
                         </div>
                         <div class="card-body">
-<!--                            <div v-if="order.user && order.user.length">-->
-<!--                                {{order.user[0].name}}-->
-<!--                                <small>-->
-<!--                                    Зарегестрирован в системе-->
-<!--                                </small>-->
-<!--                            </div>-->
-                            <div v-if="order.user && order.user[0]" class="text-center text-lg">
-                                <Link  :href="`/admin/users/${order.user[0].id}`">{{order.user[0].name}}</Link>
+                            <div v-if="order.user" class="text-center text-lg">
+                                <Link  :href="`/admin/users/${order.user.id}`">{{order.user.name}}</Link>
                                 <small> Зарегестрирован в системе</small>
                             </div>
                             <div v-else>
@@ -200,6 +112,99 @@
                                     Клиент не зарегестрирован
                                 </small>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-9 col-md-12">
+                    <div class="card m-3">
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover text-nowrap">
+                                <thead>
+                                <tr>
+                                    <th style="width: 50px"></th>
+                                    <th>Фото</th>
+                                    <th>Артикул</th>
+                                    <th>Наименование</th>
+                                    <th>Комментарий</th>
+                                    <th>Количество</th>
+                                    <th>Сумма</th>
+                                    <th style="width: 100px;"></th>
+                                </tr>
+                                </thead>
+
+                                <tbody v-if="variants">
+
+                                <tr v-for="variant in variants">
+                                    <td>
+                                        <div class="flex justify-center">
+                                            {{ variant.id }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-center">
+                                            <a :href="'/admin/products/' + variant.product_link_id">
+                                                <img :src="variant.image_url || '/storage/images/no-image.jpg'">
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-center">
+                                            {{ variant.code ?? '-' }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-center">
+                                            <a :href="'/admin/products/' + variant.product_link_id">
+                                                {{ variant.title }}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-center">
+                                            <div >
+                                                {{ order.comment ? order.comment : '-' }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-center">
+                                            <div >
+                                                {{ variant.ordered_quantity }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-center">
+                                            {{ variant.ordered_quantity * variant.price }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-center">
+                                            <a href="#">...</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="d-flex justify-between items-end flex-column">
+                                <div>Итого <span class="font-bold">{{ order.sum }}</span></div>
+                                <div>Прибыль <span class="font-bold">{{ order.sum - order.purchase_sum }}</span></div>
+                                <div>Бонусы<span class="font-bold">{{order.bonuses}}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-12">
+                    <div class="card m-3">
+                        <div class="card-header text-center text-lg">
+                            Скидки и бонусы
+                        </div>
+                        <div class="card-body">
+
                         </div>
                     </div>
                 </div>
@@ -360,17 +365,7 @@ export default {
             }
             return price
         },
-        profit() {
-            let price = 0
-            if (this.variants && this.variants.length) {
-                this.variants.map(variant => price += (variant.ordered_quantity * (variant.price - variant.purchase_price)))
-            }
-            return price
-        },
     },
-    mounted() {
-        console.log(this.order)
-    }
 }
 </script>
 
@@ -385,5 +380,8 @@ table {
 .variants-table th, .variants-table td {
     padding: 20px;
     border: 1px solid black;
+}
+th {
+    text-align: center;
 }
 </style>

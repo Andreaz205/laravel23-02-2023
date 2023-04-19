@@ -17,6 +17,7 @@ use App\Models\MaterialUnitValue;
 use App\Models\MaterialUnitValueVariants;
 use App\Models\Product;
 use App\Models\Variant;
+use App\Models\VariantContent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
@@ -34,12 +35,14 @@ class MaterialController extends Controller
 
     public function index()
     {
+        $contentItems = VariantContent::query()->with('material_unit_values')->latest()->get();
         $categories = Category::whereNull('parent_category_id')->with(['materials'])->get();
         $materials = Material::with(['material_units' => fn ($query) => $query->with('child_unit')])->orderBy('created_at', 'ASC')->get();
         $materials = MaterialResource::collection($materials)->resolve();
         return inertia('Material/Index', [
             'categories' => $categories,
             'materials' => $materials,
+            'contentItems' => $contentItems,
             'can-materials' => [
                 'list' => Auth('admin')->user()?->can('material list'),
                 'create' => Auth('admin')->user()?->can('material create'),

@@ -2,8 +2,8 @@
     <AuthenticatedLayout>
         <div class="card">
             <div class="card-header">
-                <div class="text-center text-lg">
-                    Статистика посещений и заказов
+                <div class="text-center text-xl">
+                    Статистика
                 </div>
             </div>
         </div>
@@ -50,8 +50,13 @@
 
 
         <OrdersDateCountChart
-            :count-data="ordersCountData"
-            :date-labels="ordersDateLabels"
+            :count-data="ordersCountChartData.ordersCountData"
+            :date-labels="ordersCountChartData.ordersDateLabels"
+        />
+
+        <OrdersDateProfitChart
+            :profit-data="ordersProfitChartData.ordersProfitData"
+            :date-labels="ordersProfitChartData.ordersDateLabels"
         />
 
         <VisitsCountChart
@@ -79,10 +84,12 @@ import OrdersDateCountChart from "@/Pages/Statistic/Orders/OrdersDateCountChart.
 import VisitsCountChart from "@/Pages/Statistic/Visits/VisitsCountChart.vue";
 import DevicesChart from "@/Pages/Statistic/Devices/DevicesChart.vue";
 import VisitsPerPage from "@/Pages/Statistic/Visits/VisitsPerPage.vue";
+import OrdersDateProfitChart from "@/Pages/Statistic/Orders/OrdersDateProfitChart.vue";
 
 export default {
     name: "Index",
     components: {
+        OrdersDateProfitChart,
         VisitsPerPage,
         DevicesChart,
         VisitsCountChart,
@@ -93,7 +100,13 @@ export default {
         AuthenticatedLayout,
         PieChart
     },
-    props: ['ordersDateLabels', 'ordersCountData', 'pagesVisits', 'devicesData', 'visitsPerPage'],
+    props: [
+        'ordersCountChartData',
+        'pagesVisits',
+        'devicesData',
+        'visitsPerPage',
+        'ordersProfitChartData'
+    ],
     data() {
         return {
             // visitsLabels: [

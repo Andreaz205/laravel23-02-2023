@@ -1,5 +1,5 @@
 <template>
-
+    <Spinner v-if="isLoading" />
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -35,11 +35,6 @@
                     <div class="col-sm-6">
                         <h1 class="m-0">Товары</h1>
                     </div><!-- /.col -->
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Главная</a></li>
-                        </ol>
-                    </div><!-- /.col -->
                 </div><!-- /.row -->
             </div><!-- /.container-fluid -->
         </div>
@@ -48,9 +43,13 @@
         <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
+
                 <!-- Small boxes (Stat box) -->
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-3">
+                        <CategoriesCard :categories="categories" @changeCategory="handleChangeCategory"/>
+                    </div>
+                    <div class="col-9">
                         <div class="card">
                             <div class="card-header">
                                 <button
@@ -115,58 +114,100 @@
                             </div>
                             <div class="card-footer clearfix" v-if="pagination">
                                 <ul class="flex justify-start items-center">
-                                    <li  v-if="productsData.current_page !== 1" class="h-[32px] cursor-pointer border-[1px] p-1 rounded-sm border-blue-500 bg-white mx-[2px]">
-                                        <Link :href="productsData.prev_page_url" >«</Link>
+                                    <li  v-if="pagination.current_page !== 1" class="h-[32px] cursor-pointer border-[1px] p-1 rounded-sm border-blue-500 bg-white mx-[2px]">
+                                        <span @click="handlePaginationClick(pagination.prev_page_url)">«</span>
                                     </li>
 
                                     <li v-for="link in calcPagination">
-<!--                                        <span :class="{active : link.active}" class="page-link" @click="fetchOrdersPage(link.url)">{{link.label}}</span>-->
-                                        <Link
+
+                                        <span
                                             :class="['cursor-pointer border-[1px] rounded-sm border-blue-500 bg-white p-1 mx-[2px]', {'bg-gray': link.active}]"
-                                            :href="link.url"
+                                            @click="handlePaginationClick(link.url)"
                                         >
                                             {{link.label}}
-                                        </Link>
+                                        </span>
+
                                     </li>
 
-                                    <li v-if="productsData.current_page !== productsData.last_page" class="h-[32px] cursor-pointer border-[1px] p-1 rounded-sm border-blue-500 bg-white mx-[2px]">
-                                        <Link :href="productsData.next_page_url">»</Link>
+                                    <li v-if="pagination.current_page !== pagination.last_page" class="h-[32px] cursor-pointer border-[1px] p-1 rounded-sm border-blue-500 bg-white mx-[2px]">
+                                        <span @click="handlePaginationClick(pagination.next_page_url)">»</span>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- /.row -->
-            </div><!-- /.container-fluid -->
+
+            </div>
         </section>
-        <!-- /.content -->
-<!--    </AuthenticatedLayout>-->
+
 
 </template>
 
 <script>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import {router, Link} from '@inertiajs/vue3';
+import CategoriesCard from "@/Pages/Product/Category/CategoriesCard.vue";
+import Spinner from "@/Components/Spinner.vue";
 export default {
     name: "Products",
-    components: {AuthenticatedLayout, Link},
+    components: {Spinner, CategoriesCard, AuthenticatedLayout, Link},
     layout: AuthenticatedLayout,
     props: [
         'productsData',
-        'canProducts'
+        'canProducts',
+        'categories',
     ],
     data () {
         return {
+            isLoading: false,
             searchTerm: '',
             productName: null,
-            products: this.$props.productsData?.data,
-            pagination: this.productsData?.links
+            products: null,
+            pagination: null
         }
     },
     methods: {
-        fetchProductsPage(url) {
-            // router.visit(url)
+        async handleChangeCategory(category, type) {
+            try {
+                this.isLoading = true
+                let params = `?category_id=${category?.id}&type=${type}`
+                if (!category) params = ''
+                let response = await axios.get(`/admin/products/paginated-data` + params)
+                const data = response.data
+                this.pagination = data
+                this.products = data.data
+                this.isLoading = false
+            } catch (e) {
+                this.isLoading = false
+                alert(e?.message ?? e)
+            }
+        },
+        async handlePaginationClick(url) {
+            try {
+                this.isLoading = true
+                let response = await axios.get(url)
+                const data = response.data
+                this.pagination = data
+                this.products = data.data
+                this.isLoading = false
+            } catch (e) {
+                this.isLoading = false
+                alert(e?.message ?? e)
+            }
+        },
+        async initializeProducts() {
+            try {
+                this.isLoading = true
+                let response = await axios.get(`/admin/products/paginated-data`)
+                const data = response.data
+                this.pagination = data
+                this.products = data.data
+                this.isLoading = false
+            } catch (e) {
+                this.isLoading = false
+                alert(e?.message ?? e)
+            }
         },
         async storeProduct() {
             let {data: newProduct} = await axios.post('/admin/products', {title: this.productName})
@@ -178,11 +219,14 @@ export default {
         },
         async search(searchTerm) {
             try {
+                this.isLoading = true
                 let response = await axios.get(`/admin/products/by-term?term=${searchTerm}`)
                 let data = response.data
                 this.products = data.data
-                this.pagination = data.links
+                this.pagination = data
+                this.isLoading = false
             } catch (e) {
+                this.isLoading = false
                 alert(e?.response?.data?.errors ?? e?.message ?? e)
             }
         },
@@ -192,9 +236,12 @@ export default {
     },
     computed: {
         calcPagination () {
-            return this.pagination?.slice(1, -1)
+            return this.pagination?.links.slice(1, -1)
         }
     },
+    mounted() {
+        this.initializeProducts()
+    }
 }
 </script>
 

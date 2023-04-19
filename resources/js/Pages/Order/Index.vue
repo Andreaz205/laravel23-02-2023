@@ -1,23 +1,23 @@
 <template>
 
         <div class="card">
-            <div class="card-header">
-                <div class="flex gap-4 items-center">
+            <div class="card-header text-center text-lg">
 
-                <button class="btn btn-default">
-                    <Link href="/admin/orders/settings">
-                        Настройки оформления заказов
-                    </Link>
-                </button>
-                <span class="text-lg text-bold">Заказы</span>
-                </div>
+
+<!--                <button class="btn btn-default">-->
+<!--                    <Link href="/admin/orders/settings">-->
+<!--                        Настройки оформления заказов-->
+<!--                    </Link>-->
+<!--                </button>-->
+                Заказы
+
             </div>
             <!-- /.card-header -->
             <div class="card-body table-responsive p-0">
                 <table class="table table-hover text-nowrap">
                     <thead>
                     <tr>
-                        <th>Номер</th>
+                        <th>Номер заказа</th>
                         <th>Дата доставки</th>
                         <th>Сумма</th>
                         <th>Цена доставки</th>

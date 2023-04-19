@@ -21,15 +21,6 @@ use Spatie\FlareClient\Http\Response;
 
 class VariantContentController extends Controller
 {
-    public function index()
-    {
-        $contentItems = VariantContent::query()->latest()->get();
-
-        return inertia('Material/Content/Index', [
-            'contentItems' => $contentItems
-        ]);
-    }
-
     public function create()
     {
         $materials = Material::query()
@@ -72,7 +63,7 @@ class VariantContentController extends Controller
             DB::rollBack();
             return redirect()->back()->with('message', 'Непредвиденная ошибка!');
         }
-        return redirect("/admin/materials/variants-content")->with('message', "Контент {$data['title']} успешно создан!");
+        return redirect("/admin/materials")->with('message', "Контент {$data['title']} успешно создан!");
     }
 
     public function edit(VariantContent $variantContent)

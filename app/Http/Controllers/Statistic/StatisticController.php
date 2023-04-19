@@ -5,14 +5,23 @@ namespace App\Http\Controllers\Statistic;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Statistic\StatisticRequest;
 use App\Http\Services\Analytics\AnalyticsService;
+use App\Http\Services\Statistic\StatisticService;
 use App\Models\Order;
 use Carbon\CarbonPeriod;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Response;
 
 class StatisticController extends Controller
 {
-    public function index(AnalyticsService $analyticsService)
+    private StatisticService $service;
+
+    public function __construct(StatisticService $service)
+    {
+        $this->service = $service;
+    }
+
+    public function index()
     {
         // для detailing = days
 
@@ -20,44 +29,7 @@ class StatisticController extends Controller
         $to = Carbon::now()->endOfDay();
         $period = CarbonPeriod::since($from)->days(1)->until($to)->toArray();
 
-//        dd($period);
-//        if ($from > $to) $dateLabels = null;
-//        else {
-//            $currentDay = $data['from'];
-//            $lastDay = $data['to'];
-//            while($currentDay <= $lastDay) {
-//                $dateLabels[] = $currentDay->format();
-//            }
-//        }
-
-//        dd($analyticsService::getMetadata());
-//        $weekPagesData = $analyticsService::weekPagesData();
-//        dd($weekPagesData);
-//        $weekViewsData = $analyticsService::weekViewsData();
-
-//        return inertia('Statistic/Index', [
-//            'weekPagesData' => $weekPagesData,
-//            'weekViewsData' => $weekViewsData,
-//        ]);
-
         $orders = Order::query()->whereBetween('created_at', [$from, $to])->get();
-        $ordersCountData = [];
-        foreach ($period as $periodItemStart) {
-            $count = 0;
-            foreach ($orders as $order) {
-                $orderCreatedAt = $order->created_at;
-                $start = $periodItemStart->copy();
-                $last = $periodItemStart->copy()->addDay();
-                if ($orderCreatedAt >= $start && $orderCreatedAt < $last) {
-                   $count++;
-                }
-            }
-            $ordersCountData[] = $count;
-        }
-        $ordersDateLabels = [];
-        foreach ($period as $item) {
-            $ordersDateLabels[] = $item->format('Y-m-d');
-        }
 
         try {
             $viewsData = AnalyticsService::monthViewsData($from->format('Y-m-d'), $to->format('Y-m-d'));
@@ -67,95 +39,56 @@ class StatisticController extends Controller
             return 'Some error occurred!';
         }
 
+        $ordersCountChartData = $this->service->ordersCountChartData($period, $orders);
+
+        $ordersProfitChartData = $this->service->ordersProfitChartData($period, $orders);
         return inertia('Statistic/Index', [
-            'ordersDateLabels' => $ordersDateLabels,
-            'ordersCountData' => $ordersCountData,
+            'ordersCountChartData' => $ordersCountChartData,
+            'ordersProfitChartData' => $ordersProfitChartData,
             'pagesVisits' => $viewsData,
             'devicesData' => $devicesData,
             'visitsPerPage' => $visitsPerPage
-//            'orders' => $orders,
-//            'weekPagesData' => $weekPagesData,
-//            'weekViewsData' => $weekViewsData,
         ]);
     }
 
-    public function calculateOrdersPeriod(StatisticRequest $request)
+    public function calculateOrdersCountPeriod(StatisticRequest $request): JsonResponse
     {
         $data = $request->validated();
 
-        $from = isset($data['from']) ? Carbon::createFromTimeString($data['from']) : Carbon::now()->subDays(30)->startOfDay();
-        $to = isset($data['to']) ? Carbon::createFromTimeString($data['to']) :  Carbon::now();
+        $from = isset($data['from']) ? Carbon::createFromTimeString($data['from'])->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
+        $to = isset($data['to']) ? Carbon::createFromTimeString($data['to'])->endOfDay() :  Carbon::now()->endOfDay();
         $detailing = $data['detailing'];
 
         $orders = Order::query()->whereBetween('created_at', [$from, $to])->get();
-        $ordersCountData = [];
 
-        if ($detailing === 'day') {
-            $period = CarbonPeriod::since($from)->days(1)->until($to)->toArray();
+        $period = match ($detailing) {
+            'week' => CarbonPeriod::since($from)->weeks(1)->until($to)->toArray(),
+            'month' => CarbonPeriod::since($from)->months(1)->until($to)->toArray(),
+            default => CarbonPeriod::since($from)->days(1)->until($to)->toArray(),
+        };
 
-            foreach ($period as $periodItemStart) {
-                $count = 0;
-                foreach ($orders as $order) {
-                    $orderCreatedAt = $order->created_at;
-                    $start = $periodItemStart->copy();
-                    $last = $periodItemStart->copy()->addDay();
-                    if ($orderCreatedAt >= $start && $orderCreatedAt < $last) {
-                        $count++;
-                    }
-                }
-                $ordersCountData[] = $count;
-            }
+        $ordersCountChartData = $this->service->ordersCountChartData($period, $orders, $detailing);
+        return Response::json($ordersCountChartData);
+    }
 
-            $ordersDateLabels = [];
-            foreach ($period as $item) {
-                $ordersDateLabels[] = $item->format('d-m-Y');
-            }
+    public function calculateOrdersProfitPeriod(StatisticRequest $request): JsonResponse
+    {
+        $data = $request->validated();
 
-        }
-        else if ($detailing === 'week') {
-            $period = CarbonPeriod::since($from)->weeks(1)->until($to)->toArray();
+        $from = isset($data['from']) ? Carbon::createFromTimeString($data['from'])->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
+        $to = isset($data['to']) ? Carbon::createFromTimeString($data['to'])->endOfDay() :  Carbon::now()->endOfDay();
+        $detailing = $data['detailing'];
 
-            foreach ($period as $periodItemStart) {
-                $count = 0;
-                foreach ($orders as $order) {
-                    $orderCreatedAt = $order->created_at;
-                    $start = $periodItemStart->copy();
-                    $last = $periodItemStart->copy()->addWeek();
-                    if ($orderCreatedAt >= $start && $orderCreatedAt < $last) {
-                        $count++;
-                    }
-                }
-                $ordersCountData[] = $count;
-            }
-            $ordersDateLabels = [];
-            foreach ($period as $item) {
-                $ordersDateLabels[] = $item->format('d-m-Y');
-            }
-        }
-        else if ($detailing === 'month') {
-            $period = CarbonPeriod::since($from)->months(1)->until($to)->toArray();
+        $orders = Order::query()->whereBetween('created_at', [$from, $to])->get();
 
-            foreach ($period as $periodItemStart) {
-                $count = 0;
-                foreach ($orders as $order) {
-                    $orderCreatedAt = $order->created_at;
-                    $start = $periodItemStart->copy();
-                    $last = $periodItemStart->copy()->addMonth();
-                    if ($orderCreatedAt >= $start && $orderCreatedAt < $last) {
-                        $count++;
-                    }
-                }
-                $ordersCountData[] = $count;
-            }
-            $ordersDateLabels = [];
-            foreach ($period as $item) {
-                $ordersDateLabels[] = $item->format('d-m-Y');
-            }
-        }
-        return Response::json([
-            'ordersDateLabels' => $ordersDateLabels,
-            'ordersCountData' => $ordersCountData,
-        ]);
+        $period = match ($detailing) {
+            'week' => CarbonPeriod::since($from)->weeks(1)->until($to)->toArray(),
+            'month' => CarbonPeriod::since($from)->months(1)->until($to)->toArray(),
+            default => CarbonPeriod::since($from)->days(1)->until($to)->toArray(),
+        };
+
+        $ordersProfitChartData = $this->service->ordersProfitChartData($period, $orders, $detailing);
+        return Response::json($ordersProfitChartData);
     }
 
 

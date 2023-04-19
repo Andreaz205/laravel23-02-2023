@@ -48,13 +48,6 @@ class OrderController extends Controller
         if (isset($user)) $data['user_id'] = $user->id;
         unset($data['variants']);
 
-        $sum = 0;
-        $orderedVariants = Variant::query()->whereIn('id', $orderedVariantsIds)->get();
-        $orderedVariants->each(function  ($item) use(&$sum, &$bonuses) {
-            $sum = $sum + $item->price;
-        });
-        $data['sum'] = $sum;
-
         $bonuses = $orderService->calculateBonuses($orderedVariantsIds, $user);
         $data['bonuses'] = $bonuses;
         //check quantity
@@ -69,12 +62,15 @@ class OrderController extends Controller
         $copies = [];
         try {
             DB::beginTransaction();
-            $newOrder = Order::query()->create($data);
             $variants = Variant::query()
                 ->whereIn('id', $orderedVariantsIds)
                 ->with(['material_unit_values', 'images' => fn ($query) => $query->limit(1)])
                 ->get();
             $orderService->attachUserPriceByGroup($variants, $user);
+            $sumData = $this->orderService->getOrderSumFromRequestWithPreparedPrices($orderedVariantsArray, $variants);
+            $data['sum'] = $sumData['sum'];
+            $data['purchase_sum'] = $sumData['purchase_sum'];
+            $newOrder = Order::query()->create($data);
 
             foreach ($orderedVariantsArray as $variantItem) {
                 $variant = $variants->find($variantItem['id']);

@@ -1,7 +1,7 @@
 <template>
     <div class="card m-3">
         <div class="card-header text-center text-lg">
-            Заказы
+            Прибыль с заказов
         </div>
         <div class="card-body">
             <div class="container-fluid">
@@ -39,37 +39,36 @@
                         </div>
 
                         <div class="text-center mt-3">
-                        <button class="btn btn-primary" @click="handleChangePeriod">
-                            Расчитать
-                        </button>
+                            <button class="btn btn-primary" @click="handleChangePeriod">
+                                Расчитать
+                            </button>
                         </div>
 
                         <div class="mt-3">
-                        <LineChart
-                            :labels-prop="dateLabelsFinalData"
-                            :chart-data-from-back="countDataFinalData"
-                            background-color="#f87979"
-                            chart-label="Статистика заказов"
-                        />
+                            <LineChart
+                                :labels-prop="dateLabelsFinalData"
+                                :chart-data-from-back="profitDataFinalData"
+                                background-color="#f87979"
+                                chart-label="Статистика заказов"
+                            />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </template>
 
 <script>
-import '@vuepic/vue-datepicker/dist/main.css'
-import VueDatePicker from '@vuepic/vue-datepicker'
-import LineChart from '../LineChart.vue'
-import Spinner from "@/Components/Spinner.vue";
 import Errors from "@/Components/Errors/Errors.vue";
+import Spinner from "@/Components/Spinner.vue";
+import LineChart from "@/Pages/Statistic/LineChart.vue";
+import VueDatePicker from "@vuepic/vue-datepicker";
+
 export default {
-    name: "OrdersDateCountChart",
+    name: "OrdersDateProfitChart",
     components: {Errors, Spinner, LineChart, VueDatePicker},
-    props: ['dateLabels', 'countData'],
+    props: ['dateLabels', 'profitData'],
     data () {
         return {
             // from: this.formatDateToDatepicker(JSON.parse(JSON.stringify(this.dateLabels[0]))),
@@ -77,7 +76,7 @@ export default {
             to: JSON.parse(JSON.stringify(this.dateLabels[this.dateLabels.length - 1])) + ' 23:59',
             errors: null,
             dateLabelsFinalData: JSON.parse(JSON.stringify(this.dateLabels)),
-            countDataFinalData: JSON.parse(JSON.stringify(this.countData)),
+            profitDataFinalData: JSON.parse(JSON.stringify(this.profitData)),
             interval: 'day',
             isLoading: false,
         }
@@ -92,9 +91,9 @@ export default {
                     detailing: this.interval
                 }
 
-                let response = await axios.post(`/admin/statistics/calculate-orders-count-period`, data)
+                let response = await axios.post(`/admin/statistics/calculate-orders-profit-period`, data)
                 this.dateLabelsFinalData = response.data.ordersDateLabels
-                this.countDataFinalData = response.data.ordersCountData
+                this.profitDataFinalData = response.data.ordersProfitData
                 this.isLoading = false
             } catch (e) {
                 this.isLoading = false
@@ -104,6 +103,7 @@ export default {
             }
         }
     },
+
 }
 </script>
 

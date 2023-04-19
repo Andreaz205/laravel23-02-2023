@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    <div>
+
         <div v-if="items && items.length" class="wrapper">
             <draggable :list="items" class="banner">
                 <div v-for="item in items" class="banner-item bg-gray-200 relative" :key="item.id">
@@ -57,15 +57,14 @@
                         </video>
                     </template>
                     <template v-else>
-                        <img :src="item.image_url" class="object-cover w-full h-full"/>
+                        <img :src="item.image_url" class="object-cover w-full h-full" alt=""/>
                     </template>
                 </div>
             </draggable>
-            <div class="banner-item border-dashed border-2 flex justify-center items-center cursor-pointer" ref="dropzoneRef">Добавить ещё</div>
+            <div class="banner-item min-w-[300px] border-dashed border-2 flex justify-center items-center cursor-pointer" ref="dropzoneRef">Добавить ещё</div>
         </div>
         <div v-else class="banner-item border-dashed border-2 flex justify-center items-center cursor-pointer" ref="dropzoneRef">Добавить</div>
-    </div>
-    <button class="btn btn-primary bg-blue-500 mt-4" @click="saveOrder">Сохранить</button>
+
 </template>
 
 <script>
@@ -76,6 +75,7 @@ import Spinner from "@/Components/Spinner.vue";
 export default {
     name: "BannerForm",
     components: {Spinner, Errors, draggable: VueDraggableNext},
+    emits: ['saveOrder'],
     props: ['bannerItems'],
     data () {
         return {
@@ -128,20 +128,7 @@ export default {
                 alert(e?.message ?? e)
             }
         },
-        async saveOrder(e) {
-            e.preventDefault()
-            try {
-                if (this.items.length < 1) return
-                let orderArray = []
-                let itemsLength = this.items.length
-                for (let i = 0; i < itemsLength; i++) {
-                    orderArray.push(this.items[i].id)
-                }
-                let response = await axios.post('/admin/banner-items/order', {order: orderArray})
-            } catch (e) {
-                alert(e)
-            }
-        },
+
         async storeFile(file) {
             try {
                 let formData = new FormData()

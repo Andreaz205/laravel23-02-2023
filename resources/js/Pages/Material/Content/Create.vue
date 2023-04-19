@@ -3,8 +3,8 @@
         <div class="card-header text-center text-lg relative">
             Создать контент для вариантов
             <button class="btn btn-default absolute top-1/2 -translate-y-1/2 left-1">
-                <Link :href="`/admin/materials/variants-content`">
-                    Ко всем
+                <Link :href="`/admin/materials`">
+                    К материалам
                 </Link>
             </button>
         </div>

@@ -204,8 +204,8 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $orders = $user->orders()->with('variants')->get();
-
+        $orders = $user->orders()->with('variants')->latest()->get();
+        $user->loadCount('transactions');
         $groups = Group::all();
         $fields = UserField::where('user_kind', $user->kind)->get();
         $user->fields = $user->fields()->get()->map(function ($field) use($fields, $user) {

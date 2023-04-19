@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\Order\OrderService;
 use App\Models\Admin;
 use App\Models\Order;
 use App\Models\OrderHistory;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
+
+
     public function __construct()
     {
         $this->middleware('can:order list', ['only' => ['index', 'show']]);
@@ -24,21 +27,7 @@ class OrderController extends Controller
 
     public function index()
     {
-        $orders = Order::orderBy('created_at', 'desc')->with('fields')->paginate(25);
-        foreach ($orders as $order) {
-            $sum = 0;
-            $variants = $order->variants;
-            foreach ($variants as $variant) {
-                $notes = OrderVariants::where('order_id', $order->id)->where('order_variant_copy_id', $variant->id)->get();
-                foreach ($notes as $note) {
-                    if ($note->order_variant_copy_id === $variant->id && $note->order_id === $order->id) {
-                        $sum += $note->quantity * $variant->price;
-                    }
-                }
-            }
-            $order->sum = $sum;
-            $order->admin;
-        }
+        $orders = Order::orderBy('created_at', 'desc')->with('fields', 'admin')->paginate(25);
         return inertia('Order/Index', [
             'ordersPaginationData' => $orders,
             'can-orders' => [
@@ -53,11 +42,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $variantsCopies = $order->variants()->get();
-        foreach ($variantsCopies as $variantsCopy) {
-
-            $variantsCopy->ordered_quantity = $variantsCopy->pivot->quantity;
-        }
-
+        $variantsCopies->each(fn ($item) => $item->ordered_quantity = $item->pivot->quantity);
 //        $orderVariantsNotes = OrderVariants::where('order_id', $order->id)->get(['order_variant_copy_id', 'quantity']);
 //        foreach ($orderVariantsNotes as $orderVariantsNote) {
 //            $variant = Variant::with('product')->findOrFail($orderVariantsNote->order_variant_copy_id);
@@ -66,12 +51,8 @@ class OrderController extends Controller
 //            $variant->title = $variant->getTitleAttribute();
 //            $variants[] = $variant;
 //        }
-
-        $order->history;
-        $order->user = $order->user()->get();
-
+        $order->load('history', 'user');
         $admins = Admin::all();
-
         return inertia('Order/Show', [
             'orderData' => $order,
             'variantsData' => $variantsCopies,
@@ -87,34 +68,37 @@ class OrderController extends Controller
 //        return view('order.show', compact('variants', 'order', 'admins'));
     }
 
-    public function changeStatus(Request $request, Order $order)
+    public function changeStatus(Request $request, Order $order, OrderService $orderService)
     {
         $validator = Validator::make($request->all(), [
             'status' => 'required|string'
         ]);
+        $user = Auth('sanctum')->user();
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()], 422);
         }
         $data = $validator->validated();
         try {
             DB::beginTransaction();
+
             $message = 'Статус заказа изменён с \''. $order->getHumanStatusAttribute($order->status) .'\' на \''. $order->getHumanStatusAttribute($data['status']) .'\' пользователем '.Auth('admin')->user()->name;
             OrderHistory::create([
                 'order_id' => $order->id,
                 'note' => $message
             ]);
             $order->update($data);
+            $orderService->handleEditBonusesAfterChangeStatus($data['status'], $order);
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 422);
         }
-        $order->history;
+        $order->load('history');
         return $order;
     }
 
-    public function togglePay(Request $request, Order $order)
+    public function togglePay(Request $request, Order $order, OrderService $orderService)
     {
         $validator = Validator::make($request->all(), [
             'is_payed' => 'required|boolean'
@@ -132,20 +116,15 @@ class OrderController extends Controller
                 'note' => $message
             ]);
             $order->update($data);
-            if ($order->user) {
-                if ($data['is_payed']) {
-                    $order->user->update(['bonuses' => $order->user->bonuses + $order->bonuses]);
-                } else {
-                    $order->user->update(['bonuses' => $order->user->bonuses - $order->bonuses]);
-                }
-            }
+            $orderService->handleEditBonusesAfterChangePaidStatus($data['is_payed'], $order);
+
 
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 422);
+            return response()->json(['message' => $exception->getMessage()], 422);
         }
-        $order->history;
+        $order->load('history');
         return $order;
     }
 
