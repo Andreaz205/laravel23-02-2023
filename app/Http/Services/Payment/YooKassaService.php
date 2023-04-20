@@ -3,6 +3,7 @@
 namespace App\Http\Services\Payment;
 
 
+use Illuminate\Support\Facades\Log;
 use YooKassa\Client;
 use YooKassa\Common\Exceptions\ApiException;
 use YooKassa\Common\Exceptions\BadApiRequestException;
@@ -13,6 +14,7 @@ use YooKassa\Common\Exceptions\NotFoundException;
 use YooKassa\Common\Exceptions\ResponseProcessingException;
 use YooKassa\Common\Exceptions\TooManyRequestsException;
 use YooKassa\Common\Exceptions\UnauthorizedException;
+use YooKassa\Request\Payments\PaymentResponse;
 
 class YooKassaService
 {
@@ -34,7 +36,7 @@ class YooKassaService
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
      */
-    public function createPayment(float $amount, string $description, array $options= [])
+    public function createPayment(float $amount, array $options= [])
     {
         $client = $this->getClient();
         $payment = $client->createPayment([
@@ -43,7 +45,7 @@ class YooKassaService
                 'currency' => 'RUB',
             ],
             'capture' => false,
-            'description' => $description,
+            'description' => '',
             'confirmation' => [
                 'type' => 'redirect',
                 'return_url' => config('services.yookassa.return_url')
@@ -55,6 +57,34 @@ class YooKassaService
 
         return $payment->getConfirmation()->getConfirmationUrl();
     }
+
+    /**
+     * @throws \Exception
+     */
+    private function getPaymentInfo(string $paymentId): PaymentResponse
+    {
+        $client = $this->getClient();
+        try {
+            return $client->getPaymentInfo($paymentId);
+        } catch (\Exception $exception) {
+             Log::error($exception);
+             throw new \Exception('Поддельный запрос yoo kassa!');
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function checkStatus($payment)
+    {
+        $info = $this->getPaymentInfo($payment->id);
+        $status = $info->getStatus();
+        if (! $payment->status === $status) {
+            throw new \Exception('Поддельный запрос!');
+        }
+    }
+
+
 
 //    public static function weekPagesData()
 //    {

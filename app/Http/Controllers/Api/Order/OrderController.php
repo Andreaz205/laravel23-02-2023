@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\Order\OrderService;
+use App\Http\Services\Payment\PaymentService;
 use App\Http\Services\Variant\VariantService;
 use App\Models\Order;
 use App\Models\OrderHistory;
@@ -13,6 +14,7 @@ use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
@@ -21,10 +23,8 @@ class OrderController extends Controller
         $this->orderService = $service;
     }
 
-    public function store(Request $request, OrderService $orderService)
+    public function store(Request $request, OrderService $orderService, PaymentService $paymentService)
     {
-        $user = Auth('sanctum')->user();
-
         $validator = Validator::make($request->all(), [
             'user_name' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
@@ -36,12 +36,20 @@ class OrderController extends Controller
             'variants' => 'required|array',
             'variants.*.id' => 'required|integer|exists:variants,id',
             'variants.*.quantity' => 'required|integer',
+            'tinkoff_application_id' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
-            return response($validator->messages(), 422);
+            return response()->json(['errors' => $validator->messages()], 422);
         }
         $data = $validator->validated();
+        $user = Auth('sanctum')->user();
+        $userClass = get_class($user);
+        if ($userClass === 'App\Models\Admin') $user = null;
+
+        if ($data['payment_variant'] === 'installment_tinkoff') {
+            if (! isset($data['tinkoff_application_id'])) throw ValidationException::withMessages(['Не указан id завяки на рассрочку!']);
+        }
         $orderedVariantsArray = collect($data['variants']);
         $orderedVariantsIds = $orderedVariantsArray->map(fn ($item) => $item['id']);
 
@@ -50,18 +58,9 @@ class OrderController extends Controller
 
         $bonuses = $orderService->calculateBonuses($orderedVariantsIds, $user);
         $data['bonuses'] = $bonuses;
-        //check quantity
-//        foreach($orderedVariantsArray as $arrayItem) {
-//            $variantId = $arrayItem['id'];
-//            $quantity = $arrayItem['quantity'];
-//            $variant = Variant::findOrFail($variantId);
-//            if ($quantity > $variant->quantity) {
-//                return response()->json(['message' => 'quantity']);
-//            }
-//        }
-        $copies = [];
         try {
             DB::beginTransaction();
+
             $variants = Variant::query()
                 ->whereIn('id', $orderedVariantsIds)
                 ->with(['material_unit_values', 'images' => fn ($query) => $query->limit(1)])
@@ -70,6 +69,9 @@ class OrderController extends Controller
             $sumData = $this->orderService->getOrderSumFromRequestWithPreparedPrices($orderedVariantsArray, $variants);
             $data['sum'] = $sumData['sum'];
             $data['purchase_sum'] = $sumData['purchase_sum'];
+
+
+
             $newOrder = Order::query()->create($data);
 
             foreach ($orderedVariantsArray as $variantItem) {
@@ -85,7 +87,6 @@ class OrderController extends Controller
                     'purchase_price' => $variant->purchase_price ?? 0,
                     'title' => $title,
                 ]);
-                $copies[] = $variantCopy;
 
                 $quantity = $variantItem['quantity'];
                 OrderVariants::create([
@@ -97,13 +98,21 @@ class OrderController extends Controller
 
             OrderHistory::create([
                 'order_id' => $newOrder->id,
-                'note' => Auth('admin')->user()?->id ? 'Заказ создан пользователем '. Auth('admin')->user()?->name : 'Заказ создан',
+                'note' => $user ? 'Заказ создан пользователем '. $user?->name : 'Заказ создан',
             ]);
+            if ($data['payment_variant'] === 'card') {
+                $link = $paymentService->createPayment($newOrder, $user);
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            dd($e);
+            throw new \Exception($e);
             return response()->json(['message' => $e->getMessage()], 500);
         }
-        return response()->json(['status' => 'success', $copies]);
+        return response()->json([
+            'order_status' => 'success',
+            'payment_link' => $link ?? null,
+        ]);
     }
 }

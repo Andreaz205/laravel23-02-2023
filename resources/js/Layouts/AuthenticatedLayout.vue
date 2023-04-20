@@ -1,10 +1,17 @@
 <script>
 import {Link, router} from '@inertiajs/vue3';
+import Spinner from "@/Components/Spinner.vue";
 
 export default {
     name: 'AuthenticatedLayout',
     components: {
+        Spinner,
         Link
+    },
+    data () {
+        return {
+            isLoading: false
+        }
     },
     methods: {
         async logout() {
@@ -21,6 +28,22 @@ export default {
         }
     },
     mounted() {
+
+            let vm = this
+            router.on('start', function () {
+                if (window.innerWidth <= 992) {
+                    let bodyCollection = document.getElementsByTagName("BODY")
+                    let body = bodyCollection[0]
+                    body.classList.add('sidebar-closed')
+                    body.classList.add('sidebar-collapse')
+                    body.classList.remove('sidebar-open')
+                }
+                vm.isLoading = true
+            })
+            router.on('finish', function () {
+                vm.isLoading = false
+            })
+
         // let collapsedNavItems = [...document.getElementsByClassName('clps')]
         // collapsedNavItems.map(el => {
         //     el.addEventListener('click', function () {
@@ -44,6 +67,7 @@ export default {
 </script>
 
 <template>
+    <Spinner v-if="isLoading" />
     <div class="hold-transition sidebar-mini layout-fixed">
         <div class="wrapper" style="background-color: #f4f6f9">
 

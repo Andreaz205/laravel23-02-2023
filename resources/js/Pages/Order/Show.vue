@@ -75,9 +75,8 @@
                                            tabindex="-1" aria-hidden="true" @change="setPaymentVariant">
                                        <option value='cash' :disabled="order.payment_variant === 'cash'">Наличные</option>
                                        <option value='card' :disabled="order.payment_variant === 'card'">Онлайн оплата картой</option>
-                                       <option value='partials' :disabled="order.payment_variant === 'partials'">Оплата по частям</option>
-                                       <option value='out_variant' :disabled="order.payment_variant === 'out_variant'">Внешний способ
-                                       </option>
+                                       <option value='installment_tinkoff' :disabled="order.payment_variant === 'installment_tinkoff'">Рассрочка Тинькофф</option>
+                                       <option value='other_variant' :disabled="order.payment_variant === 'other_variant'">Другой способ</option>
                                    </select>
                                </div>
                                <div class="form-group w-1/5 mr-2">
@@ -194,6 +193,9 @@
                                 <div>Итого <span class="font-bold">{{ order.sum }}</span></div>
                                 <div>Прибыль <span class="font-bold">{{ order.sum - order.purchase_sum }}</span></div>
                                 <div>Бонусы<span class="font-bold">{{order.bonuses}}</span></div>
+                                <div v-if="order.tinkoff_application_id">
+                                    Заявка на рассчроку: {{order.tinkoff_application_id}}
+                                </div>
                             </div>
                         </div>
                     </div>

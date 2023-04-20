@@ -3,91 +3,94 @@
         <Spinner v-if="isLoading"/>
         <Errors :errors="errors" />
 
-        <div class="row">
-            <div class="col-md-12 col-xl-9">
-                <div class="card">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 col-xl-9">
+                    <div class="card">
 
-                    <div class="card-header p-2 flex items-center">
-                        <Link href="/admin/users" class="btn btn-default mr-3">Назад</Link>
-                        <ul class="nav nav-pills">
+                        <div class="card-header p-2 flex items-center">
+                            <Link href="/admin/users" class="btn btn-default mr-3">Назад</Link>
+                            <ul class="nav nav-pills">
 
-                            <li class="nav-item cursor-pointer"><a class="nav-link active" data-toggle="tab">Карточка
-                                клиента</a></li>
+                                <li class="nav-item cursor-pointer"><a class="nav-link active" data-toggle="tab">Карточка
+                                    клиента</a></li>
 
-                            <Link href="/admin/groups" class="btn btn-default ml-3">Группы</Link>
+                                <Link href="/admin/groups" class="btn btn-default ml-3">Группы</Link>
 
-                        </ul>
-                    </div>
+                            </ul>
+                        </div>
 
-                    <div class="card-body">
-                        <div class="tab-content">
-                            <div class="tab-pane active" ref="clientCardRef">
-                                <ShowSingleUser v-if="user.kind === 'single'" :user="user" :groups="groups"
-                                                :fields="fields"
-                                                :change-user-kind="changeUserKind"/>
-                                <ShowOrganization v-if="user.kind === 'organization'" :user="user" :groups="groups"
-                                                  :change-user-kind="changeUserKind" :fields="fields"/>
+                        <div class="card-body">
+                            <div class="tab-content">
+                                <div class="tab-pane active" ref="clientCardRef">
+                                    <ShowSingleUser v-if="user.kind === 'single'" :user="user" :groups="groups"
+                                                    :fields="fields"
+                                                    :change-user-kind="changeUserKind"/>
+                                    <ShowOrganization v-if="user.kind === 'organization'" :user="user" :groups="groups"
+                                                      :change-user-kind="changeUserKind" :fields="fields"/>
+                                </div>
+
+
                             </div>
+                        </div>
 
+                        <div class="card-footer flex justify-end">
+                            <button class="btn btn-danger" @click="deleteUser">
+                                Удалить пользователя
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-xl-3">
+                    <div class="card">
+                        <div class="card-header text-center text-lg">
+                            Заказы
+                        </div>
 
+                        <ul class="list-group list-group-flush" v-if="orders && orders.length">
+                            <li class="list-group-item" v-for="order in orders">
+                                <Link :href="`/admin/orders/${order.id}`">
+                                    Заказ № {{ order.id }}
+                                </Link>
+                            </li>
+                        </ul>
+                        <div class="card-body" v-else>
+                            Нет заказов!
                         </div>
                     </div>
 
-                    <div class="card-footer flex justify-end">
-                        <button class="btn btn-danger" @click="deleteUser">
-                            Удалить пользователя
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-12 col-xl-3">
-                <div class="card">
-                    <div class="card-header text-center text-lg">
-                        Заказы
-                    </div>
+                    <div class="card">
+                        <div class="card-header text-center text-lg">
+                            Транзакции пользователя
+                        </div>
 
-                    <ul class="list-group list-group-flush" v-if="orders && orders.length">
-                        <li class="list-group-item" v-for="order in orders">
-                            <Link :href="`/admin/orders/${order.id}`">
-                                Заказ № {{ order.id }}
-                            </Link>
-                        </li>
-                    </ul>
-                    <div class="card-body" v-else>
-                        Нет заказов!
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header text-center text-lg">
-                        Транзакции пользователя
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <Link :href="`/admin/users/${user.id}/transactions`">
+                                    Посмотреть ({{user.transactions_count}})
+                                </Link>
+                            </li>
+                        </ul>
                     </div>
 
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <Link :href="`/admin/users/${user.id}/transactions`">
-                                Посмотреть ({{user.transactions_count}})
-                            </Link>
-                        </li>
-                    </ul>
-                </div>
+                    <div class="card">
 
-                <div class="card">
+                        <div class="card-header text-center text-lg">
+                            Баллы пользователя
+                        </div>
 
-                    <div class="card-header text-center text-lg">
-                        Баллы пользователя
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                {{user.bonuses}}
+                            </li>
+                        </ul>
+
                     </div>
-
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            {{user.bonuses}}
-                        </li>
-                    </ul>
 
                 </div>
-
             </div>
         </div>
+
 
     </AuthenticatedLayout>
 </template>

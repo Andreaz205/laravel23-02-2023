@@ -129,8 +129,8 @@ class CategoryController extends Controller
     public function clearCategory(Product $product)
     {
         $category = $product->category()->first();
-        $name = $category->name;
         $product->update(['category_id' => null]);
+        $product->variants()->delete();
         return 11;
     }
 

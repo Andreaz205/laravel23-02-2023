@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -276,9 +277,16 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::patch('/delivery/yandex', [\App\Http\Controllers\Delivery\YandexController::class, 'update']);
     Route::get('/delivery/business-lines', [\App\Http\Controllers\Delivery\BusinessLinesController::class, 'index']);
     Route::patch('/delivery/business-lines', [\App\Http\Controllers\Delivery\BusinessLinesController::class, 'update']);
+
+    Route::get('/transactions', [\App\Http\Controllers\Transaction\TransactionsController::class, 'index']);
 });
 
 Route::post('/payment', [\App\Http\Controllers\Payment\PaymentController::class, 'store']);
 Route::match(['GET', 'POST'], '/payment/callback', [\App\Http\Controllers\Payment\PaymentController::class, 'callback']);
+Route::match(['GET', 'POST'], '/payment/tinkoff/installment/callback', function () {
+    $source = file_get_contents('php://input');
+    $requestBody = json_decode($source, true);
+    Log::info($requestBody);
+});
 
 require __DIR__.'/auth.php';

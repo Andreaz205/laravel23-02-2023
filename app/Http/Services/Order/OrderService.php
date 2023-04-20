@@ -69,14 +69,17 @@ class OrderService
 
     public function attachUserPriceByGroup(&$variants, $user = null): void
     {
-        $price = Price::query()->whereRelation('groups', 'id', '=', $user->group->id)->first();
-        $variants = Variant::query()
-            ->whereIn('id', $variants->map(fn ($variant) => $variant->id))
-            ->with(['prices' => fn ($query) => $query->where('price_id', $price->id)])
-            ->get();
-        foreach ($variants as $variant) {
-            $variant['price'] = $variant->prices[0]->price;
+        if (isset($user)) {
+            $price = Price::query()->whereRelation('groups', 'id', '=', $user?->group?->id)->first();
+            $variants = Variant::query()
+                ->whereIn('id', $variants->map(fn ($variant) => $variant->id))
+                ->with(['prices' => fn ($query) => $query->where('price_id', $price->id)])
+                ->get();
+            foreach ($variants as $variant) {
+                $variant['price'] = $variant->prices[0]->price;
+            }
         }
+
     }
 
     public function attachUserPriceByGroupDiscount(&$variants, $discount): void

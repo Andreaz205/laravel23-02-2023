@@ -88,11 +88,11 @@ class Order extends Model
         if ($variant === 'card') {
             return 'Онлайн оплата картой';
         }
-        if ($variant === 'partials') {
-            return 'Оплата по частям';
+        if ($variant === 'installment_tinkoff') {
+            return 'Рассрочка Тинькофф';
         }
-        if ($variant === 'out_variant') {
-            return 'Внешний способ';
+        if ($variant === 'other_variant') {
+            return 'Другой способ';
         }
         return null;
     }

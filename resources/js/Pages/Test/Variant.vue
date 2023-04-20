@@ -15,6 +15,12 @@
         </div>
     </div>
 
+    <button
+            type="button"
+            class="TINKOFF_BTN_YELLOW TINKOFF_SIZE_L"
+            @click="handleTinkoffClick"
+    >Купить в рассрочку</button>
+
     <!--TODO:CDEK-->
     <div class="mx-3 my-5">
         <img
@@ -46,6 +52,44 @@
 </template>
 
 <script>
+import tinkoff from '@tcb-web/create-credit';
+
+tinkoff.methods.on(tinkoff.constants.SUCCESS, onMessage);
+async function onMessage(data) {
+    console.log(data)
+    switch (data.type) {
+        case tinkoff.constants.SUCCESS:
+            let items = data.meta.iframe.url.split('/')
+            let id = items[items.length - 1]
+            let body = {
+                "user_name": "user",
+                "phone": "891214124",
+                "email": "some@mail.ru",
+                "payment_variant": "installment_tinkoff",
+                "tinkoff_application_id": id,
+                "delivery_type": "pickup",
+                "address": "address",
+                "variants": [
+                    {
+                        "id": 224,
+                        "quantity": 1
+                    },
+                    // {
+                    //     "id": 225,
+                    //     "quantity": 1
+                    // }
+                ]
+            }
+            let response = await axios.post('/api/orders', body)
+            console.log(response)
+            break;
+        default:
+            return;
+    }
+    tinkoff.methods.off(tinkoff.constants.SUCCESS, onMessage);
+    data.meta.iframe.destroy();
+}
+
 import "vue-search-select/dist/VueSearchSelect.css"
 import {Link} from "@inertiajs/vue3"
 import {ModelSelect} from 'vue-search-select'
@@ -73,6 +117,20 @@ export default {
         }
     },
     methods: {
+        async handleTinkoffClick() {
+            let data = await tinkoff.createDemo(
+                {
+                    sum: 80000,
+                    items: [{name: 'Курс веб-программирования с 0', price: 80000, quantity: 1}],
+                    promoCode: 'default',
+                    shopId: '539d7a60-153d-42a8-9f60-111f1911c28f',
+                    showcaseId: '9c80bdb3-1362-49a2-9647-0b602c9e6175',
+                    webhookURL: 'https://cb2d-88-206-10-222.ngrok-free.app/payment/tinkoff/installment/callback'
+                },
+                {view: 'modal'}
+            )
+            console.log(data)
+        },
         async calculateCDEK() {
             try {
                 this.isLoading = true

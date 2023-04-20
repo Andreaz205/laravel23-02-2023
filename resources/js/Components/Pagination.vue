@@ -2,7 +2,7 @@
     <div v-if="items">
         <ul class="pagination pagination-sm m-0 float-right">
             <li class="page-item" v-if="items.current_page !== 1">
-                <a class="page-link" href="#" >«</a>
+                <a class="page-link" href="#" @click="fetchPage(items.prev_page_url)">«</a>
             </li>
 
             <li class="page-item" v-for="link in calcPagination">
@@ -10,7 +10,7 @@
             </li>
 
             <li class="page-item" v-if="items.current_page !== items.last_page">
-                <a class="page-link" href="#">»</a>
+                <a class="page-link" href="#" @click="fetchPage(items.next_page_url)">»</a>
             </li>
         </ul>
     </div>

@@ -550,345 +550,348 @@
 
                                 <div class="row">
                                     <div class="col-12">
-                                        <table class="variants-table">
-                                            <thead>
-                                            <tr>
-                                                <th class="border-0"></th>
-                                                <th class="border-0"></th>
-                                                <th class="border-0"></th>
-                                                <template v-if="materials && materials.length">
-                                                    <template v-for="material in materials">
-                                                        <th v-if="material.material_units.length !== 1" :colspan="material.material_units.length" class="text-center">
-                                                            {{material.title}}
-                                                        </th>
-                                                        <th v-else class="border-0"></th>
-<!--                                                        <template v-if="material.material_units && material.material_units.length">-->
-<!--                                                            <th v-for="unit in material.material_units">-->
-<!--                                                            </th>-->
-<!--                                                        </template>-->
-                                                    </template>
-                                                </template>
-                                                <th class="border-0"></th>
-                                                <th class="border-0"></th>
-                                                <th class="border-0"></th>
-                                                <th class="border-0"></th>
-                                                <th class="border-0"></th>
-                                                <template v-if="prices && prices.length">
-                                                    <th class="border-0 " v-for="price in prices">
-                                                    </th>
-                                                </template>
-                                                <th class="border-0"></th>
-                                            </tr>
-                                            <tr>
-                                                <th style="width: 50px">
-                                                    <div class="flex justify-center items-center">
-                                                        <input type="checkbox" @change="handleDeleteAllVariantsCheckboxClick">
-                                                    </div>
-                                                </th>
-                                                <th>Фото</th>
-                                                <th>Цвет</th>
-<!--                                                <th>Цвет</th>-->
-
-<!--                                                <template v-if="product.option_names && product.option_names.length">-->
-<!--                                                    <th v-for="optionName in product.option_names">-->
-<!--                                                        <button-->
-<!--                                                            @click="setSelectedOptionName(optionName)"-->
-<!--                                                            type="button"-->
-<!--                                                            data-toggle="modal" data-target="#editOptionModal"-->
-<!--                                                        >-->
-<!--                                                            <span class="mr-1">{{ optionName.title }}</span>-->
-<!--                                                            <i class="fas fa-palette" v-if="optionName.is_color"></i>-->
-<!--                                                        </button>-->
-<!--                                                    </th>-->
-<!--                                                </template>-->
-
-                                                <template v-if="materials && materials.length">
-                                                    <template v-for="material in materials">
-                                                        <template v-if="material.material_units && material.material_units.length">
-                                                            <th v-for="unit in material.material_units">
-                                                                {{unit.title}}
+                                        <div class="container-fluid overflow-x-scroll">
+                                            <table class="variants-table">
+                                                <thead>
+                                                <tr>
+                                                    <th class="border-0"></th>
+                                                    <th class="border-0"></th>
+                                                    <th class="border-0"></th>
+                                                    <template v-if="materials && materials.length">
+                                                        <template v-for="material in materials">
+                                                            <th v-if="material.material_units.length !== 1" :colspan="material.material_units.length" class="text-center">
+                                                                {{material.title}}
                                                             </th>
+                                                            <th v-else class="border-0"></th>
+                                                            <!--                                                        <template v-if="material.material_units && material.material_units.length">-->
+                                                            <!--                                                            <th v-for="unit in material.material_units">-->
+                                                            <!--                                                            </th>-->
+                                                            <!--                                                        </template>-->
                                                         </template>
                                                     </template>
-                                                </template>
-
-                                                <th>Артикул</th>
-                                                <th>Цена продажи</th>
-                                                <th>Старая цена</th>
-                                                <th>Цена закупки</th>
-                                                <th>Остаток</th>
-                                                <template v-if="prices && prices.length">
-                                                    <th v-for="price in prices">
-                                                        {{ price.title }}
-                                                    </th>
-                                                </template>
-                                                <th style="width: 100px;"></th>
-                                            </tr>
-                                            </thead>
-                                            <tbody v-if="product.variants && product.variants.length">
-
-                                            <tr v-for="variant in product.variants" :key="variant.id">
-                                                <td>
-                                                    <div class="flex justify-center">
-                                                        <input type="checkbox" class="checkbox"
-                                                               v-model="variantsToDeleteIds" :value="variant.id">
-                                                    </div>
-                                                </td>
-
-
-                                                <td>
-                                                    <div class="flex justify-center">
-                                                        <div class="image-button">
-                                                            <button
-                                                                @click="setSelectedVariant(variant)"
-                                                                v-if="variant.images && variant.images.length"
-                                                                data-toggle="modal" data-target="#bindImagesToVariant"
-                                                                type="button"
-                                                            >
-                                                                <img :src="variant.images[0].image_url" alt=""
-                                                                     width="100" height="100">
-                                                            </button>
-                                                            <button v-else
-                                                                    @click="setSelectedVariant(variant)"
-                                                                    data-toggle="modal"
-                                                                    data-target="#bindImagesToVariant"
-                                                                    type="button"
-                                                            >
-                                                                <img src="/storage/images/no-image.jpg" alt=""
-                                                                     width="100" height="100">
-                                                            </button>
+                                                    <th class="border-0"></th>
+                                                    <th class="border-0"></th>
+                                                    <th class="border-0"></th>
+                                                    <th class="border-0"></th>
+                                                    <th class="border-0"></th>
+                                                    <template v-if="prices && prices.length">
+                                                        <th class="border-0 " v-for="price in prices">
+                                                        </th>
+                                                    </template>
+                                                    <th class="border-0"></th>
+                                                </tr>
+                                                <tr>
+                                                    <th style="width: 50px">
+                                                        <div class="flex justify-center items-center">
+                                                            <input type="checkbox" @change="handleDeleteAllVariantsCheckboxClick">
                                                         </div>
-                                                    </div>
-                                                </td>
+                                                    </th>
+                                                    <th>Фото</th>
+                                                    <th>Цвет</th>
+                                                    <!--                                                <th>Цвет</th>-->
 
-                                                <td>
-                                                    <div class="flex justify-center items-center">
-                                                        <template v-if="variant?.material_unit_values?.find(value => value.color)">
-<!--                                                            <Link :href="`/admin/materials/`">-->
-<!--                                                                -->
-<!--                                                            </Link>-->
-                                                            <img :src="variant?.material_unit_values?.find(value => value.color).color.image_url" alt="" class="h-[50px] w-[50px] rounded-full">
-                                                        </template>
-                                                        <template>
-                                                            -
-                                                        </template>
-                                                    </div>
-                                                </td>
+                                                    <!--                                                <template v-if="product.option_names && product.option_names.length">-->
+                                                    <!--                                                    <th v-for="optionName in product.option_names">-->
+                                                    <!--                                                        <button-->
+                                                    <!--                                                            @click="setSelectedOptionName(optionName)"-->
+                                                    <!--                                                            type="button"-->
+                                                    <!--                                                            data-toggle="modal" data-target="#editOptionModal"-->
+                                                    <!--                                                        >-->
+                                                    <!--                                                            <span class="mr-1">{{ optionName.title }}</span>-->
+                                                    <!--                                                            <i class="fas fa-palette" v-if="optionName.is_color"></i>-->
+                                                    <!--                                                        </button>-->
+                                                    <!--                                                    </th>-->
+                                                    <!--                                                </template>-->
 
-                                                <template v-if="materials && materials.length">
-                                                    <template v-for="material in materials" :key="material.id">
-                                                        <template v-if="material.material_units && material.material_units.length">
-                                                            <template v-for="unit in material.material_units" :key="unit.id">
-
-<!--                                                                <template v-if="variant.material_unit_values && variant.material_unit_values.length">-->
-<!--                                                                    <template v-for="material_unit_value in variant.material_unit_values" :key="material_unit_value.id">-->
-<!--                                                                        <td v-if="material_unit_value.material_unit_id === unit.id">-->
-<!--                                                                            <div-->
-<!--                                                                                class="flex justify-center items-center"-->
-<!--                                                                                @click="handleMaterialUnitValueClick(material)"-->
-<!--                                                                                type="button"-->
-<!--                                                                                data-toggle="modal"-->
-<!--                                                                                data-target="#variantMaterialModal"-->
-<!--                                                                            >-->
-<!--                                                                                {{material_unit_value.value}}-->
-<!--                                                                            </div>-->
-<!--                                                                        </td>-->
-<!--                                                                    </template>-->
-<!--                                                                </template>-->
-
-                                                                <template v-if="variant.material_unit_values && variant.material_unit_values.length && variant.material_unit_values.find(value => +value.material_unit_id === +unit.id)">
-                                                                    <template v-for="material_unit_value in variant.material_unit_values" :key="material_unit_value.id">
-                                                                        <td v-if="+material_unit_value.material_unit_id === +unit.id">
-                                                                            <div
-                                                                                class="flex justify-center items-center"
-                                                                                @click="handleMaterialUnitValueClick(material, variant)"
-                                                                                type="button"
-                                                                                data-toggle="modal"
-                                                                                data-target="#variantMaterialModal"
-                                                                            >
-                                                                                {{material_unit_value.value}}
-                                                                            </div>
-                                                                        </td>
-                                                                    </template>
-                                                                </template>
-
-
-                                                                <td v-else>
-                                                                    <div class="flex justify-center items-center"
-                                                                         @click="handleMaterialUnitValueClick(material, variant)"
-                                                                         type="button"
-                                                                         data-toggle="modal" data-target="#variantMaterialModal"
-                                                                    >
-                                                                        -
-                                                                    </div>
-                                                                </td>
-
+                                                    <template v-if="materials && materials.length">
+                                                        <template v-for="material in materials">
+                                                            <template v-if="material.material_units && material.material_units.length">
+                                                                <th v-for="unit in material.material_units">
+                                                                    {{unit.title}}
+                                                                </th>
                                                             </template>
                                                         </template>
                                                     </template>
-                                                </template>
 
-<!--                                                <template v-for="name in product.option_names">-->
-<!--                                                    <template v-for="value in variant.option_values">-->
+                                                    <th>Артикул</th>
+                                                    <th>Цена продажи</th>
+                                                    <th>Старая цена</th>
+                                                    <th>Цена закупки</th>
+                                                    <th>Остаток</th>
+                                                    <template v-if="prices && prices.length">
+                                                        <th v-for="price in prices">
+                                                            {{ price.title }}
+                                                        </th>
+                                                    </template>
+                                                    <th style="width: 100px;"></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody v-if="product.variants && product.variants.length">
 
-<!--                                                        <td v-if="name.id == value.option_name_id">-->
-<!--                                                            <div class="flex justify-center previous-column">-->
-<!--                                                                <button-->
-<!--                                                                    data-toggle="modal"-->
-<!--                                                                    data-target="#changeVariantOptionsModal"-->
-<!--                                                                    type="button"-->
-<!--                                                                    @click="setSelectedVariant(variant)"-->
-<!--                                                                >{{ value.title }}-->
-<!--                                                                </button>-->
-<!--                                                            </div>-->
-<!--                                                        </td>-->
+                                                <tr v-for="variant in product.variants" :key="variant.id">
+                                                    <td>
+                                                        <div class="flex justify-center">
+                                                            <input type="checkbox" class="checkbox"
+                                                                   v-model="variantsToDeleteIds" :value="variant.id">
+                                                        </div>
+                                                    </td>
 
-<!--                                                    </template>-->
-<!--                                                </template>-->
 
-                                                <td>
-                                                    <div class="flex justify-center previous-column">
-                                                        <div data-field="code"
-                                                             @focusout="updateField($event, variant)"
-                                                             @focus="handleFocus"
-                                                             v-if="variant.code"
-                                                             contenteditable="true"
-                                                        >
-                                                            {{ variant.code }}
-                                                        </div>
-                                                        <div v-else
-                                                             data-field="code"
-                                                             @focusout="updateField($event, variant)"
-                                                             @focus="handleFocus"
-                                                             contenteditable="true"
-                                                        >
-                                                            —
-                                                        </div>
-
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="flex justify-center previous-column">
-                                                        <div
-                                                            v-if="variant.price" contenteditable="true"
-                                                            data-field="price"
-                                                            @focusout="updateField($event, variant)"
-                                                            @focus="handleFocus"
-                                                        >
-                                                            {{ variant.price }}
-
-                                                        </div>
-                                                        <div
-                                                            data-field="price"
-                                                            @focus="handleFocus"
-                                                            @focusout="updateField($event, variant)" v-else
-                                                            contenteditable="true"
-                                                        >
-                                                            —
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="flex justify-center previous-column">
-                                                        <div
-                                                            v-if="variant.old_price"
-                                                            contenteditable="true"
-                                                            data-field="old_price"
-                                                            @focusout="updateField($event, variant)"
-                                                            @focus="handleFocus"
-                                                        >
-                                                            {{ variant.old_price }}
-                                                        </div>
-                                                        <div
-                                                            v-else
-                                                            data-field="old_price"
-                                                            @focusout="updateField($event, variant)"
-                                                            @focus="handleFocus"
-                                                            contenteditable="true"
-                                                        >
-                                                            —
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="flex justify-center previous-column">
-                                                        <div
-                                                            v-if="variant.purchase_price"
-                                                            data-field="purchase_price"
-                                                            @focusout="updateField($event, variant)"
-                                                            contenteditable="true"
-                                                            @focus="handleFocus"
-                                                        >
-                                                            {{ variant.purchase_price }}
-                                                        </div>
-                                                        <div
-                                                            v-else
-                                                            data-field="purchase_price"
-                                                            @focus="handleFocus"
-                                                            @focusout="updateField($event, variant)"
-                                                            contenteditable="true">—
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                <td>
-                                                    <div class="flex justify-center previous-column">
-                                                        <div
-                                                            v-if="variant.quantity"
-                                                            data-field="quantity"
-                                                            @focusout="updateField($event, variant)"
-                                                            @focus="handleFocus"
-                                                            contenteditable="true"
-                                                        >
-                                                            {{ variant.quantity }}
-                                                        </div>
-                                                        <div
-                                                            v-else
-                                                            data-field="quantity"
-                                                            @focusout="updateField($event, variant)"
-                                                            @focus="handleFocus"
-                                                            contenteditable="true"
-                                                        >—
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                <template v-if="prices && prices.length">
-                                                    <td v-for="price in prices">
-
-                                                        <template v-for="variant_price in variant.prices">
-                                                            <div class="flex justify-center previous-column"
-                                                                 v-if="variant_price.price_id == price.id">
-                                                                <div
-                                                                    v-if="variant_price.price"
-                                                                    @focusout="updatePrice($event, variant_price)"
-                                                                    contenteditable="true"
-                                                                    @focus="handleFocus"
+                                                    <td>
+                                                        <div class="flex justify-center">
+                                                            <div class="image-button">
+                                                                <button
+                                                                    @click="setSelectedVariant(variant)"
+                                                                    v-if="variant.images && variant.images.length"
+                                                                    data-toggle="modal" data-target="#bindImagesToVariant"
+                                                                    type="button"
                                                                 >
-                                                                    {{ variant_price.price }}
-                                                                </div>
-                                                                <div
-                                                                    v-else
-                                                                    @focus="handleFocus"
-                                                                    @focusout="updatePrice($event, variant_price)"
-                                                                    contenteditable="true"
+                                                                    <img :src="variant.images[0].image_url" alt=""
+                                                                         width="100" height="100">
+                                                                </button>
+                                                                <button v-else
+                                                                        @click="setSelectedVariant(variant)"
+                                                                        data-toggle="modal"
+                                                                        data-target="#bindImagesToVariant"
+                                                                        type="button"
                                                                 >
-                                                                    —
-                                                                </div>
+                                                                    <img src="/storage/images/no-image.jpg" alt=""
+                                                                         width="100" height="100">
+                                                                </button>
                                                             </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="flex justify-center items-center">
+                                                            <template v-if="variant?.material_unit_values?.find(value => value.color)">
+                                                                <!--                                                            <Link :href="`/admin/materials/`">-->
+                                                                <!--                                                                -->
+                                                                <!--                                                            </Link>-->
+                                                                <img :src="variant?.material_unit_values?.find(value => value.color).color.image_url" alt="" class="h-[50px] w-[50px] rounded-full">
+                                                            </template>
+                                                            <template>
+                                                                -
+                                                            </template>
+                                                        </div>
+                                                    </td>
+
+                                                    <template v-if="materials && materials.length">
+                                                        <template v-for="material in materials" :key="material.id">
+                                                            <template v-if="material.material_units && material.material_units.length">
+                                                                <template v-for="unit in material.material_units" :key="unit.id">
+
+                                                                    <!--                                                                <template v-if="variant.material_unit_values && variant.material_unit_values.length">-->
+                                                                    <!--                                                                    <template v-for="material_unit_value in variant.material_unit_values" :key="material_unit_value.id">-->
+                                                                    <!--                                                                        <td v-if="material_unit_value.material_unit_id === unit.id">-->
+                                                                    <!--                                                                            <div-->
+                                                                    <!--                                                                                class="flex justify-center items-center"-->
+                                                                    <!--                                                                                @click="handleMaterialUnitValueClick(material)"-->
+                                                                    <!--                                                                                type="button"-->
+                                                                    <!--                                                                                data-toggle="modal"-->
+                                                                    <!--                                                                                data-target="#variantMaterialModal"-->
+                                                                    <!--                                                                            >-->
+                                                                    <!--                                                                                {{material_unit_value.value}}-->
+                                                                    <!--                                                                            </div>-->
+                                                                    <!--                                                                        </td>-->
+                                                                    <!--                                                                    </template>-->
+                                                                    <!--                                                                </template>-->
+
+                                                                    <template v-if="variant.material_unit_values && variant.material_unit_values.length && variant.material_unit_values.find(value => +value.material_unit_id === +unit.id)">
+                                                                        <template v-for="material_unit_value in variant.material_unit_values" :key="material_unit_value.id">
+                                                                            <td v-if="+material_unit_value.material_unit_id === +unit.id">
+                                                                                <div
+                                                                                    class="flex justify-center items-center"
+                                                                                    @click="handleMaterialUnitValueClick(material, variant)"
+                                                                                    type="button"
+                                                                                    data-toggle="modal"
+                                                                                    data-target="#variantMaterialModal"
+                                                                                >
+                                                                                    {{material_unit_value.value}}
+                                                                                </div>
+                                                                            </td>
+                                                                        </template>
+                                                                    </template>
+
+
+                                                                    <td v-else>
+                                                                        <div class="flex justify-center items-center"
+                                                                             @click="handleMaterialUnitValueClick(material, variant)"
+                                                                             type="button"
+                                                                             data-toggle="modal" data-target="#variantMaterialModal"
+                                                                        >
+                                                                            -
+                                                                        </div>
+                                                                    </td>
+
+                                                                </template>
+                                                            </template>
                                                         </template>
+                                                    </template>
+
+                                                    <!--                                                <template v-for="name in product.option_names">-->
+                                                    <!--                                                    <template v-for="value in variant.option_values">-->
+
+                                                    <!--                                                        <td v-if="name.id == value.option_name_id">-->
+                                                    <!--                                                            <div class="flex justify-center previous-column">-->
+                                                    <!--                                                                <button-->
+                                                    <!--                                                                    data-toggle="modal"-->
+                                                    <!--                                                                    data-target="#changeVariantOptionsModal"-->
+                                                    <!--                                                                    type="button"-->
+                                                    <!--                                                                    @click="setSelectedVariant(variant)"-->
+                                                    <!--                                                                >{{ value.title }}-->
+                                                    <!--                                                                </button>-->
+                                                    <!--                                                            </div>-->
+                                                    <!--                                                        </td>-->
+
+                                                    <!--                                                    </template>-->
+                                                    <!--                                                </template>-->
+
+                                                    <td>
+                                                        <div class="flex justify-center previous-column">
+                                                            <div data-field="code"
+                                                                 @focusout="updateField($event, variant)"
+                                                                 @focus="handleFocus"
+                                                                 v-if="variant.code"
+                                                                 contenteditable="true"
+                                                            >
+                                                                {{ variant.code }}
+                                                            </div>
+                                                            <div v-else
+                                                                 data-field="code"
+                                                                 @focusout="updateField($event, variant)"
+                                                                 @focus="handleFocus"
+                                                                 contenteditable="true"
+                                                            >
+                                                                —
+                                                            </div>
+
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="flex justify-center previous-column">
+                                                            <div
+                                                                v-if="variant.price" contenteditable="true"
+                                                                data-field="price"
+                                                                @focusout="updateField($event, variant)"
+                                                                @focus="handleFocus"
+                                                            >
+                                                                {{ variant.price }}
+
+                                                            </div>
+                                                            <div
+                                                                data-field="price"
+                                                                @focus="handleFocus"
+                                                                @focusout="updateField($event, variant)" v-else
+                                                                contenteditable="true"
+                                                            >
+                                                                —
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="flex justify-center previous-column">
+                                                            <div
+                                                                v-if="variant.old_price"
+                                                                contenteditable="true"
+                                                                data-field="old_price"
+                                                                @focusout="updateField($event, variant)"
+                                                                @focus="handleFocus"
+                                                            >
+                                                                {{ variant.old_price }}
+                                                            </div>
+                                                            <div
+                                                                v-else
+                                                                data-field="old_price"
+                                                                @focusout="updateField($event, variant)"
+                                                                @focus="handleFocus"
+                                                                contenteditable="true"
+                                                            >
+                                                                —
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="flex justify-center previous-column">
+                                                            <div
+                                                                v-if="variant.purchase_price"
+                                                                data-field="purchase_price"
+                                                                @focusout="updateField($event, variant)"
+                                                                contenteditable="true"
+                                                                @focus="handleFocus"
+                                                            >
+                                                                {{ variant.purchase_price }}
+                                                            </div>
+                                                            <div
+                                                                v-else
+                                                                data-field="purchase_price"
+                                                                @focus="handleFocus"
+                                                                @focusout="updateField($event, variant)"
+                                                                contenteditable="true">—
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="flex justify-center previous-column">
+                                                            <div
+                                                                v-if="variant.quantity"
+                                                                data-field="quantity"
+                                                                @focusout="updateField($event, variant)"
+                                                                @focus="handleFocus"
+                                                                contenteditable="true"
+                                                            >
+                                                                {{ variant.quantity }}
+                                                            </div>
+                                                            <div
+                                                                v-else
+                                                                data-field="quantity"
+                                                                @focusout="updateField($event, variant)"
+                                                                @focus="handleFocus"
+                                                                contenteditable="true"
+                                                            >—
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <template v-if="prices && prices.length">
+                                                        <td v-for="price in prices">
+
+                                                            <template v-for="variant_price in variant.prices">
+                                                                <div class="flex justify-center previous-column"
+                                                                     v-if="variant_price.price_id == price.id">
+                                                                    <div
+                                                                        v-if="variant_price.price"
+                                                                        @focusout="updatePrice($event, variant_price)"
+                                                                        contenteditable="true"
+                                                                        @focus="handleFocus"
+                                                                    >
+                                                                        {{ variant_price.price }}
+                                                                    </div>
+                                                                    <div
+                                                                        v-else
+                                                                        @focus="handleFocus"
+                                                                        @focusout="updatePrice($event, variant_price)"
+                                                                        contenteditable="true"
+                                                                    >
+                                                                        —
+                                                                    </div>
+                                                                </div>
+                                                            </template>
+
+                                                        </td>
+                                                    </template>
+
+
+                                                    <td style="width: 50px;">
+                                                        <button type="submit">Ред.</button>
 
                                                     </td>
-                                                </template>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
 
-
-                                                <td style="width: 50px;">
-                                                    <button type="submit">Ред.</button>
-
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
                                     </div>
                                 </div>
 
@@ -1269,10 +1272,9 @@ export default {
     outline: none;
 }
 table {
-    table-layout: fixed;
-    width: 100%;
-    border-collapse: collapse;
-    /*border: 1px solid black;*/
+    //table-layout: fixed;
+    //border-collapse: collapse;
+    ///*border: 1px solid black;*/
 }
 
 .variants-table th, .variants-table td {

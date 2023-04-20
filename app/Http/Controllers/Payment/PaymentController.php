@@ -6,9 +6,11 @@ use App\Enums\PaymentStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\StoreRequest;
 use App\Http\Services\Payment\YooKassaService;
+use App\Models\OrderHistory;
 use App\Models\Transaction;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
@@ -23,40 +25,38 @@ class PaymentController extends Controller
 
     public function store(StoreRequest $request, YooKassaService $yooKassaService)
     {
-        $user = Auth('sanctum')->user();
-
-        $data = $request->validated();
-        $user = $request->user();
-        $amount = $data['amount'];
-        $description = $data['description'];
-        $orderId = $data['order_id'];
-
-
-        try {
-          DB::beginTransaction();
-            $transaction = Transaction::create([
-                'amount' => $amount,
-                'user_id' => $user?->id,
-                'description' => $description,
-                'order_id' => $orderId
-            ]);
-
-            if ($transaction) {
-                $link = $yooKassaService->createPayment($amount, $description, [
-                    'transaction_id' => $transaction->id
-                ]);
-
-                if (isset($link)) {
-                    DB::commit();
-                    return $link;
-                }
-                throw ValidationException::withMessages(['message' => 'some_error']);
-            }
-            throw ValidationException::withMessages(['message' => 'some_error']);
-        } catch (\Exception $exception) {
-            DB::rollBack();
-            return Response::json(['errors' => $exception->getMessage()], 500);
-        }
+//        $user = Auth('sanctum')->user();
+//
+//        $data = $request->validated();
+//        $amount = $data['amount'];
+//        $description = $data['description'] ?? null;
+//        $orderId = $data['order_id'];
+//        try {
+//          DB::beginTransaction();
+//
+//            $transaction = Transaction::query()->create([
+//                'amount' => $amount,
+//                'user_id' => $user?->id,
+//                'description' => $description,
+//                'order_id' => $orderId
+//            ]);
+//
+//            if ($transaction) {
+//                $link = $yooKassaService->createPayment($amount, $description, [
+//                    'transaction_id' => $transaction->id
+//                ]);
+//
+//                if (isset($link)) {
+//                    DB::commit();
+//                    return $link;
+//                }
+//                throw ValidationException::withMessages(['message' => 'some_error']);
+//            }
+//            throw ValidationException::withMessages(['message' => 'some_error']);
+//        } catch (\Exception $exception) {
+//            DB::rollBack();
+//            return Response::json(['message' => $exception->getMessage()], 500);
+//        }
     }
 
     public function callback(YooKassaService $yooKassaService)
@@ -70,13 +70,17 @@ class PaymentController extends Controller
                 : new NotificationWaitingForCapture($requestBody);
             $payment = $notification->getObject();
 
+            $yooKassaService->checkStatus($payment);
+
             if (isset($payment->status) && $payment->status === 'waiting_for_capture') {
+
                 $client = $yooKassaService->getClient();
                 $client->capturePayment([
                     'amount' => $payment->amount,
                 ], $payment->id, uniqid('', true));
             }
             if (isset($payment->status) && $payment->status === 'canceled') {
+
                 $metadata = (object)$payment->metadata;
                 if(isset($metadata->transaction_id)) {
                     $transactionId = (int)$metadata->transaction_id;
@@ -85,17 +89,33 @@ class PaymentController extends Controller
                 }
             }
             if (isset($payment->status) && $payment->status === 'succeeded') {
+
+
                 if ((bool)$payment->paid === true) {
                     $metadata = (object)$payment->metadata;
                     if(isset($metadata->transaction_id)) {
                         $transactionId = (int)$metadata->transaction_id;
                         $transaction = Transaction::find($transactionId);
                         $transaction->update(['status' => PaymentStatusEnum::CONFIRMED]);
+                        $order = $transaction->order;
+                        $order->update(['is_payed' => true]);
+                        OrderHistory::create([
+                            'order_id' => $order->id,
+                            'note' => 'Пользователь оплатил заказ ' . Carbon::now()->format('d-m-Y H:i:s')
+                        ]);
+
                     }
                 }
             }
         } catch (\Exception $exception) {
             Log::error('payment_error  => ' . $exception->getMessage());
         }
+    }
+
+    public function tinkoffInstallmentCallback()
+    {
+        $source = file_get_contents('php://input');
+        $requestBody = json_decode($source, true);
+        Log::info($requestBody);
     }
 }
