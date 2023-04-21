@@ -389,7 +389,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-9">
                         <div class="card">
                             <div class="card-header text-center text-xl">
                                 <div class="p-2">Фотографии товара</div>
@@ -424,6 +424,10 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="col-3">
+                        <DeliveryCard :product-id="product.id"/>
                     </div>
                 </div>
 
@@ -551,7 +555,7 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="container-fluid overflow-x-scroll">
-                                            <table class="variants-table">
+                                            <table class="variants-table min-w-full">
                                                 <thead>
                                                 <tr>
                                                     <th class="border-0"></th>
@@ -927,10 +931,12 @@ import MaterialVariantModal from "@/Pages/Product/Modal/MaterialVariantModal.vue
 import {ModelSelect} from "vue-search-select";
 import Errors from "@/Components/Errors/Errors.vue";
 import ContentPreview from "@/Pages/Material/ContentPreview.vue";
+import DeliveryCard from "@/Pages/Product/Delivery/DeliveryCard.vue";
 
 export default {
     name: "Product",
     components: {
+        DeliveryCard,
         ContentPreview,
         Errors,
         MaterialVariantModal,

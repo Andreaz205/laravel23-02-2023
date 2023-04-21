@@ -11,6 +11,7 @@ use App\Models\OrderHistory;
 use App\Models\OrderVariantCopy;
 use App\Models\OrderVariants;
 use App\Models\Variant;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -23,6 +24,10 @@ class OrderController extends Controller
         $this->orderService = $service;
     }
 
+    /**
+     * @throws ValidationException
+     * @throws Exception
+     */
     public function store(Request $request, OrderService $orderService, PaymentService $paymentService)
     {
         $validator = Validator::make($request->all(), [
@@ -43,21 +48,29 @@ class OrderController extends Controller
             return response()->json(['errors' => $validator->messages()], 422);
         }
         $data = $validator->validated();
+
         $user = Auth('sanctum')->user();
         $userClass = get_class($user);
         if ($userClass === 'App\Models\Admin') $user = null;
-
-        if ($data['payment_variant'] === 'installment_tinkoff') {
-            if (! isset($data['tinkoff_application_id'])) throw ValidationException::withMessages(['Не указан id завяки на рассрочку!']);
-        }
-        $orderedVariantsArray = collect($data['variants']);
-        $orderedVariantsIds = $orderedVariantsArray->map(fn ($item) => $item['id']);
-
         if (isset($user)) $data['user_id'] = $user->id;
         unset($data['variants']);
 
+        if ($data['payment_variant'] === 'installment_tinkoff') {
+            if (! isset($data['tinkoff_application_id'])) {
+                throw ValidationException::withMessages(['Не указан id завяки на рассрочку!']);
+            } else {
+                $tinkoffApplicationId = $data['tinkoff_application_id'];
+                if ($isExists = Order::query()->where('tinkoff_application_id', $tinkoffApplicationId)->exists())
+                    throw ValidationException::withMessages(['Заказ с таким же номером заявки на рассрочку Tinkoff уже существует!']);;
+            }
+        }
+
+        $orderedVariantsArray = collect($data['variants']);
+        $orderedVariantsIds = $orderedVariantsArray->map(fn ($item) => $item['id']);
+
         $bonuses = $orderService->calculateBonuses($orderedVariantsIds, $user);
         $data['bonuses'] = $bonuses;
+
         try {
             DB::beginTransaction();
 
@@ -69,8 +82,6 @@ class OrderController extends Controller
             $sumData = $this->orderService->getOrderSumFromRequestWithPreparedPrices($orderedVariantsArray, $variants);
             $data['sum'] = $sumData['sum'];
             $data['purchase_sum'] = $sumData['purchase_sum'];
-
-
 
             $newOrder = Order::query()->create($data);
 
@@ -104,10 +115,8 @@ class OrderController extends Controller
                 $link = $paymentService->createPayment($newOrder, $user);
             }
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            dd($e);
-            throw new \Exception($e);
             return response()->json(['message' => $e->getMessage()], 500);
         }
         return response()->json([

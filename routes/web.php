@@ -90,6 +90,9 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::post('/products/{product}/accent-properties', [\App\Http\Controllers\AccentProperty\AccentPropertyController::class, 'bind']);
 
+    Route::get('/products/{product}/delivery-settings/yandex', [\App\Http\Controllers\Product\DeliverySettings\YandexController::class, 'index']);
+    Route::get('/products/{product}/delivery-settings/business-lines', [\App\Http\Controllers\Product\DeliverySettings\BusinessLinesController::class, 'index']);
+
     Route::get('/materials/variants-content', [\App\Http\Controllers\Variant\VariantContentController::class, 'index']);
     Route::get('/materials/variants-content/create', [\App\Http\Controllers\Variant\VariantContentController::class, 'create']);
     Route::post('/materials/variants-content', [\App\Http\Controllers\Variant\VariantContentController::class, 'store']);

@@ -24,3 +24,5 @@ class MainPageSaleSeeder extends Seeder
         }
     }
 }
+
+//        "staudenmeir/eloquent-eager-limit-x-laravel-adjacency-list": "1.0",
